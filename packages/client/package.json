@@ -1,0 +1,14 @@
+{
+  "name": "@ogm/client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Three.js browser client (filled in CP02).",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:prop": "vitest run"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "offered-grade-maze",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Offered Grade Maze: a first-person browser game in an impossible house.",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22.12.0 <23",
+    "pnpm": ">=9.15.0 <10"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint && node scripts/check-determinism-rule.mjs",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:prop": "turbo run test:prop",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:up": "docker compose -f docker/docker-compose.dev.yml up -d --wait",
+    "db:down": "docker compose -f docker/docker-compose.dev.yml down"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.20.4",
+    "@vitest/coverage-v8": "4.1.11",
+    "eslint": "10.11.0",
+    "eslint-config-prettier": "10.1.8",
+    "fast-check": "4.10.2",
+    "globals": "17.12.0",
+    "prettier": "3.9.8",
+    "turbo": "2.11.2",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1",
+    "vitest": "4.1.11"
+  }
+}
