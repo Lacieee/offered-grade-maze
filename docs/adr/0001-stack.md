@@ -53,6 +53,13 @@ Vite 8 switched its bundler to Rolldown and `@vitejs/plugin-react` 6 requires it
 is the mature line, is supported by Vitest 4.1, and is all CP02–CP10 need. Revisit after
 Release 1.0.
 
+### Added in CP03 (e2e)
+
+| Area      | Package             | Version      | Notes                                      |
+| --------- | ------------------- | ------------ | ------------------------------------------ |
+| E2E tests | @playwright/test    | 1.56.1       | Chromium 141, SwiftShader WebGL (ADR-0003) |
+| E2E tests | pngjs, @types/pngjs | 7.0.0, 6.0.5 | frame-difference metrics                   |
+
 Packages added by later checkpoints (Three.js, React, Vite, Fastify, Drizzle, Playwright…) are
 pinned the same way and appended to this table in the PR that introduces them.
 

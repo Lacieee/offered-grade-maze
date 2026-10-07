@@ -4,8 +4,9 @@ A first-person browser game set in an impossible house. Doors are seamless windo
 rooms, but they don't always lead back the way you came. Find the **Offered Grade** diploma
 (_Megajánlott jegy_) as fast as you can.
 
-> Status: **CP02 – Client engine core**. You can walk around a six-room fixture house
-> (doors are not see-through yet; portals arrive in CP03). See `docs/checkpoints/`.
+> Status: **CP03 – Portal rendering**. Every doorway of the six-room fixture house is a live,
+> seamless window into the room it leads to, and you can walk through. See
+> `docs/checkpoints/`.
 
 ## Prerequisites
 
@@ -46,7 +47,20 @@ Open <http://localhost:5173/?dev=fixtures&room=r00>. Click to lock the mouse, th
 - **W A S D** move (by key position, so QWERTZ and AZERTY work too), **mouse** looks around.
 - **1–6** jump to rooms r00–r05 (dev builds only).
 - **Esc** releases the mouse and stops movement.
-- Add `&perf=1` for the performance overlay (FPS, frame time avg/p95, draw calls).
+- Add `&perf=1` for the performance overlay (FPS, frame time avg/p95, draw calls, passes).
+- Add `&portalDebug=1` to tint portal levels (1 red, 2 green, 3 blue) and outline them.
+- Add `&quality=high` or `&quality=low` to pin portal quality (default: automatic).
+
+## End-to-end tests (Playwright)
+
+```sh
+pnpm --filter @ogm/e2e exec playwright install chromium   # once per machine
+pnpm test:e2e            # portal checks and visual baselines (starts its own dev server)
+pnpm test:e2e:update     # rewrite the baselines after an intended visual change
+```
+
+Baselines are per platform. On a new platform (for example the first run on macOS) the
+first run writes them and reports them as new; run it again to compare.
 
 ## Commands
 
@@ -58,6 +72,7 @@ Open <http://localhost:5173/?dev=fixtures&room=r00>. Click to lock the mouse, th
 | `pnpm typecheck`     | `tsc` in every package                                             |
 | `pnpm test`          | Vitest; `shared` and `generator` with coverage (≥ 90 % lines)      |
 | `pnpm test:prop`     | Property-based tests with 10 000 runs each                         |
+| `pnpm test:e2e`      | Playwright portal and visual tests (see above)                     |
 | `pnpm format`        | Formats with Prettier (`pnpm format:check` verifies)               |
 | `pnpm db:up/db:down` | Starts or stops the local PostgreSQL container                     |
 
