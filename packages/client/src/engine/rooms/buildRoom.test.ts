@@ -1,0 +1,194 @@
+import { DOOR_HEIGHT, DOOR_WIDTH, WALL_HALF, type RoomDTO } from '@ogm/shared';
+import * as THREE from 'three';
+import { describe, expect, it } from 'vitest';
+import { FIXTURE_ROOMS, fixtureRoom } from '../../dev/fixtures/index.js';
+import type { SegmentCollider } from '../player/physics.js';
+import { buildRoom } from './buildRoom.js';
+import {
+  CASING_DEPTH,
+  CASING_WIDTH,
+  DEFAULT_FURNITURE,
+  furnitureFootprint,
+  layoutRoom,
+  solidIntervals,
+} from './layout.js';
+import { HEMI_INTENSITY, POINT_LIGHT_SCALE } from './lightRig.js';
+
+const room = (id: string): RoomDTO => {
+  const r = fixtureRoom(id);
+  if (!r) throw new Error(`missing fixture ${id}`);
+  return r;
+};
+
+const segments = (r: RoomDTO, tag: SegmentCollider['tag']) =>
+  layoutRoom(r).colliders.filter(
+    (c): c is SegmentCollider => c.kind === 'segment' && c.tag === tag,
+  );
+
+describe('solidIntervals', () => {
+  it('cuts openings out of a range', () => {
+    expect(solidIntervals(-3, 3, [[-0.5, 0.5]])).toEqual([
+      [-3, -0.5],
+      [0.5, 3],
+    ]);
+    expect(
+      solidIntervals(0, 10, [
+        [6, 7],
+        [1, 2],
+      ]),
+    ).toEqual([
+      [0, 1],
+      [2, 6],
+      [7, 10],
+    ]);
+    expect(solidIntervals(0, 1, [[-1, 2]])).toEqual([]);
+    expect(solidIntervals(0, 1, [])).toEqual([[0, 1]]);
+  });
+});
+
+describe('furnitureFootprint', () => {
+  const base = { id: 'f00', prefab: 'desk', x: 1, z: 2, variant: 0, colors: [] };
+  it('uses params and swaps width and depth on odd quarter turns', () => {
+    const params = { w: 2, h: 0.7, d: 1 };
+    expect(furnitureFootprint({ ...base, rot: 0, params })).toEqual({
+      minX: 0,
+      maxX: 2,
+      minZ: 1.5,
+      maxZ: 2.5,
+      h: 0.7,
+    });
+    expect(furnitureFootprint({ ...base, rot: 1, params })).toMatchObject({
+      minX: 0.5,
+      maxX: 1.5,
+      minZ: 1,
+      maxZ: 3,
+    });
+  });
+
+  it('falls back to 0.6 × 0.8 × 0.6 m', () => {
+    const fp = furnitureFootprint({ ...base, rot: 2 });
+    expect(fp.maxX - fp.minX).toBeCloseTo(DEFAULT_FURNITURE.w);
+    expect(fp.h).toBe(DEFAULT_FURNITURE.h);
+  });
+});
+
+describe('layoutRoom', () => {
+  it('leaves a gap in the wall colliders at every door', () => {
+    // r03: 3.5 × 3.5, d1 on the N wall at offset 0.5 → opening x ∈ [0, 1].
+    const north = segments(room('r03'), 'wall').filter((s) => s.az === -1.75 && s.bz === -1.75);
+    expect(north.map((s) => [s.ax, s.bx])).toEqual([
+      [-1.75, 0],
+      [1, 1.75],
+    ]);
+  });
+
+  it('adds two jamb segments per door, from the footprint edge to the portal plane', () => {
+    const r = room('r00');
+    const jambs = segments(r, 'jamb');
+    expect(jambs).toHaveLength(r.doors.length * 2);
+    for (const j of jambs) {
+      expect(Math.hypot(j.bx - j.ax, j.bz - j.az)).toBeCloseTo(WALL_HALF);
+    }
+  });
+
+  it('blocks linked openings at the portal plane and sealed ones at the panel', () => {
+    const r = room('r01'); // d3 (E) is sealed, the rest are linked
+    expect(segments(r, 'portal-block')).toHaveLength(3);
+    const sealed = segments(r, 'sealed-door');
+    expect(sealed).toHaveLength(1);
+    const [s] = sealed;
+    // E wall at x = 2.5: panel inner face at 2.5 + 0.15 − 0.04.
+    expect(s?.ax).toBeCloseTo(2.5 + WALL_HALF - 0.04);
+    expect(Math.abs((s?.bz ?? 0) - (s?.az ?? 0))).toBeCloseTo(DOOR_WIDTH);
+  });
+
+  it('builds casings of the specified size and a door panel only for sealed doors', () => {
+    const { boxes } = layoutRoom(room('r01'));
+    const trim = boxes.filter((b) => b.mat === 'trim');
+    expect(trim).toHaveLength(4 * 3);
+    const depths = trim.map((b) => Math.min(b.max[0] - b.min[0], b.max[2] - b.min[2]));
+    for (const d of depths) expect(d).toBeCloseTo(CASING_DEPTH);
+    const head = trim.find((b) => b.min[1] === DOOR_HEIGHT);
+    expect(head && Math.max(head.max[0] - head.min[0], head.max[2] - head.min[2])).toBeCloseTo(
+      DOOR_WIDTH + 2 * CASING_WIDTH,
+    );
+    expect(boxes.filter((b) => b.mat === 'panel')).toHaveLength(1);
+    expect(boxes.filter((b) => b.mat === 'handle')).toHaveLength(1);
+  });
+
+  it('makes one furniture collider per item', () => {
+    const r = room('r05');
+    expect(layoutRoom(r).colliders.filter((c) => c.kind === 'box')).toHaveLength(
+      r.furniture.length,
+    );
+  });
+});
+
+describe('buildRoom', () => {
+  it.each(FIXTURE_ROOMS.map((r) => [r.id, r] as const))(
+    '%s: exactly 1 hemisphere light and 4 point lights',
+    (_id, dto) => {
+      const view = buildRoom(dto);
+      const hemis: THREE.HemisphereLight[] = [];
+      const points: THREE.PointLight[] = [];
+      view.scene.traverse((o) => {
+        if (o instanceof THREE.HemisphereLight) hemis.push(o);
+        if (o instanceof THREE.PointLight) points.push(o);
+      });
+      expect(hemis).toHaveLength(1);
+      expect(points).toHaveLength(4);
+      expect(view.lights.points).toHaveLength(4);
+      expect(hemis[0]?.intensity).toBe(HEMI_INTENSITY);
+      expect(points.map((p) => p.intensity)).toEqual([POINT_LIGHT_SCALE, 0, 0, 0]);
+      view.dispose();
+    },
+  );
+
+  it.each(FIXTURE_ROOMS.map((r) => [r.id, r] as const))(
+    '%s: at most 60 meshes (one draw call each)',
+    (_id, dto) => {
+      const view = buildRoom(dto);
+      let meshes = 0;
+      view.scene.traverse((o) => {
+        if (o instanceof THREE.Mesh) {
+          meshes++;
+          expect(Array.isArray(o.material)).toBe(false);
+        }
+      });
+      expect(meshes).toBeGreaterThan(0);
+      expect(meshes).toBeLessThanOrEqual(60);
+      view.dispose();
+    },
+  );
+
+  it('exposes every door with its frame, link and anchor', () => {
+    const view = buildRoom(room('r01'));
+    expect([...view.doors.keys()]).toEqual(['d0', 'd1', 'd2', 'd3']);
+    const d3 = view.doors.get('d3');
+    expect(d3?.link).toBeNull();
+    expect(d3?.anchor.position.x).toBeCloseTo(2.5 + WALL_HALF);
+    expect(view.doors.get('d0')?.link).toEqual({ room: 'r00', door: 'd0' });
+    view.dispose();
+  });
+
+  it('shows a placeholder for linked doors only and a panel for sealed ones', () => {
+    const names = (id: string) => {
+      const out: string[] = [];
+      buildRoom(room(id)).scene.traverse((o) => {
+        if (o instanceof THREE.Mesh) out.push(o.name);
+      });
+      return out;
+    };
+    expect(names('r01')).toEqual(expect.arrayContaining(['portal-placeholder', 'panel', 'handle']));
+    expect(names('r00')).not.toContain('panel');
+  });
+
+  it('builds a valid scene for a room without furniture or lights', () => {
+    const base = room('r03');
+    const view = buildRoom({ ...base, furniture: [], lights: [] });
+    expect(view.lights.points.every((p) => p.intensity === 0)).toBe(true);
+    expect(view.colliders.some((c) => c.kind === 'box')).toBe(false);
+    view.dispose();
+    expect(view.scene.children).toHaveLength(0);
+  });
+});

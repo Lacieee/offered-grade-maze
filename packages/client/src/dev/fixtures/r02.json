@@ -1,0 +1,103 @@
+{
+  "id": "r02",
+  "type": "bedroom",
+  "label": "room.bedroom",
+  "width": 5.0,
+  "depth": 5.5,
+  "height": 2.8,
+  "floor": "carpet",
+  "palette": {
+    "wall": "#c7c3e0",
+    "floor": "#6d6a8f",
+    "trim": "#efeef7",
+    "ceiling": "#f3f2f8"
+  },
+  "doors": [
+    {
+      "id": "d0",
+      "wall": "S",
+      "offset": 0.0,
+      "link": {
+        "room": "r03",
+        "door": "d0"
+      }
+    },
+    {
+      "id": "d1",
+      "wall": "E",
+      "offset": -1.0,
+      "link": {
+        "room": "r02",
+        "door": "d0"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "id": "f00",
+      "prefab": "bed",
+      "x": -1.4,
+      "z": -1.6,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#e8e2d4"],
+      "params": {
+        "w": 1.6,
+        "h": 0.5,
+        "d": 2.0
+      }
+    },
+    {
+      "id": "f01",
+      "prefab": "wardrobe",
+      "x": 1.0,
+      "z": -2.4,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#5e4630"],
+      "params": {
+        "w": 1.2,
+        "h": 2.0,
+        "d": 0.6
+      }
+    },
+    {
+      "id": "f02",
+      "prefab": "nightstand",
+      "x": -0.25,
+      "z": -2.45,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#7a5c40"],
+      "params": {
+        "w": 0.45,
+        "h": 0.55,
+        "d": 0.45
+      }
+    },
+    {
+      "id": "f03",
+      "prefab": "desk",
+      "x": -1.9,
+      "z": 1.9,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#8c6b4a"],
+      "params": {
+        "w": 1.1,
+        "h": 0.75,
+        "d": 0.6
+      }
+    }
+  ],
+  "lights": [
+    {
+      "kind": "ceiling",
+      "x": 0,
+      "y": 2.6,
+      "z": 0,
+      "color": "#ffe9d2",
+      "intensity": 1.0
+    }
+  ]
+}

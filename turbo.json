@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "tsconfig*.json", "package.json"],
+      "inputs": ["src/**", "tsconfig*.json", "package.json", "index.html", "vite.config.ts"],
       "outputs": ["dist/**"]
     },
     "typecheck": {
@@ -23,10 +23,6 @@
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "@ogm/client#build": {
-      "dependsOn": ["^build"],
-      "outputs": []
     }
   }
 }

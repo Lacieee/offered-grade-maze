@@ -1,0 +1,122 @@
+{
+  "id": "r05",
+  "type": "study",
+  "label": "room.study",
+  "width": 4.5,
+  "depth": 4.5,
+  "height": 2.8,
+  "floor": "carpet",
+  "palette": {
+    "wall": "#a9b89a",
+    "floor": "#4f5b45",
+    "trim": "#e8eadf",
+    "ceiling": "#eef0e8"
+  },
+  "doors": [
+    {
+      "id": "d0",
+      "wall": "S",
+      "offset": -0.5,
+      "link": {
+        "room": "r03",
+        "door": "d1"
+      }
+    },
+    {
+      "id": "d1",
+      "wall": "W",
+      "offset": 0.75,
+      "link": {
+        "room": "r04",
+        "door": "d1"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "id": "f00",
+      "prefab": "desk",
+      "x": 0.6,
+      "z": -1.85,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#6a4a30"],
+      "params": {
+        "w": 1.4,
+        "h": 0.75,
+        "d": 0.7
+      }
+    },
+    {
+      "id": "f01",
+      "prefab": "office_chair",
+      "x": 0.6,
+      "z": -1.15,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#222428"],
+      "params": {
+        "w": 0.55,
+        "h": 0.9,
+        "d": 0.55
+      }
+    },
+    {
+      "id": "f02",
+      "prefab": "bookshelf",
+      "x": 2.05,
+      "z": 0.2,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#5a3f2a"],
+      "params": {
+        "w": 1.2,
+        "h": 1.9,
+        "d": 0.35
+      }
+    },
+    {
+      "id": "f03",
+      "prefab": "filing_cabinet",
+      "x": -1.9,
+      "z": 1.85,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#7d8389"],
+      "params": {
+        "w": 0.5,
+        "h": 1.1,
+        "d": 0.6
+      }
+    },
+    {
+      "id": "f04",
+      "prefab": "globe",
+      "x": -1.7,
+      "z": -1.9,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#2f6f8f"],
+      "params": {
+        "w": 0.5,
+        "h": 1.0,
+        "d": 0.5
+      }
+    }
+  ],
+  "lights": [
+    {
+      "kind": "ceiling",
+      "x": 0,
+      "y": 2.6,
+      "z": 0,
+      "color": "#ffefd6",
+      "intensity": 1.0
+    }
+  ],
+  "goal": {
+    "x": 0,
+    "y": 1.2,
+    "z": 0.6
+  }
+}

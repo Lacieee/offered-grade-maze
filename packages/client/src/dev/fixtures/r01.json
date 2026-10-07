@@ -1,0 +1,118 @@
+{
+  "id": "r01",
+  "type": "kitchen",
+  "label": "room.kitchen",
+  "width": 5.0,
+  "depth": 5.0,
+  "height": 2.8,
+  "floor": "tile",
+  "palette": {
+    "wall": "#cfe3d6",
+    "floor": "#b9bcbf",
+    "trim": "#ffffff",
+    "ceiling": "#f7f7f5"
+  },
+  "doors": [
+    {
+      "id": "d0",
+      "wall": "S",
+      "offset": 0.5,
+      "link": {
+        "room": "r00",
+        "door": "d0"
+      }
+    },
+    {
+      "id": "d1",
+      "wall": "W",
+      "offset": -0.75,
+      "link": {
+        "room": "r00",
+        "door": "d2"
+      }
+    },
+    {
+      "id": "d2",
+      "wall": "N",
+      "offset": 1.0,
+      "link": {
+        "room": "r02",
+        "door": "d0"
+      }
+    },
+    {
+      "id": "d3",
+      "wall": "E",
+      "offset": 0.0,
+      "link": null
+    }
+  ],
+  "furniture": [
+    {
+      "id": "f00",
+      "prefab": "counter",
+      "x": -1.4,
+      "z": -2.2,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#e9e4da"],
+      "params": {
+        "w": 1.6,
+        "h": 0.9,
+        "d": 0.6
+      }
+    },
+    {
+      "id": "f01",
+      "prefab": "fridge",
+      "x": 2.1,
+      "z": -2.1,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#dfe6ea"],
+      "params": {
+        "w": 0.7,
+        "h": 1.8,
+        "d": 0.7
+      }
+    },
+    {
+      "id": "f02",
+      "prefab": "dining_table",
+      "x": 1.2,
+      "z": 1.6,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#a0754d"],
+      "params": {
+        "w": 1.2,
+        "h": 0.75,
+        "d": 0.8
+      }
+    },
+    {
+      "id": "f03",
+      "prefab": "stove",
+      "x": -2.15,
+      "z": -1.0,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#404448"],
+      "params": {
+        "w": 0.6,
+        "h": 0.9,
+        "d": 0.6
+      }
+    }
+  ],
+  "lights": [
+    {
+      "kind": "ceiling",
+      "x": 0,
+      "y": 2.6,
+      "z": 0,
+      "color": "#f4f8ff",
+      "intensity": 1.0
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "id": "r04",
+  "type": "hallway",
+  "label": "room.hallway",
+  "width": 2.5,
+  "depth": 8.0,
+  "height": 2.8,
+  "floor": "wood",
+  "palette": {
+    "wall": "#e6d3b8",
+    "floor": "#9b6b43",
+    "trim": "#fbf7f0",
+    "ceiling": "#f5efe6"
+  },
+  "doors": [
+    {
+      "id": "d0",
+      "wall": "S",
+      "offset": 0.0,
+      "link": {
+        "room": "r00",
+        "door": "d1"
+      }
+    },
+    {
+      "id": "d1",
+      "wall": "N",
+      "offset": 0.0,
+      "link": {
+        "room": "r05",
+        "door": "d1"
+      }
+    },
+    {
+      "id": "d2",
+      "wall": "E",
+      "offset": 2.0,
+      "link": {
+        "room": "r01",
+        "door": "d1"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "id": "f00",
+      "prefab": "coat_rack",
+      "x": -1.0,
+      "z": 1.5,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#3d2b1f"],
+      "params": {
+        "w": 0.4,
+        "h": 1.8,
+        "d": 0.4
+      }
+    },
+    {
+      "id": "f01",
+      "prefab": "shoe_cabinet",
+      "x": -1.05,
+      "z": -1.5,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#8f6a48"],
+      "params": {
+        "w": 0.9,
+        "h": 0.5,
+        "d": 0.35
+      }
+    },
+    {
+      "id": "f02",
+      "prefab": "console_table",
+      "x": 1.05,
+      "z": -0.5,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#6e4f35"],
+      "params": {
+        "w": 1.0,
+        "h": 0.8,
+        "d": 0.35
+      }
+    }
+  ],
+  "lights": [
+    {
+      "kind": "ceiling",
+      "x": 0,
+      "y": 2.6,
+      "z": 0,
+      "color": "#fff0d8",
+      "intensity": 1.0
+    }
+  ]
+}
