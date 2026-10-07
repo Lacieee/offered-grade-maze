@@ -65,7 +65,13 @@ export interface WallLayout {
 export interface RoomLayout {
   walls: WallLayout[];
   boxes: LayoutBox[];
+  /** Permanent colliders: walls, jambs, sealed doors, furniture. */
   colliders: Collider[];
+  /**
+   * A segment across each linked opening at the portal plane. Only active while the target
+   * room is not loaded, so the player can never walk out of the house (CP03, CP08 streaming).
+   */
+  portalBlocks: Map<string, SegmentCollider>;
   doors: { dto: DoorDTO; frame: DoorFrame }[];
 }
 
@@ -174,6 +180,7 @@ function wallLayout(room: RoomDTO, wall: Wall, doors: RoomLayout['doors']): Wall
 export function layoutRoom(room: RoomDTO): RoomLayout {
   const boxes: LayoutBox[] = [];
   const colliders: Collider[] = [];
+  const portalBlocks = new Map<string, SegmentCollider>();
   const doors = room.doors.map((dto) => ({ dto, frame: doorFrame(room, dto) }));
   const walls = WALLS.map((wall) => wallLayout(room, wall, doors));
 
@@ -219,8 +226,7 @@ export function layoutRoom(room: RoomDTO): RoomLayout {
       boxes.push(wallBox(w, 'handle', [c + 0.3, c + 0.4], [t1, t1 + 0.06], [0.95, 1.05]));
       colliders.push(segment(w, [l, t1], [r, t1], 'sealed-door'));
     } else {
-      // Linked: blocked at the portal plane until portals arrive (CP03).
-      colliders.push(segment(w, [l, -WALL_HALF], [r, -WALL_HALF], 'portal-block'));
+      portalBlocks.set(door.id, segment(w, [l, -WALL_HALF], [r, -WALL_HALF], 'portal-block'));
     }
   }
 
@@ -242,5 +248,5 @@ export function layoutRoom(room: RoomDTO): RoomLayout {
     colliders.push(box);
   }
 
-  return { walls, boxes, colliders, doors };
+  return { walls, boxes, colliders, portalBlocks, doors };
 }

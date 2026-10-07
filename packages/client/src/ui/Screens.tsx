@@ -74,3 +74,12 @@ export function DevHud() {
     </div>
   );
 }
+
+/** Shown while the WebGL context is lost and being restored. */
+export function GraphicsReset() {
+  return (
+    <div className="graphics-reset" role="status" data-testid="graphics-reset">
+      Graphics reset — restoring…
+    </div>
+  );
+}

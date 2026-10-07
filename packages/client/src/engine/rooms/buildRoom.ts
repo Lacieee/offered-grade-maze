@@ -6,7 +6,6 @@
  */
 import {
   DOOR_HEIGHT,
-  DOOR_WIDTH,
   WALL_HALF,
   type DoorFrame,
   type DoorId,
@@ -16,7 +15,8 @@ import {
 } from '@ogm/shared';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import type { Collider } from '../player/physics.js';
+import type { Collider, SegmentCollider } from '../player/physics.js';
+import { createPortalView, type PortalView } from '../portals/PortalMesh.js';
 import { HANDLE_COLOR, layoutRoom, type MaterialKey, type WallLayout } from './layout.js';
 import { createLightRig, type LightRig } from './lightRig.js';
 
@@ -36,7 +36,11 @@ export interface RoomView {
   scene: THREE.Scene;
   /** Collision geometry in room coordinates. */
   colliders: Collider[];
+  /** Colliders closing linked doorways whose target room is not loaded. */
+  portalBlocks: Map<DoorId, SegmentCollider>;
   doors: Map<DoorId, RoomDoor>;
+  /** Portal meshes of the linked doors. */
+  portals: Map<DoorId, PortalView>;
   lights: LightRig;
   /** Frees GPU resources (geometries and materials). */
   dispose(): void;
@@ -86,6 +90,18 @@ export function wallGeometries(w: WallLayout, height: number): THREE.BufferGeome
   return parts;
 }
 
+/** Max floor/ceiling tile size (m). */
+const PLANE_TILE = 0.5;
+
+function footprintPlane(dto: RoomDTO): THREE.PlaneGeometry {
+  return new THREE.PlaneGeometry(
+    dto.width,
+    dto.depth,
+    Math.ceil(dto.width / PLANE_TILE),
+    Math.ceil(dto.depth / PLANE_TILE),
+  );
+}
+
 function materialFor(key: MaterialKey, dto: RoomDTO): THREE.Material {
   const color = (hex: string) => new THREE.MeshLambertMaterial({ color: new THREE.Color(hex) });
   switch (key) {
@@ -127,8 +143,10 @@ export function buildRoom(dto: RoomDTO): RoomView {
   for (const w of layout.walls) {
     for (const g of wallGeometries(w, dto.height)) add('wall', g);
   }
-  // Floor and ceiling planes covering the footprint.
-  const floor = new THREE.PlaneGeometry(dto.width, dto.depth);
+  // Floor and ceiling planes covering the footprint, tessellated into ≤ 0.5 m tiles: big
+  // triangles with a vertex on the camera plane (the camera passes the footprint edge at
+  // every door) interpolate lighting badly on some GPUs (seen in SwiftShader).
+  const floor = footprintPlane(dto);
   floor.rotateX(-Math.PI / 2);
   add('floor', floor);
 
@@ -153,14 +171,14 @@ export function buildRoom(dto: RoomDTO): RoomView {
     addMesh(key, merged, materialFor(key, dto));
   }
 
-  const ceiling = new THREE.PlaneGeometry(dto.width, dto.depth);
+  const ceiling = footprintPlane(dto);
   ceiling.rotateX(Math.PI / 2);
   ceiling.translate(0, dto.height, 0);
   addMesh('ceiling', ceiling, new THREE.MeshLambertMaterial({ color: dto.palette.ceiling }));
 
-  // Doors: anchors for every door; a black placeholder in linked openings (portal in CP03).
+  // Doors: an anchor for every door and a portal box behind every linked doorway.
   const doors = new Map<DoorId, RoomDoor>();
-  const placeholderParts: THREE.BufferGeometry[] = [];
+  const portals = new Map<DoorId, PortalView>();
   for (const { dto: door, frame } of layout.doors) {
     const anchor = new THREE.Object3D();
     anchor.name = `door:${door.id}`;
@@ -170,17 +188,12 @@ export function buildRoom(dto: RoomDTO): RoomView {
     scene.add(anchor);
     doors.set(door.id, { frame, link: door.link, anchor });
     if (door.link !== null) {
-      // A plane in the door's local XY plane faces local +Z, i.e. into the room.
-      const plane = new THREE.PlaneGeometry(DOOR_WIDTH, DOOR_HEIGHT);
-      plane.translate(0, DOOR_HEIGHT / 2, 0);
-      plane.applyMatrix4(anchor.matrix);
-      placeholderParts.push(plane);
+      const portal = createPortalView(anchor.matrix, `portal:${door.id}`);
+      scene.add(portal.mesh);
+      geometries.push(portal.mesh.geometry);
+      materials.push(portal.mesh.material);
+      portals.set(door.id, portal);
     }
-  }
-  if (placeholderParts.length > 0) {
-    const merged = mergeGeometries(placeholderParts, false);
-    for (const p of placeholderParts) p.dispose();
-    addMesh('portal-placeholder', merged, new THREE.MeshBasicMaterial({ color: 0x000000 }));
   }
 
   const lights = createLightRig(dto);
@@ -197,7 +210,9 @@ export function buildRoom(dto: RoomDTO): RoomView {
     dto,
     scene,
     colliders: layout.colliders,
+    portalBlocks: layout.portalBlocks,
     doors,
+    portals,
     lights,
     dispose() {
       for (const g of geometries) g.dispose();

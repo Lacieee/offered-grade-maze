@@ -1,12 +1,19 @@
 /**
  * The client's world store: built rooms cached by ID. Rooms are immutable for the life of a
- * game, so a room is built once and its scene is reused wherever it appears.
+ * game, so a room is built once and its scene is reused wherever it appears (current room,
+ * behind several portals, through a self-link).
  */
 import type { RoomDTO, RoomId } from '@ogm/shared';
 import { buildRoom, type RoomView } from '../rooms/buildRoom.js';
 
 export class World {
   private readonly rooms = new Map<RoomId, RoomView>();
+  private versionValue = 0;
+
+  /** Increases whenever rooms are added or rebuilt (for caches that depend on the set). */
+  get version(): number {
+    return this.versionValue;
+  }
 
   /** Builds and caches the rooms not cached yet. Returns the newly built views. */
   load(dtos: readonly RoomDTO[]): RoomView[] {
@@ -17,12 +24,28 @@ export class World {
       this.rooms.set(dto.id, view);
       built.push(view);
     }
+    if (built.length > 0) this.versionValue++;
     return built;
+  }
+
+  /**
+   * Rebuilds every room from its cached `RoomDTO` (after a WebGL context loss). The old
+   * views are dropped without GPU disposal: their resources died with the old context.
+   */
+  rebuild(): RoomView[] {
+    const dtos = [...this.rooms.values()].map((v) => v.dto);
+    this.rooms.clear();
+    return this.load(dtos);
   }
 
   /** The cached room, if loaded. */
   get(id: RoomId): RoomView | undefined {
     return this.rooms.get(id);
+  }
+
+  /** True if the room is loaded. */
+  has(id: RoomId): boolean {
+    return this.rooms.has(id);
   }
 
   /** IDs of every cached room, sorted. */
@@ -34,5 +57,6 @@ export class World {
   dispose(): void {
     for (const view of this.rooms.values()) view.dispose();
     this.rooms.clear();
+    this.versionValue++;
   }
 }

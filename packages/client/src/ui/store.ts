@@ -12,10 +12,13 @@ export interface UiState {
   engine: Engine | null;
   room: RoomId | null;
   pointerLocked: boolean;
+  /** The WebGL context is lost and being restored. */
+  graphicsReset: boolean;
   setStatus(status: AppStatus, error?: string): void;
   setEngine(engine: Engine | null): void;
   setRoom(room: RoomId): void;
   setPointerLocked(locked: boolean): void;
+  setGraphicsReset(resetting: boolean): void;
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -24,6 +27,7 @@ export const useUiStore = create<UiState>()((set) => ({
   engine: null,
   room: null,
   pointerLocked: false,
+  graphicsReset: false,
   setStatus: (status, error) => {
     set({ status, error: error ?? null });
   },
@@ -35,5 +39,8 @@ export const useUiStore = create<UiState>()((set) => ({
   },
   setPointerLocked: (pointerLocked) => {
     set({ pointerLocked });
+  },
+  setGraphicsReset: (graphicsReset) => {
+    set({ graphicsReset });
   },
 }));

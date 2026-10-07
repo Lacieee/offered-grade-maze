@@ -91,9 +91,14 @@ describe('layoutRoom', () => {
     }
   });
 
-  it('blocks linked openings at the portal plane and sealed ones at the panel', () => {
+  it('closes sealed doors at the panel; linked openings get a conditional portal block', () => {
     const r = room('r01'); // d3 (E) is sealed, the rest are linked
-    expect(segments(r, 'portal-block')).toHaveLength(3);
+    expect(segments(r, 'portal-block')).toHaveLength(0);
+    const blocks = layoutRoom(r).portalBlocks;
+    expect([...blocks.keys()].sort()).toEqual(['d0', 'd1', 'd2']);
+    for (const b of blocks.values()) {
+      expect(Math.hypot(b.bx - b.ax, b.bz - b.az)).toBeCloseTo(DOOR_WIDTH);
+    }
     const sealed = segments(r, 'sealed-door');
     expect(sealed).toHaveLength(1);
     const [s] = sealed;
@@ -171,7 +176,7 @@ describe('buildRoom', () => {
     view.dispose();
   });
 
-  it('shows a placeholder for linked doors only and a panel for sealed ones', () => {
+  it('adds a portal box for linked doors only and a panel for sealed ones', () => {
     const names = (id: string) => {
       const out: string[] = [];
       buildRoom(room(id)).scene.traverse((o) => {
@@ -179,8 +184,29 @@ describe('buildRoom', () => {
       });
       return out;
     };
-    expect(names('r01')).toEqual(expect.arrayContaining(['portal-placeholder', 'panel', 'handle']));
+    expect(names('r01')).toEqual(
+      expect.arrayContaining(['portal:d0', 'portal:d1', 'portal:d2', 'panel', 'handle']),
+    );
+    expect(names('r01')).not.toContain('portal:d3');
     expect(names('r00')).not.toContain('panel');
+  });
+
+  it('places each portal box behind the portal plane, 1.0 × 2.1 × 0.25 m, double-sided', () => {
+    const view = buildRoom(room('r00'));
+    const portal = view.portals.get('d0');
+    const door = view.doors.get('d0');
+    if (!portal || !door) throw new Error('missing portal');
+    const box = new THREE.Box3().setFromBufferAttribute(
+      portal.mesh.geometry.getAttribute('position') as THREE.BufferAttribute,
+    );
+    // r00.d0 is on the N wall (portal plane z = −3.75 − 0.15): box spans z ∈ [−4.15, −3.9].
+    expect(box.min.z).toBeCloseTo(-3.9 - 0.25);
+    expect(box.max.z).toBeCloseTo(-3.9);
+    expect(box.max.x - box.min.x).toBeCloseTo(DOOR_WIDTH);
+    expect(box.max.y - box.min.y).toBeCloseTo(DOOR_HEIGHT);
+    expect(portal.mesh.material.side).toBe(THREE.DoubleSide);
+    expect(view.portals.size).toBe(3);
+    view.dispose();
   });
 
   it('builds a valid scene for a room without furniture or lights', () => {

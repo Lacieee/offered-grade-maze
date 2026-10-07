@@ -25,7 +25,7 @@ export interface SegmentCollider {
   az: number;
   bx: number;
   bz: number;
-  /** `portal-block` marks the temporary segment across a linked doorway (removed in CP03). */
+  /** `portal-block` closes a linked doorway whose target room is not loaded. */
   tag?: 'wall' | 'jamb' | 'sealed-door' | 'portal-block';
 }
 

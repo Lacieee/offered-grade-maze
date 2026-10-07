@@ -99,3 +99,13 @@ body,
     monospace;
   border-radius: 4px;
 }
+
+.graphics-reset {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b0b0d;
+  font-size: 1.2rem;
+}
