@@ -1,0 +1,24 @@
+# Local development database (CP01 T2). The full app stack arrives in CP07.
+# Start: pnpm db:up   Stop: pnpm db:down   Reset data: docker compose -f docker/docker-compose.dev.yml down -v
+name: ogm-dev
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ogm
+      POSTGRES_PASSWORD: ogm
+      POSTGRES_DB: ogm
+    ports:
+      - '5432:5432'
+    volumes:
+      - ogm-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ogm -d ogm']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  ogm-db-data:
