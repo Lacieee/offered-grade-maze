@@ -4,8 +4,8 @@ A first-person browser game set in an impossible house. Doors are seamless windo
 rooms, but they don't always lead back the way you came. Find the **Offered Grade** diploma
 (_Megajánlott jegy_) as fast as you can.
 
-> Status: **CP01 – Foundations**. The repository, tooling and shared contracts are in place.
-> The game itself arrives in later checkpoints (`docs/checkpoints/`).
+> Status: **CP02 – Client engine core**. You can walk around a six-room fixture house
+> (doors are not see-through yet; portals arrive in CP03). See `docs/checkpoints/`.
 
 ## Prerequisites
 
@@ -34,12 +34,26 @@ docker compose -f docker/docker-compose.dev.yml exec db psql -U ogm -c 'select 1
 Stop it with `pnpm db:down`. Delete its data with
 `docker compose -f docker/docker-compose.dev.yml down -v`.
 
+## Run the engine (dev)
+
+```sh
+pnpm install
+pnpm dev                 # or: pnpm --filter @ogm/client dev
+```
+
+Open <http://localhost:5173/?dev=fixtures&room=r00>. Click to lock the mouse, then:
+
+- **W A S D** move (by key position, so QWERTZ and AZERTY work too), **mouse** looks around.
+- **1–6** jump to rooms r00–r05 (dev builds only).
+- **Esc** releases the mouse and stops movement.
+- Add `&perf=1` for the performance overlay (FPS, frame time avg/p95, draw calls).
+
 ## Commands
 
 | Command              | What it does                                                       |
 | -------------------- | ------------------------------------------------------------------ |
 | `pnpm build`         | Builds every package (Turborepo, cached)                           |
-| `pnpm dev`           | Starts development servers (from CP02)                             |
+| `pnpm dev`           | Starts the client dev server (http://localhost:5173)               |
 | `pnpm lint`          | ESLint with type information, plus the generator determinism guard |
 | `pnpm typecheck`     | `tsc` in every package                                             |
 | `pnpm test`          | Vitest; `shared` and `generator` with coverage (≥ 90 % lines)      |
@@ -60,7 +74,7 @@ packages/
   shared/            @ogm/shared: seed codec, door geometry, Zod DTOs
   generator/         @ogm/generator: deterministic PRNG (level generation from CP04)
   server/            @ogm/server: Fastify backend (CP07)
-  client/            @ogm/client: Three.js client (CP02)
+  client/            @ogm/client: Three.js engine and React UI shell
 e2e/                 Playwright tests (CP03, CP10)
 docker/              Docker Compose files
 .github/workflows/   CI

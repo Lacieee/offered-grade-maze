@@ -34,6 +34,25 @@ compatible with the rest of the toolchain.
 | Node types      | @types/node                 | 22.20.4     | matches the Node 22 runtime                              |
 | Database (dev)  | postgres (Docker image)     | 16          | `docker/docker-compose.dev.yml`                          |
 
+### Added in CP02 (client)
+
+| Area     | Package                   | Version | Notes                                  |
+| -------- | ------------------------- | ------- | -------------------------------------- |
+| 3D       | three, @types/three       | 0.186.0 | WebGL2 renderer, `BufferGeometryUtils` |
+| UI shell | react, react-dom          | 18.3.1  | menus and overlays only                |
+| UI types | @types/react              | 18.3.31 |                                        |
+| UI types | @types/react-dom          | 18.3.7  |                                        |
+| UI state | zustand                   | 5.0.15  |                                        |
+| Build    | vite                      | 7.3.6   | see "Vite 7, not 8" below              |
+| Build    | @vitejs/plugin-react      | 5.2.0   | last line that supports Vite 7         |
+| Lint     | eslint-plugin-react-hooks | 7.1.1   | `.tsx` files in the client             |
+
+#### Vite 7, not 8
+
+Vite 8 switched its bundler to Rolldown and `@vitejs/plugin-react` 6 requires it. Vite 7.3
+is the mature line, is supported by Vitest 4.1, and is all CP02–CP10 need. Revisit after
+Release 1.0.
+
 Packages added by later checkpoints (Three.js, React, Vite, Fastify, Drizzle, Playwright…) are
 pinned the same way and appended to this table in the PR that introduces them.
 

@@ -75,6 +75,7 @@ client ──► shared ◄── generator ◄── server
 
 ```sh
 pnpm install          # once
+pnpm dev              # client dev server: http://localhost:5173/?dev=fixtures&room=r00
 pnpm build            # build every package (turbo, cached)
 pnpm lint             # ESLint (type-aware) + determinism guard
 pnpm typecheck        # tsc --noEmit everywhere
