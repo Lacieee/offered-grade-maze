@@ -9,7 +9,7 @@ rooms, but they don't always lead back the way you came. Find the **Offered Grad
 
 ## Prerequisites
 
-- **Node.js 22 LTS** (`nvm use` reads `.nvmrc`)
+- **Node.js 22 or 24 LTS** (`.nvmrc` pins 22, the CI baseline; 24 is also tested in CI)
 - **pnpm 9** (`corepack enable` picks up the pinned version from `package.json`)
 - **Docker Desktop** (for the local PostgreSQL database)
 

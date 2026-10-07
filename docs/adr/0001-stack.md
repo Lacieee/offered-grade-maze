@@ -16,26 +16,32 @@ All versions are pinned exactly in `package.json` (no `^`/`~`) and locked in `pn
 We pick the newest release that was at least two weeks old when CP01 started and that is
 compatible with the rest of the toolchain.
 
-| Area            | Package                     | Version | Notes                                            |
-| --------------- | --------------------------- | ------- | ------------------------------------------------ |
-| Runtime         | Node.js                     | 22 LTS  | `.nvmrc`; `engines` ≥ 22.12                      |
-| Package manager | pnpm                        | 9.15.9  | `packageManager` field; workspaces               |
-| Task runner     | turbo                       | 2.11.2  | cached `build`, `lint`, `typecheck`, `test`      |
-| Language        | typescript                  | 6.0.3   | see "TypeScript 6, not 7" below                  |
-| Lint            | eslint                      | 10.11.0 | flat config                                      |
-| Lint            | @eslint/js                  | 10.0.1  |                                                  |
-| Lint            | typescript-eslint           | 8.70.1  | `strictTypeChecked`, project service             |
-| Lint            | eslint-config-prettier      | 10.1.8  |                                                  |
-| Lint            | globals                     | 17.12.0 |                                                  |
-| Format          | prettier                    | 3.9.8   | single quotes, trailing commas, 100 columns      |
-| Unit tests      | vitest, @vitest/coverage-v8 | 4.1.11  | see "Vitest 4, not 5" below                      |
-| Property tests  | fast-check                  | 4.10.2  |                                                  |
-| Schemas / DTOs  | zod                         | 4.6.5   | `z.toJSONSchema` feeds Fastify and OpenAPI later |
-| Node types      | @types/node                 | 22.20.4 | matches the Node 22 runtime                      |
-| Database (dev)  | postgres (Docker image)     | 16      | `docker/docker-compose.dev.yml`                  |
+| Area            | Package                     | Version     | Notes                                                    |
+| --------------- | --------------------------- | ----------- | -------------------------------------------------------- |
+| Runtime         | Node.js                     | 22 / 24 LTS | `.nvmrc` = 22; `engines` `^22.12 \|\| ^24`; CI runs both |
+| Package manager | pnpm                        | 9.15.9      | `packageManager` field; workspaces                       |
+| Task runner     | turbo                       | 2.11.2      | cached `build`, `lint`, `typecheck`, `test`              |
+| Language        | typescript                  | 6.0.3       | see "TypeScript 6, not 7" below                          |
+| Lint            | eslint                      | 10.11.0     | flat config                                              |
+| Lint            | @eslint/js                  | 10.0.1      |                                                          |
+| Lint            | typescript-eslint           | 8.70.1      | `strictTypeChecked`, project service                     |
+| Lint            | eslint-config-prettier      | 10.1.8      |                                                          |
+| Lint            | globals                     | 17.12.0     |                                                          |
+| Format          | prettier                    | 3.9.8       | single quotes, trailing commas, 100 columns              |
+| Unit tests      | vitest, @vitest/coverage-v8 | 4.1.11      | see "Vitest 4, not 5" below                              |
+| Property tests  | fast-check                  | 4.10.2      |                                                          |
+| Schemas / DTOs  | zod                         | 4.6.5       | `z.toJSONSchema` feeds Fastify and OpenAPI later         |
+| Node types      | @types/node                 | 22.20.4     | matches the Node 22 runtime                              |
+| Database (dev)  | postgres (Docker image)     | 16          | `docker/docker-compose.dev.yml`                          |
 
 Packages added by later checkpoints (Three.js, React, Vite, Fastify, Drizzle, Playwright…) are
 pinned the same way and appended to this table in the PR that introduces them.
+
+### Node.js 22 and 24
+
+The checkpoints name Node.js 22 LTS. The product owner's Mac runs Node.js 24 (the current
+Active LTS), and every dependency supports it, so `engines` accepts both `^22.12.0` and
+`^24.0.0`. `.nvmrc` stays on 22 as the baseline, and CI runs the full check on both versions.
 
 ### TypeScript 6, not 7
 

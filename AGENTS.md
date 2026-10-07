@@ -17,7 +17,7 @@ improvising. Architecture changes get an ADR in `docs/adr/` (copy `0000-template
 
 ## Standing rules (every checkpoint)
 
-- TypeScript strict, ESM only, Node.js 22 LTS, pnpm 9. No `any`. No non-null assertions (`!`)
+- TypeScript strict, ESM only, Node.js 22 LTS (24 LTS also supported and tested in CI), pnpm 9. No `any`. No non-null assertions (`!`)
   without a comment that says why the value cannot be missing.
 - `packages/client` must never import `packages/generator` (ESLint enforces it).
 - Generator code must be deterministic: no `Math.random`, no `Date`, no `performance`, no

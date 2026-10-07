@@ -6,8 +6,8 @@
   "description": "Offered Grade Maze: a first-person browser game in an impossible house.",
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=22.12.0 <23",
-    "pnpm": ">=9.15.0 <10"
+    "node": "^22.12.0 || ^24.0.0",
+    "pnpm": ">=9.15.0"
   },
   "scripts": {
     "build": "turbo run build",
