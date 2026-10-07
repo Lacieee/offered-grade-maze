@@ -69,6 +69,8 @@ export default defineConfig(
       '**/coverage/**',
       '**/.turbo/**',
       'user inputs/**',
+      'e2e/test-results/**',
+      'e2e/playwright-report/**',
     ],
   },
   eslint.configs.recommended,
