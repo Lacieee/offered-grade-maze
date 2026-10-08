@@ -11,7 +11,15 @@ import { FixedStepClock, SIM_STEP } from './loop/FixedStepClock.js';
 import { InputState, bindInput } from './player/input.js';
 import { stepBody, type Body, type Collider, type MoveIntent } from './player/physics.js';
 import { PortalRenderer, type PortalTreeEntry } from './portals/PortalRenderer.js';
-import { crossPose, findCrossing, type CrossableDoor, type Pose } from './portals/traversal.js';
+import {
+  crossPose,
+  findCrossing,
+  keepEyeOffPortals,
+  renderPose,
+  type CrossableDoor,
+  type LastCrossing,
+  type Pose,
+} from './portals/traversal.js';
 import { QualityManager, type QualityMode } from './render/QualityManager.js';
 import { createCamera, createRenderer } from './render/createRenderer.js';
 import type { RoomView } from './rooms/buildRoom.js';
@@ -117,6 +125,10 @@ export class Engine {
   /** Test hook mode: the loop renders but does not simulate; `debugStep` advances time. */
   private manual = false;
   private slowFrameMs = 0;
+  /** Render interpolation factor used in manual (test hook) mode. */
+  private manualAlpha = 1;
+  /** The crossing made in the last simulation step (render interpolation spans it). */
+  private lastCrossing: LastCrossing | null = null;
   private collidersCache: { room: RoomId; version: number; colliders: Collider[] } | null = null;
 
   /**
@@ -191,6 +203,7 @@ export class Engine {
     this.yaw = spawn.yaw;
     this.pitch = 0;
     this.prev = this.pose();
+    this.lastCrossing = null;
     this.clock.reset();
     this.events.emit('roomChanged', { from, door: null, to: id });
   }
@@ -295,6 +308,8 @@ export class Engine {
     this.yaw = yaw;
     this.pitch = clamp(pitch, -MAX_PITCH, MAX_PITCH);
     this.prev = this.pose();
+    this.lastCrossing = null;
+    this.manualAlpha = 1;
     if (from !== room) this.events.emit('roomChanged', { from, door: null, to: room });
     this.renderNow();
   }
@@ -305,9 +320,21 @@ export class Engine {
     const intent = { ...NO_INPUT, ...keys };
     for (let i = 0; i < n; i++) {
       this.prev = this.pose();
+      this.lastCrossing = null;
       this.simulate(SIM_STEP, intent, false);
     }
+    this.manualAlpha = 1;
     this.renderNow();
+  }
+
+  /**
+   * Test hook: renders (and keeps rendering) the current step interpolated at `alpha`
+   * between the previous and current simulation state, as a real frame between two steps.
+   */
+  debugRenderAt(alpha: number): void {
+    this.manual = true;
+    this.manualAlpha = clamp(alpha, 0, 1);
+    this.render(this.manualAlpha);
   }
 
   /** Dev toggle: adds a busy-wait of `ms` to every frame, to exercise automatic quality. */
@@ -434,6 +461,7 @@ export class Engine {
     this.prev = crossPose(this.prev, door.frame, door.targetFrame);
     this.body = { x: now.x, z: now.z, vx: now.vx, vz: now.vz };
     this.yaw = now.yaw;
+    this.lastCrossing = { fromRoom: view.id, fromFrame: door.frame, toFrame: door.targetFrame };
     const from = view.id;
     this.room = door.link.room;
     this.events.emit('roomChanged', { from, door: door.id, to: door.link.room });
@@ -451,12 +479,13 @@ export class Engine {
       }
     }
 
-    let alpha = 1;
+    let alpha = this.manualAlpha;
     if (!this.manual) {
       const advance = this.clock.advance(dt);
       alpha = advance.alpha;
       for (let i = 0; i < advance.steps; i++) {
         this.prev = this.pose();
+        this.lastCrossing = null;
         this.simulate(SIM_STEP, this.input.intent(), true);
       }
     }
@@ -482,19 +511,25 @@ export class Engine {
 
   private render(alpha: number): void {
     const { renderer, camera, portals } = this;
-    const view = this.room ? this.world.get(this.room) : undefined;
-    if (!renderer || !camera || !portals || !view || this.contextLost) return;
+    if (!renderer || !camera || !portals || !this.room || this.contextLost) return;
     const cur = this.pose();
-    camera.position.set(
-      lerp(this.prev.x, cur.x, alpha),
-      EYE_HEIGHT,
-      lerp(this.prev.z, cur.z, alpha),
-    );
-    camera.rotation.set(
-      lerp(this.prev.pitch, cur.pitch, alpha),
-      lerp(this.prev.yaw, cur.yaw, alpha),
-      0,
-    );
+    const interpolated: Pose = {
+      x: lerp(this.prev.x, cur.x, alpha),
+      z: lerp(this.prev.z, cur.z, alpha),
+      yaw: lerp(this.prev.yaw, cur.yaw, alpha),
+      pitch: lerp(this.prev.pitch, cur.pitch, alpha),
+      vx: 0,
+      vz: 0,
+    };
+    // Between the two states of a crossing step the eye may still be on the old side of the
+    // door: render that frame from the room it is really in (no fallback-colour flash).
+    const { room, pose } = renderPose(interpolated, this.room, this.lastCrossing);
+    const view = this.world.get(room);
+    if (!view) return;
+    const linked = [...view.doors.values()].filter((d) => d.link !== null).map((d) => d.frame);
+    const eye = keepEyeOffPortals(pose.x, pose.z, linked);
+    camera.position.set(eye.x, EYE_HEIGHT, eye.z);
+    camera.rotation.set(pose.pitch, pose.yaw, 0);
     renderer.info.reset();
     portals.render(view, camera);
     this.debugOverlay?.draw(portals.getPortalTree());

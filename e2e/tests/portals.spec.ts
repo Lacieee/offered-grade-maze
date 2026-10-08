@@ -190,3 +190,51 @@ test('a lost WebGL context is restored without reloading the page', async ({ pag
   expect(blackPixels(img)).toBeLessThan(img.width * img.height * 0.01);
   expect(meanAbsDiff(img, img)).toBe(0);
 });
+
+test('frames between the two states of a crossing step never flash (G1 feedback)', async ({
+  page,
+}) => {
+  await openFixtures(page);
+  // Kitchen → bedroom through r01.d2, straight on and at an angle like the G1 recording. The
+  // start distances make the crossing step's previous state land 1–4 cm before the door, so
+  // the in-between frames have the eye on the old side of the door.
+  for (const [lateral, label] of [
+    [0, 'straight'],
+    [0.45, 'angled right'],
+    [-0.45, 'angled left'],
+  ] as const) {
+    for (const extra of [0.013, 0.031, 0.047]) {
+      const front = frontOf('r01', 'd2', 0.6 + extra);
+      // r01.d2 is on the N wall: lateral offset along x, then aim at the door centre.
+      const x = front.x + lateral;
+      const z = front.z;
+      await setPose(page, 'r01', x, z, yawToDoor('r01', 'd2', x, z));
+      // Walk one step at a time until the step that crosses into the bedroom.
+      let crossed = false;
+      for (let i = 0; i < 90 && !crossed; i++) {
+        await page.evaluate(() => {
+          window.__ogm?.step(1, { forward: true });
+        });
+        crossed = (await page.evaluate(() => window.__ogm?.getState().room)) === 'r02';
+      }
+      expect(crossed, label).toBe(true);
+      // Render the frames a 120 Hz display shows inside that step.
+      const shots: ReturnType<typeof decode>[] = [];
+      for (const alpha of [0, 0.25, 0.5, 0.75, 1]) {
+        await page.evaluate((a) => {
+          window.__ogm?.renderAt(a);
+        }, alpha);
+        await frames(page, 2);
+        shots.push(decode(await page.screenshot()));
+      }
+      const changes = shots.slice(1).map((img, i) => meanAbsDiff(shots[i] ?? img, img));
+      const name = `${label} +${extra.toFixed(3)}`;
+      test.info().annotations.push({
+        type: `in-step changes (${name})`,
+        description: changes.map((c) => c.toFixed(2)).join(', '),
+      });
+      // A quarter step is ~1.2 cm of movement: a real change is small everywhere.
+      for (const c of changes) expect(c, name).toBeLessThan(4);
+    }
+  }
+});

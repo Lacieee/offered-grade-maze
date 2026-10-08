@@ -6,8 +6,15 @@
  * room with T(D→E): position transformed, yaw += yawDelta, velocity rotated. The previous
  * simulation state gets the same transform, so render interpolation stays continuous.
  */
-import { DOOR_HEIGHT, DOOR_WIDTH, type DoorFrame, type DoorId, type LinkDTO } from '@ogm/shared';
-import { rotateXZ, toDoorLocal, transformPointXZ, yawDelta } from './portalMath.js';
+import {
+  DOOR_HEIGHT,
+  DOOR_WIDTH,
+  type DoorFrame,
+  type DoorId,
+  type LinkDTO,
+  type RoomId,
+} from '@ogm/shared';
+import { fromDoorLocal, rotateXZ, toDoorLocal, transformPointXZ, yawDelta } from './portalMath.js';
 
 /** A linked door that can be crossed: its frame and its target's frame. */
 export interface CrossableDoor {
@@ -56,4 +63,62 @@ export function crossPose(pose: Pose, from: DoorFrame, to: DoorFrame): Pose {
   const delta = yawDelta(from, to);
   const v = rotateXZ(pose.vx, pose.vz, delta);
   return { x: p.x, z: p.z, yaw: pose.yaw + delta, pitch: pose.pitch, vx: v.x, vz: v.z };
+}
+
+/** The crossing made in the last simulation step, if any. */
+export interface LastCrossing {
+  /** The room the player left. */
+  fromRoom: RoomId;
+  /** The door the player went through (in `fromRoom`). */
+  fromFrame: DoorFrame;
+  /** The door the player arrived at (in the current room). */
+  toFrame: DoorFrame;
+}
+
+/**
+ * Which room to render from, for an interpolated pose (in the current room's coordinates).
+ *
+ * Rendering interpolates between the previous and current simulation states. After a
+ * crossing step both are in the new room, but between them the eye can still be on the old
+ * side of the arrival door (door-local z < 0): outside the new room, inside its portal box.
+ * Rendered from there, the frame shows a flat fallback colour (a one-frame glitch). Such a
+ * pose is instead mapped back through the door and rendered from the room it is really in.
+ */
+export function renderPose(
+  pose: Pose,
+  room: RoomId,
+  crossing: LastCrossing | null,
+): { room: RoomId; pose: Pose } {
+  if (!crossing) return { room, pose };
+  if (toDoorLocal(crossing.toFrame, pose.x, pose.z).z >= 0) return { room, pose };
+  return { room: crossing.fromRoom, pose: crossPose(pose, crossing.toFrame, crossing.fromFrame) };
+}
+
+/** Closest the rendered eye may be to a linked doorway's portal plane (m). */
+export const MIN_PORTAL_EYE_DISTANCE = 0.01;
+
+/**
+ * Keeps the rendered eye at least {@link MIN_PORTAL_EYE_DISTANCE} in front of every portal
+ * plane it is standing in. Within about a millimetre of the plane both sides are degenerate
+ * (the portal counts as behind the camera, or its oblique clip plane lands behind the virtual
+ * camera), which shows a full-screen fallback colour. The nudge is far smaller than one
+ * frame of walking (2.5 cm at 120 Hz), so it is invisible. Only rendering uses it; the
+ * simulation keeps the true position.
+ */
+export function keepEyeOffPortals(
+  x: number,
+  z: number,
+  frames: readonly DoorFrame[],
+): { x: number; z: number } {
+  for (const frame of frames) {
+    const local = toDoorLocal(frame, x, z);
+    if (
+      Math.abs(local.x) <= DOOR_WIDTH / 2 &&
+      local.z > -MIN_PORTAL_EYE_DISTANCE &&
+      local.z < MIN_PORTAL_EYE_DISTANCE
+    ) {
+      return fromDoorLocal(frame, local.x, MIN_PORTAL_EYE_DISTANCE);
+    }
+  }
+  return { x, z };
 }

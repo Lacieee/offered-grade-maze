@@ -2,7 +2,15 @@ import { DOOR_HEIGHT, EYE_HEIGHT, WALLS, doorFrame, type DoorFrame, type Wall } 
 import { describe, expect, it } from 'vitest';
 import { forwardVector } from '../player/physics.js';
 import { fromDoorLocal, toDoorLocal } from './portalMath.js';
-import { crossPose, findCrossing, type CrossableDoor, type Pose } from './traversal.js';
+import {
+  MIN_PORTAL_EYE_DISTANCE,
+  crossPose,
+  findCrossing,
+  keepEyeOffPortals,
+  renderPose,
+  type CrossableDoor,
+  type Pose,
+} from './traversal.js';
 
 const roomA = { width: 6, depth: 7 };
 const roomB = { width: 5, depth: 4.5 };
@@ -93,5 +101,65 @@ describe('crossPose', () => {
       Math.hypot(cur.x - prev.x, cur.z - prev.z),
       12,
     );
+  });
+});
+
+describe('renderPose (interpolation across a crossing)', () => {
+  const d = door('N', 'E');
+  const crossing = { fromRoom: 'r00', fromFrame: d.frame, toFrame: d.targetFrame };
+
+  /** A pose at door-local (x, z) of `f`, walking straight through it. */
+  const poseAt = (f: DoorFrame, x: number, z: number): Pose => ({
+    ...fromDoorLocal(f, x, z),
+    yaw: 0,
+    pitch: 0,
+    vx: 0,
+    vz: 0,
+  });
+
+  it('keeps the current room when no crossing happened in the last step', () => {
+    const p = poseAt(d.targetFrame, 0, -0.02);
+    expect(renderPose(p, 'r01', null)).toEqual({ room: 'r01', pose: p });
+  });
+
+  it('keeps the new room once the interpolated eye is inside it', () => {
+    const p = poseAt(d.targetFrame, 0.1, 0.01);
+    expect(renderPose(p, 'r01', crossing).room).toBe('r01');
+  });
+
+  it('renders from the previous room while the interpolated eye is still behind the arrival door', () => {
+    // After the crossing step both poses are in the new room; between them the eye is still
+    // on the old side (arrival-door-local z < 0), i.e. outside the new room.
+    const p = poseAt(d.targetFrame, 0.1, -0.02);
+    const out = renderPose(p, 'r01', crossing);
+    expect(out.room).toBe('r00');
+    const local = toDoorLocal(d.frame, out.pose.x, out.pose.z);
+    expect(local.z).toBeCloseTo(0.02, 9); // in front of the old door, inside the old room
+    expect(local.x).toBeCloseTo(-0.1, 9);
+  });
+});
+
+describe('keepEyeOffPortals', () => {
+  const f = doorFrame(roomA, { wall: 'S', offset: 0.4 });
+  const at = (x: number, z: number) => fromDoorLocal(f, x, z);
+
+  it('moves an eye within 1 cm of a portal plane (inside the opening) to 1 cm', () => {
+    for (const z of [0, 0.004, -1e-9]) {
+      const p = at(0.2, z);
+      const out = keepEyeOffPortals(p.x, p.z, [f]);
+      const l = toDoorLocal(f, out.x, out.z);
+      expect(l.z).toBeCloseTo(MIN_PORTAL_EYE_DISTANCE, 12);
+      expect(l.x).toBeCloseTo(0.2, 12);
+    }
+  });
+
+  it('leaves the eye alone further away or beside the opening', () => {
+    for (const [x, z] of [
+      [0.2, 0.05],
+      [0.8, 0.002],
+    ] as const) {
+      const p = at(x, z);
+      expect(keepEyeOffPortals(p.x, p.z, [f])).toEqual(p);
+    }
   });
 });

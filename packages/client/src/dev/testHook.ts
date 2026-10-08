@@ -19,6 +19,8 @@ export interface OgmTestHook {
   setPose(room: RoomId, x: number, z: number, yaw: number, pitch?: number): void;
   /** Advances n simulation steps with no input (or the given keys held), then renders. */
   step(n: number, keys?: Partial<MoveIntent>): void;
+  /** Renders the current step interpolated at alpha ∈ [0, 1] (a frame between two steps). */
+  renderAt(alpha: number): void;
   info(): EngineInfo;
   portalTree(): { room: RoomId; level: number; rect: PortalTreeEntry['rect'] }[];
   setQuality(mode: QualityMode): void;
@@ -42,6 +44,9 @@ export function installTestHook(engine: Engine): () => void {
     },
     step: (n, keys) => {
       engine.debugStep(n, keys);
+    },
+    renderAt: (alpha) => {
+      engine.debugRenderAt(alpha);
     },
     info: () => engine.debugInfo(),
     portalTree: () =>

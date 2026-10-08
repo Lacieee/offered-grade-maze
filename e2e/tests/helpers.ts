@@ -6,6 +6,7 @@ interface OgmHook {
   getState(): { room: string; x: number; z: number; yaw: number; pitch: number };
   setPose(room: string, x: number, z: number, yaw: number, pitch?: number): void;
   step(n: number, keys?: Partial<Record<'forward' | 'back' | 'left' | 'right', boolean>>): void;
+  renderAt(alpha: number): void;
   info(): {
     programs: number;
     passes: number;

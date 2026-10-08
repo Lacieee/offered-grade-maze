@@ -49,6 +49,20 @@ points were left open or turned out to need a different detail in practice.
    doors. `r00-depth3` uses the r00 pose with the clearest level-3 view (through d2 into the
    hallway); `r04-depth3` adds a clearer one (hallway → kitchen → living room → hallway).
 
+10. **Rendering across a crossing (G1 feedback, 8 Oct 2026).** Two cases showed a one-frame
+    flash of the flat fallback colour when walking through a door, most often at an angle
+    and on 120 Hz displays (two frames per simulation step):
+    - Render interpolation between the two states of a crossing step can put the eye on the
+      old side of the arrival door, outside the new room and inside its portal box.
+      `renderPose` maps such a pose back through the door and renders that frame from the
+      room the eye is really in.
+    - With the eye within about 1 mm of a portal plane, the portal counts as behind the
+      camera from one side and its oblique clip plane lands behind the virtual camera from
+      the other. `keepEyeOffPortals` keeps the rendered eye at least 1 cm in front of the
+      plane (the simulation keeps the true position; 1 cm is under half a frame of walking).
+      An e2e test renders the frames inside crossing steps (straight and at ±40°, at several
+      depths) and fails without these fixes (a mean change of 8.3 against ≤ 2.3 with them).
+
 ## Consequences
 
 - Fewer wasted passes; the budget goes to portals that are actually on screen.
