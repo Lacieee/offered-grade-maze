@@ -16,10 +16,10 @@ const GOLD = '#b8902e';
 /** Aquarium water (emissive teal, CP06 T4). */
 const WATER = '#2ec4b6';
 
-/** Fish shape: a squashed body and a tail fin, facing ±X. */
-function fish(b: PartsBuilder, color: string, x: number, y: number, z: number, dir: 1 | -1): void {
+/** Fish shape facing +X: a squashed body and a tail fin. Its swim range must keep 0.1 m. */
+function fish(b: PartsBuilder, color: string, x: number, y: number, z: number): void {
   b.sphere('solid', color, 0.05, x, y, z, [1.4, 0.8, 0.45], [6, 4]);
-  b.box('solid', shade(color, 0.8), 0.04, 0.06, 0.01, x - dir * 0.08, y - 0.03, z);
+  b.box('solid', shade(color, 0.8), 0.04, 0.06, 0.01, x - 0.08, y - 0.03, z);
 }
 
 export const SIGNATURES: RecipeTable<
@@ -70,26 +70,57 @@ export const SIGNATURES: RecipeTable<
     b.box('solid', '#1b1b1f', 0.012, 0.11, 0.006, 0, fy + 0.04, zc + cd / 2 + 0.012);
     b.box('solid', '#1b1b1f', 0.08, 0.012, 0.006, 0.03, fy, zc + cd / 2 + 0.012);
   },
-  // Cabinet with a glowing teal tank and a few fish.
+  // Cabinet with a glowing teal tank, gravel, water plants and a few fish.
   sig_aquarium: ({ b, w, d, h, color }) => {
     const cabinet = color(0, '#1b1b1f');
     const fishColor = color(1, '#e8a317');
     const ch = 0.7;
-    b.box('solid', cabinet, w, ch, d, 0, 0, 0);
-    b.box('solid', shade(cabinet, 1.3), w - 0.06, ch - 0.1, 0.01, 0, 0.05, d / 2 - 0.005);
-    const th = h - ch - 0.04;
-    b.box('emissive', WATER, w - 0.06, th - 0.06, d - 0.06, 0, ch + 0.02, 0);
-    // Frame edges.
-    for (const sx of [-1, 1]) b.box('solid', '#2a2a2e', 0.03, th, d, sx * (w / 2 - 0.015), ch, 0);
-    b.box('solid', '#2a2a2e', w, 0.04, d, 0, h - 0.04, 0);
-    b.box('solid', '#d8cbb0', w - 0.06, 0.03, d - 0.06, 0, ch, 0);
-    // Fish swim just behind the glass, in front of the (opaque) water volume.
-    const fz = d / 2 - 0.025;
-    fish(b, fishColor, -0.3, ch + 0.25, fz, 1);
-    fish(b, fishColor, 0.15, ch + 0.38, fz, -1);
-    fish(b, shade(fishColor, 1.3), 0.35, ch + 0.18, fz, -1);
-    fish(b, shade(fishColor, 0.7), -0.05, ch + 0.45, fz, 1);
-    b.blob('solid', '#2f6b3a', 0.08, -w / 2 + 0.15, ch + 0.1, -0.05, [0.6, 1.4, 0.6]);
+    const frame = '#2a2a2e';
+    // Cabinet: a body 2 cm short of the front and two doors standing just proud of it, so no
+    // two faces of different colours share a plane (they flickered in blocks on Apple GPUs).
+    b.box('solid', cabinet, w, ch, d - 0.02, 0, 0, -0.01);
+    const door = (w - 0.08) / 2;
+    for (const sx of [-1, 1]) {
+      const x = sx * (door / 2 + 0.01);
+      b.box('solid', shade(cabinet, 1.12), door - 0.01, ch - 0.1, 0.016, x, 0.05, d / 2 - 0.013);
+      // Knobs beside the middle gap.
+      b.box('solid', '#b8bcc0', 0.025, 0.06, 0.012, sx * 0.06, ch / 2 - 0.03, d / 2 - 0.006);
+    }
+    // Tank: bottom rail, corner posts and lid in one dark frame colour.
+    const rail = 0.04;
+    b.box('solid', frame, w, rail, d, 0, ch, 0);
+    b.box('solid', frame, w, rail, d, 0, h - rail, 0);
+    for (const sx of [-1, 1]) {
+      b.box('solid', frame, 0.03, h - ch - 2 * rail, d, sx * (w / 2 - 0.015), ch + rail, 0);
+    }
+    // Gravel, then water up to the lid, both 3 cm behind the frame front.
+    const iw = w - 0.06;
+    const id = d - 0.06;
+    const gravel = 0.06;
+    b.box('solid', '#cdbb94', iw, gravel, id, 0, ch + rail, 0);
+    b.box('emissive', WATER, iw, h - ch - 2 * rail - gravel, id, 0, ch + rail + gravel, 0);
+    // Water plants just behind the glass, rooted in the gravel.
+    const front = id / 2 + 0.005;
+    for (const [x, s] of [
+      [-iw / 2 + 0.12, 1],
+      [iw / 2 - 0.16, 0.75],
+    ] as const) {
+      b.blob('solid', '#2f8a4a', 0.07, x, ch + rail + gravel + 0.07 * s, front, [0.7, s, 0.3]);
+    }
+    // Fish swim back and forth along the glass (animated on the GPU, CP06 review).
+    // Above the plants (≤ ch + 0.24) and below the water line (h − 0.04).
+    const fishes: [number, number, number, number, number, number][] = [
+      // x0, y, amplitude, phase, speed (rad/s), shade
+      [-0.08, ch + 0.3, 0.36, 0.0, 0.55, 1],
+      [0.1, ch + 0.42, 0.36, 2.1, 0.7, 0.75],
+      [0.0, ch + 0.36, 0.45, 4.0, 0.45, 1.25],
+      [0.06, ch + 0.48, 0.3, 1.2, 0.8, 0.9],
+    ];
+    for (const [x0, y, amplitude, phase, speed, k] of fishes) {
+      b.swimming({ amplitude, phase, speed }, (f) => {
+        fish(f, shade(fishColor, k), x0, y, d / 2 - 0.025);
+      });
+    }
   },
   // 2.1 m plant in a large pot: layered leaf clusters.
   sig_giant_plant: ({ b, w, h, color }) => {

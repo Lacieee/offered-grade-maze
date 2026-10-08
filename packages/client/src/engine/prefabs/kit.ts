@@ -17,11 +17,29 @@ export interface TexturedPart {
   makeTexture: () => THREE.Texture;
 }
 
+/** How a swimming part moves (see `animated.ts`). */
+export interface SwimMotion {
+  /** Half the swim range along the local X axis (m). */
+  amplitude: number;
+  /** Start phase (radians). */
+  phase: number;
+  /** Angular speed (radians per second): one length of the tank takes π / speed seconds. */
+  speed: number;
+}
+
 /** Geometry of one item, grouped by material kind, in the item's local space. */
 export interface PrefabParts {
   solid: THREE.BufferGeometry[];
   emissive: THREE.BufferGeometry[];
   textured: TexturedPart[];
+  /**
+   * Lit parts that swim back and forth (aquarium fish). Besides position, normal and colour
+   * they carry `swimDir` (unit swim direction), `swim` (offset along it from the swimmer's
+   * centre, amplitude, phase, speed) and `swimSide` (offset across it, horizontally).
+   */
+  swim: THREE.BufferGeometry[];
+  /** Self-lit TV screens showing animated static; position, normal, colour and `uv`. */
+  screen: THREE.BufferGeometry[];
 }
 
 /** A colour scaled toward black (k < 1) or white (k > 1), as hex. */
@@ -73,7 +91,7 @@ function finish(g: THREE.BufferGeometry, color: string, keepUv = false): THREE.B
  * footprint centred on the origin, front toward +Z, floor at y = 0.
  */
 export class PartsBuilder {
-  readonly parts: PrefabParts = { solid: [], emissive: [], textured: [] };
+  readonly parts: PrefabParts = { solid: [], emissive: [], textured: [], swim: [], screen: [] };
 
   /** Adds an already positioned geometry. */
   add(kind: PartKind, color: string, g: THREE.BufferGeometry): void {
@@ -198,6 +216,47 @@ export class PartsBuilder {
     );
     g.translate(x, y0, z);
     this.add(kind, color, g);
+  }
+
+  /**
+   * One swimmer (a fish), facing +X: `build` adds its solid parts, which then move together
+   * along X by ± `motion.amplitude` around where they were built, turning at each end.
+   */
+  swimming(motion: SwimMotion, build: (b: PartsBuilder) => void): void {
+    const sub = new PartsBuilder();
+    build(sub);
+    const centre = new THREE.Box3();
+    for (const g of sub.parts.solid) {
+      g.computeBoundingBox();
+      if (g.boundingBox) centre.union(g.boundingBox);
+    }
+    const cx = (centre.min.x + centre.max.x) / 2;
+    const cz = (centre.min.z + centre.max.z) / 2;
+    for (const g of sub.parts.solid) {
+      const pos = g.getAttribute('position');
+      const dir = new Float32Array(pos.count * 3);
+      const swim = new Float32Array(pos.count * 4);
+      const side = new Float32Array(pos.count);
+      for (let i = 0; i < pos.count; i++) {
+        dir[i * 3] = 1;
+        swim[i * 4] = pos.getX(i) - cx;
+        swim[i * 4 + 1] = motion.amplitude;
+        swim[i * 4 + 2] = motion.phase;
+        swim[i * 4 + 3] = motion.speed;
+        side[i] = pos.getZ(i) - cz;
+      }
+      g.setAttribute('swimDir', new THREE.BufferAttribute(dir, 3));
+      g.setAttribute('swim', new THREE.BufferAttribute(swim, 4));
+      g.setAttribute('swimSide', new THREE.BufferAttribute(side, 1));
+      this.parts.swim.push(g);
+    }
+  }
+
+  /** A TV screen showing static: a quad facing +Z, centred at (x, y, z). */
+  screen(w: number, h: number, x: number, y: number, z: number): void {
+    const g = new THREE.PlaneGeometry(w, h);
+    g.translate(x, y, z);
+    this.parts.screen.push(finish(g, '#ffffff', true));
   }
 
   /** A textured quad facing +Z, centred at (x, y, z). */

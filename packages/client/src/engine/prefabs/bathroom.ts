@@ -51,7 +51,8 @@ export const BATHROOM_HALLWAY: RecipeTable<
   toilet: ({ b, w, d, h, color }) => {
     const ceramic = color(0, '#ffffff');
     b.box('solid', ceramic, w, h - 0.38, 0.18, 0, 0.38, -d / 2 + 0.09);
-    b.box('solid', shade(ceramic, 0.92), w * 0.4, 0.02, 0.06, 0, h - 0.02, -d / 2 + 0.09);
+    // Flush button stands 1 cm proud of the cistern lid.
+    b.box('solid', shade(ceramic, 0.92), w * 0.4, 0.02, 0.06, 0, h - 0.01, -d / 2 + 0.09);
     const bz = d / 2 - 0.2;
     b.lathe(
       'solid',

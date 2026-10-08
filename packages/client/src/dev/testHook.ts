@@ -27,6 +27,8 @@ export interface OgmTestHook {
   slowFrames(ms: number): void;
   /** Compares a level-1 portal's image with a direct render of its target room. */
   portalCheck(door: string): PortalCheckResult;
+  /** Sets the animation time (fish, TV static) in seconds and renders; it is 0 by default. */
+  setAmbientTime(seconds: number): void;
 }
 
 declare global {
@@ -58,6 +60,9 @@ export function installTestHook(engine: Engine): () => void {
       engine.debugSlowFrames(ms);
     },
     portalCheck: (door) => portalCheck(engine, door),
+    setAmbientTime: (seconds) => {
+      engine.debugSetAmbientTime(seconds);
+    },
   };
   window.__ogm = hook;
   return () => {

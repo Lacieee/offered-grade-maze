@@ -39,8 +39,9 @@ function upholstered(
   const back = Math.min(0.22, d * 0.24);
   const seatTop = 0.44;
   legs(b, legColor, w, d, legH);
-  // Base frame under the cushions.
-  b.box('solid', shade(fabric, 0.85), w, seatTop - 0.12 - legH, d, 0, legH, 0);
+  // Base frame under the cushions, inset so its faces never share a plane with the back and
+  // arms (coplanar faces of different colours flicker).
+  b.box('solid', shade(fabric, 0.85), w - 0.03, seatTop - 0.12 - legH, d - 0.03, 0, legH, 0);
   // Back rest and arms.
   b.box('solid', fabric, w, h - legH, back, 0, legH, -d / 2 + back / 2);
   for (const sx of [-1, 1])
@@ -106,13 +107,14 @@ export const SEATING: RecipeTable<'sofa_3seat' | 'armchair' | 'sig_red_armchair'
         );
       }
     }
-    b.box('solid', shade(red, 0.8), cw, 0.2, cd, 0, 0.14, 0);
+    // Seat base inset 1.5 cm, so it shares no face with the back and arms.
+    b.box('solid', shade(red, 0.8), cw - 0.03, 0.2, cd - 0.03, 0, 0.14, 0);
     b.box('solid', shade(red, 1.1), cw - 0.24, 0.12, cd - 0.2, 0, 0.34, 0.08);
     b.box('solid', red, cw, h - 0.14, 0.18, 0, 0.14, -cd / 2 + 0.09);
     for (const sx of [-1, 1]) {
       // Arms with rolled tops, and wings at head height.
       b.box('solid', red, 0.14, 0.5, cd, sx * (cw / 2 - 0.07), 0.14, 0);
-      b.rod('solid', shade(red, 1.1), 0.08, cd, sx * (cw / 2 - 0.08), 0.64, 0, 8, 'z');
+      b.rod('solid', shade(red, 1.1), 0.08, cd - 0.02, sx * (cw / 2 - 0.08), 0.64, 0, 8, 'z');
       b.box('solid', red, 0.1, h - 0.6, cd * 0.45, sx * (cw / 2 - 0.05), 0.6, -cd / 2 + cd * 0.225);
     }
     // A pale scatter cushion makes it unmistakable.

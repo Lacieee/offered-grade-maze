@@ -2,7 +2,9 @@ import { GRID, PREFABS, PREFAB_IDS, type FurnitureDTO, type PrefabId } from '@og
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { buildPrefab, buildPrefabLocal, triangleCount } from './index.js';
-import { leafColor, type PrefabParts } from './kit.js';
+import { swimOffset } from './animated.js';
+import { coplanarOverlaps } from './coplanar.js';
+import { PartsBuilder, leafColor, type PrefabParts } from './kit.js';
 
 /** Every prefab × variant. */
 const CASES: [PrefabId, number][] = PREFAB_IDS.flatMap((id) =>
@@ -29,7 +31,13 @@ const item = (
 
 function bounds(parts: PrefabParts): THREE.Box3 {
   const box = new THREE.Box3();
-  for (const g of [...parts.solid, ...parts.emissive, ...parts.textured.map((t) => t.geometry)]) {
+  for (const g of [
+    ...parts.solid,
+    ...parts.emissive,
+    ...parts.textured.map((t) => t.geometry),
+    ...parts.swim,
+    ...parts.screen,
+  ]) {
     g.computeBoundingBox();
     if (g.boundingBox) box.union(g.boundingBox);
   }
@@ -75,6 +83,20 @@ describe('prefab recipes (CP06 T1)', () => {
       expect(g.index).toBeNull();
       expect(Object.keys(g.attributes).sort()).toEqual(['color', 'normal', 'position']);
       for (const v of g.getAttribute('position').array) expect(Number.isFinite(v)).toBe(true);
+    }
+    for (const g of parts.swim) {
+      expect(g.index).toBeNull();
+      expect(Object.keys(g.attributes).sort()).toEqual([
+        'color',
+        'normal',
+        'position',
+        'swim',
+        'swimDir',
+        'swimSide',
+      ]);
+    }
+    for (const g of parts.screen) {
+      expect(Object.keys(g.attributes).sort()).toEqual(['color', 'normal', 'position', 'uv']);
     }
     for (const t of parts.textured) {
       expect(Object.keys(t.geometry.attributes).sort()).toEqual([
@@ -127,5 +149,106 @@ describe('foliage (CP06 visual pass)', () => {
   it('different item colours give different greens', () => {
     const tones = new Set(['#8c6b4a', '#e8a317', '#c0262d', '#2456b8'].map(leafColor));
     expect(tones.size).toBeGreaterThan(1);
+  });
+});
+
+describe('no z-fighting (CP06 review: aquarium cabinet)', () => {
+  it('the check finds a panel flush with a body of another colour', () => {
+    const b = new PartsBuilder();
+    b.box('solid', '#440066', 1, 0.7, 0.4, 0, 0, 0);
+    b.box('solid', '#663388', 0.9, 0.5, 0.01, 0, 0.05, 0.2 - 0.005);
+    const found = coplanarOverlaps(b.parts);
+    expect(found).toHaveLength(1);
+    expect(found[0]?.area).toBeCloseTo(0.45, 3);
+    // Same colour, or a panel standing proud of the body: nothing to see.
+    const ok = new PartsBuilder();
+    ok.box('solid', '#440066', 1, 0.7, 0.4, 0, 0, 0);
+    ok.box('solid', '#663388', 0.9, 0.5, 0.01, 0, 0.05, 0.2 + 0.005);
+    expect(coplanarOverlaps(ok.parts)).toEqual([]);
+  });
+
+  it.each(CASES)('%s v%i: no coplanar faces of different looks overlap', (prefab, variant) => {
+    const meta = PREFABS[prefab];
+    const d = (meta.footprint[variant]?.[1] ?? 0) * GRID;
+    // Wall-hung items hide their back against the wall.
+    const found = coplanarOverlaps(
+      buildPrefabLocal(item(prefab, variant)),
+      meta.mountY === undefined ? {} : { backAt: -d / 2 },
+    );
+    expect(
+      found.map((o) => `${o.a} × ${o.b} at ${o.at.join(',')}: ${o.area.toFixed(4)} m²`),
+    ).toEqual([]);
+  });
+});
+
+describe('animated parts (CP06 review)', () => {
+  const aquarium = (): PrefabParts => buildPrefabLocal(item('sig_aquarium', 0));
+
+  it('the aquarium has 3–5 swimming fish and nothing else swims', () => {
+    const swimmers = new Set<string>();
+    for (const g of aquarium().swim) {
+      const s = g.getAttribute('swim');
+      swimmers.add(`${String(s.getZ(0))}:${String(s.getW(0))}`);
+    }
+    expect(swimmers.size).toBeGreaterThanOrEqual(3);
+    expect(swimmers.size).toBeLessThanOrEqual(5);
+    for (const id of PREFAB_IDS) {
+      if (id !== 'sig_aquarium') expect(buildPrefabLocal(item(id, 0)).swim, id).toEqual([]);
+    }
+  });
+
+  it('fish stay inside the water at every moment of their swim', () => {
+    const fp = PREFABS.sig_aquarium.footprint[0] ?? [0, 0];
+    const inner = (fp[0] * GRID) / 2 - 0.03;
+    for (const g of aquarium().swim) {
+      const pos = g.getAttribute('position');
+      const s = g.getAttribute('swim');
+      for (let t = 0; t < 30; t += 0.05) {
+        for (let i = 0; i < pos.count; i++) {
+          const x = pos.getX(i) + swimOffset(s.getX(i), s.getY(i), s.getZ(i), s.getW(i), t);
+          expect(Math.abs(x)).toBeLessThanOrEqual(inner);
+        }
+      }
+    }
+  });
+
+  it('a fish faces where it swims: the head leads in both directions', () => {
+    const g = aquarium().swim[0];
+    if (g === undefined) throw new Error('no fish');
+    const s = g.getAttribute('swim');
+    // Speed and phase of this fish; the head is its vertex with the largest offset.
+    const [phase, speed] = [s.getZ(0), s.getW(0)];
+    let head = 0;
+    for (let i = 0; i < s.count; i++) if (s.getX(i) > s.getX(head)) head = i;
+    const centreAt = (t: number): number => swimOffset(0, s.getY(0), phase, speed, t);
+    const headAt = (t: number): number =>
+      swimOffset(s.getX(head), s.getY(head), phase, speed, t) + s.getX(head);
+    for (const t of [0.5, 2, 5, 7.5]) {
+      const v = Math.cos(speed * t + phase);
+      if (Math.abs(v) < 0.3) continue;
+      // Moving +X: head right of the centre; moving −X: head left of it.
+      expect(Math.sign(headAt(t) - centreAt(t))).toBe(Math.sign(v));
+    }
+  });
+
+  it('swim directions turn with the item', () => {
+    const placed = buildPrefab(item('sig_aquarium', 0, { x: 2, z: 1, rot: 1 }));
+    const dir = placed.swim[0]?.getAttribute('swimDir');
+    // rot 1 turns local +X to −Z.
+    expect(dir?.getX(0)).toBeCloseTo(0, 5);
+    expect(dir?.getZ(0)).toBeCloseTo(-1, 5);
+  });
+
+  it('the TV shows a static screen quad with UVs in front of its body', () => {
+    for (const variant of [0, 1]) {
+      const tv = buildPrefabLocal(item('tv_unit', variant));
+      expect(tv.screen).toHaveLength(1);
+      expect(tv.emissive).toEqual([]);
+      const g = tv.screen[0];
+      g?.computeBoundingBox();
+      const bodyFront = bounds({ ...tv, screen: [], swim: [], textured: [], emissive: [] });
+      expect(g?.boundingBox?.max.y).toBeLessThan(bodyFront.max.y);
+      expect(g?.boundingBox?.max.x ?? 0).toBeGreaterThan(0.4);
+    }
   });
 });

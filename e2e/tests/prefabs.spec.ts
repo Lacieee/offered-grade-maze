@@ -1,6 +1,14 @@
 import { createHash } from 'node:crypto';
 import { expect, test, type Page } from '@playwright/test';
-import { watchConsole } from './helpers.js';
+import {
+  decode,
+  frames,
+  meanAbsDiff,
+  openFixtures,
+  setPose,
+  watchConsole,
+  yawToward,
+} from './helpers.js';
 
 declare global {
   interface Window {
@@ -60,5 +68,30 @@ test('a generated house: every room renders and entering rooms never compiles sh
   }
   expect(before).toBeGreaterThan(0);
   expect(await programs()).toBe(before);
+  expect(console).toEqual([]);
+});
+
+test('aquarium fish swim and the TV shows moving static; a frozen time repeats exactly', async ({
+  page,
+}) => {
+  const console = watchConsole(page);
+  await openFixtures(page);
+  const at = async (seconds: number): Promise<Buffer> => {
+    await page.evaluate((t) => {
+      window.__ogm?.setAmbientTime(t);
+    }, seconds);
+    await frames(page, 2);
+    return page.screenshot();
+  };
+  // r00 (fixture living room): the aquarium, then the TV.
+  for (const [x, z, tx, tz, pitch] of [
+    [-2.3, -1.9, -2.875, -3.5, -0.2],
+    [-1.3, 2.7, -3.25, 2.75, -0.1],
+  ] as const) {
+    await setPose(page, 'r00', x, z, yawToward(x, z, tx, tz), pitch);
+    const still = await at(1.5);
+    expect((await at(1.5)).equals(still)).toBe(true);
+    expect(meanAbsDiff(decode(await at(4)), decode(still))).toBeGreaterThan(0.2);
+  }
   expect(console).toEqual([]);
 });

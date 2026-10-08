@@ -49,12 +49,14 @@ export const KITCHEN_BEDROOM: RecipeTable<
     const pillows = color(2, '#f5f2ea');
     const head = 0.08;
     b.box('solid', frame, w, h, head, 0, 0, -d / 2 + head / 2);
-    b.box('solid', frame, w, 0.28, d - head, 0, 0.0, head / 2);
+    // Base on short feet at the foot end (the headboard carries the head end).
+    b.box('solid', frame, w, 0.22, d - head, 0, 0.06, head / 2);
     b.box('solid', '#f0ede6', w - 0.08, 0.16, d - head - 0.06, 0, 0.28, head / 2);
     // Duvet over the lower two thirds, folded edge at the top.
     const dz = d - head - 0.55;
     b.box('solid', sheets, w - 0.02, 0.06, dz, 0, 0.4, d / 2 - dz / 2);
-    b.box('solid', shade(sheets, 0.9), w - 0.02, 0.07, 0.12, 0, 0.4, d / 2 - dz + 0.06);
+    // Folded edge: a little wider and deeper than the duvet, so no faces coincide.
+    b.box('solid', shade(sheets, 0.9), w - 0.01, 0.075, 0.13, 0, 0.395, d / 2 - dz + 0.055);
     // Two pillows side by side.
     const n = 2;
     const pw = (w - 0.2) / n;

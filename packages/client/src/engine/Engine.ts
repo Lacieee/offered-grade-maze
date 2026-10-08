@@ -10,6 +10,7 @@ import { PortalDebugOverlay } from './debug/PortalDebugOverlay.js';
 import { FixedStepClock, SIM_STEP } from './loop/FixedStepClock.js';
 import { InputState, bindInput } from './player/input.js';
 import { stepBody, type Body, type Collider, type MoveIntent } from './player/physics.js';
+import { ambientTime } from './prefabs/animated.js';
 import { PortalRenderer, type PortalTreeEntry } from './portals/PortalRenderer.js';
 import {
   crossPose,
@@ -301,7 +302,7 @@ export class Engine {
    */
   debugSetPose(room: RoomId, x: number, z: number, yaw: number, pitch = 0): void {
     if (!this.world.get(room)) throw new Error(`Room ${room} is not loaded`);
-    this.manual = true;
+    this.enterManual();
     const from = this.room;
     this.room = room;
     this.body = { x, z, vx: 0, vz: 0 };
@@ -316,7 +317,7 @@ export class Engine {
 
   /** Test hook: advances `n` simulation steps with the given keys held (default none), then renders. */
   debugStep(n: number, keys: Partial<MoveIntent> = {}): void {
-    this.manual = true;
+    this.enterManual();
     const intent = { ...NO_INPUT, ...keys };
     for (let i = 0; i < n; i++) {
       this.prev = this.pose();
@@ -332,8 +333,18 @@ export class Engine {
    * between the previous and current simulation state, as a real frame between two steps.
    */
   debugRenderAt(alpha: number): void {
-    this.manual = true;
+    this.enterManual();
     this.manualAlpha = clamp(alpha, 0, 1);
+    this.render(this.manualAlpha);
+  }
+
+  /**
+   * Test hook: sets the time of the fish and TV static and renders. In manual mode (any test
+   * hook call) that time stands still; it starts at 0.
+   */
+  debugSetAmbientTime(seconds: number): void {
+    this.enterManual();
+    ambientTime.value = seconds;
     this.render(this.manualAlpha);
   }
 
@@ -360,6 +371,13 @@ export class Engine {
   }
 
   // ------------------------------------------------------------ internals
+
+  /** Switches to test-hook stepping; animations freeze at time 0 so screenshots repeat. */
+  private enterManual(): void {
+    if (this.manual) return;
+    this.manual = true;
+    ambientTime.value = 0;
+  }
 
   private pose(): Pose {
     return {
@@ -481,6 +499,7 @@ export class Engine {
 
     let alpha = this.manualAlpha;
     if (!this.manual) {
+      ambientTime.value += dt;
       const advance = this.clock.advance(dt);
       alpha = advance.alpha;
       for (let i = 0; i < advance.steps; i++) {

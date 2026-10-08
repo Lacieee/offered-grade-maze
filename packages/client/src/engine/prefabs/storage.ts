@@ -2,7 +2,7 @@
  * Cabinets and shelves: TV unit, bookshelf, wardrobe, dresser, shoe cabinet, filing cabinet,
  * wall cabinet and the kitchen counter run.
  *
- * Colours: `tv_unit` [cabinet, screen]; `bookshelf` [wood, books]; `wardrobe`, `dresser`,
+ * Colours: `tv_unit` [cabinet, TV body]; `bookshelf` [wood, books]; `wardrobe`, `dresser`,
  * `shoe_cabinet`, `wall_cabinet` [body, handles]; `filing_cabinet` [metal];
  * `counter_run` [cabinets, worktop, sink].
  */
@@ -81,7 +81,9 @@ export const STORAGE: RecipeTable<
     b.box('solid', '#2a2a2e', 0.24, 0.02, 0.18, 0, ch, -0.02);
     b.box('solid', '#2a2a2e', 0.05, 0.08, 0.04, 0, ch + 0.02, -0.04);
     b.box('solid', screen, sw, h - ch - 0.1, 0.05, 0, ch + 0.1, -0.04);
-    b.box('emissive', '#26334a', sw - 0.04, h - ch - 0.14, 0.005, 0, ch + 0.12, -0.012);
+    // The picture: animated static (CP06 review), 3 mm in front of the bezel.
+    const sh = h - ch - 0.14;
+    b.screen(sw - 0.04, sh, 0, ch + 0.12 + sh / 2, -0.012);
   },
   // Open shelving with rows of books (each book a slightly different tone).
   bookshelf: ({ b, w, d, h, color }) => {
@@ -96,7 +98,8 @@ export const STORAGE: RecipeTable<
     const tones = [1, 0.75, 1.25, 0.9, 1.15, 0.65, 1.35];
     for (let s = 0; s < shelves; s++) {
       const y = s * step;
-      b.box('solid', wood, w - 2 * t, t, d, 0, y, 0);
+      // Shelves stop at the back panel (no shared face with it).
+      b.box('solid', wood, w - 2 * t, t, d - 0.015, 0, y, 0.0075);
       if (s === shelves - 1) {
         // Top shelf: a storage box instead of books.
         b.box(
@@ -140,15 +143,16 @@ export const STORAGE: RecipeTable<
   wardrobe: ({ b, w, d, h, variant, color }) => {
     const body = color(0, '#5e4630');
     const handle = color(1, '#c9a227');
-    b.box('solid', body, w, h - 0.08, d - FRONT, 0, 0.08, -FRONT / 2);
+    // Body up to the cornice (no shared top face).
+    b.box('solid', body, w, h - 0.12, d - FRONT, 0, 0.08, -FRONT / 2);
     b.box('solid', shade(body, 0.6), w - 0.04, 0.08, d - 0.06, 0, 0, -0.02);
-    b.box('solid', shade(body, 1.1), w + 0.0, 0.04, d, 0, h - 0.04, 0);
+    b.box('solid', shade(body, 1.1), w, 0.04, d, 0, h - 0.04, 0);
     fronts(b, body, handle, w - 0.02, d / 2, 0.1, h - 0.16, variant === 0 ? 3 : 2, 1, 'vertical');
   },
   dresser: ({ b, w, d, h, color }) => {
     const body = color(0, '#8a6f5a');
     const handle = color(1, '#c9a227');
-    b.box('solid', body, w, h - 0.08, d - FRONT, 0, 0.08, -FRONT / 2);
+    b.box('solid', body, w, h - 0.11, d - FRONT, 0, 0.08, -FRONT / 2);
     b.box('solid', shade(body, 1.1), w, 0.03, d, 0, h - 0.03, 0);
     for (const sx of [-1, 1])
       b.box('solid', shade(body, 0.7), 0.05, 0.08, d - 0.06, sx * (w / 2 - 0.05), 0, -0.02);

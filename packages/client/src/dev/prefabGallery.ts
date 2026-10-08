@@ -6,12 +6,14 @@
  * Free-fly camera: click to capture the mouse, WASD to move, Q/E down/up, Shift to go faster.
  *
  * URL options: `only=<prefab id>[,<id>…]` limits the grid; `camera=x,y,z,yaw,pitch` fixes the
- * view (screenshots); `outlines=1` starts with outlines on.
+ * view (screenshots); `outlines=1` starts with outlines on; `still=1` stops the fish and the
+ * TV static.
  */
 import { GRID, PREFABS, PREFAB_IDS, type FurnitureDTO } from '@ogm/shared';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { createRenderer } from '../engine/render/createRenderer.js';
+import { ambientTime, screenMaterial, swimMaterial } from '../engine/prefabs/animated.js';
 import { buildPrefab } from '../engine/prefabs/index.js';
 
 /** Second colour set (the first uses each recipe's defaults). */
@@ -154,12 +156,15 @@ export function startPrefabGallery(canvas: HTMLCanvasElement, host: HTMLElement)
   window.addEventListener('resize', resize);
   resize();
 
+  const still = params.get('still') === '1';
+  ambientTime.value = 0;
   let last = performance.now();
   let frame = 0;
   const v = new THREE.Vector3();
   const tick = (now: number): void => {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
+    if (!still) ambientTime.value += dt;
     const speed = (keys.has('ShiftLeft') || keys.has('ShiftRight') ? 12 : 4) * dt;
     const fx = -Math.sin(pose.yaw);
     const fz = -Math.cos(pose.yaw);
@@ -201,7 +206,7 @@ export function startPrefabGallery(canvas: HTMLCanvasElement, host: HTMLElement)
   };
 }
 
-/** Adds one item: merged solid and emissive meshes, one mesh per painting texture. */
+/** Adds one item: merged solid, emissive, fish and screen meshes, one per painting texture. */
 function addItem(scene: THREE.Scene, item: FurnitureDTO, disposables: { dispose(): void }[]): void {
   const parts = buildPrefab(item);
   const add = (g: THREE.BufferGeometry, m: THREE.Material): void => {
@@ -217,6 +222,8 @@ function addItem(scene: THREE.Scene, item: FurnitureDTO, disposables: { dispose(
       new THREE.MeshBasicMaterial({ vertexColors: true }),
     );
   }
+  if (parts.swim.length > 0) add(mergeGeometries(parts.swim, false), swimMaterial());
+  if (parts.screen.length > 0) add(mergeGeometries(parts.screen, false), screenMaterial());
   for (const t of parts.textured) {
     const texture = t.makeTexture();
     disposables.push(texture);

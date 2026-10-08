@@ -28,6 +28,7 @@ import {
   type WallLayout,
 } from './layout.js';
 import { createLightRig, type LightRig } from './lightRig.js';
+import { screenMaterial, swimMaterial } from '../prefabs/animated.js';
 import { buildPrefab } from '../prefabs/index.js';
 import { PartsBuilder } from '../prefabs/kit.js';
 import { acquireFloorTexture, releaseFloorTexture } from '../prefabs/textures/textures.js';
@@ -194,11 +195,16 @@ interface FurnitureMeshes {
   emissive: THREE.BufferGeometry | null;
   /** One merged geometry per painting texture. */
   textured: { key: string; geometry: THREE.BufferGeometry; texture: THREE.Texture }[];
+  /** Swimming fish and TV screens (animated on the GPU). */
+  swim: THREE.BufferGeometry | null;
+  screen: THREE.BufferGeometry | null;
 }
 
 function furnitureMeshes(dto: RoomDTO): FurnitureMeshes {
   const solid: THREE.BufferGeometry[] = [];
   const emissive: THREE.BufferGeometry[] = [];
+  const swim: THREE.BufferGeometry[] = [];
+  const screen: THREE.BufferGeometry[] = [];
   const textured = new Map<string, { parts: THREE.BufferGeometry[]; make: () => THREE.Texture }>();
   // Ceiling lights get a glowing fixture, so the bright patch on the ceiling reads as a lamp.
   const fixtures = new PartsBuilder();
@@ -223,6 +229,8 @@ function furnitureMeshes(dto: RoomDTO): FurnitureMeshes {
     const parts = buildPrefab(item);
     solid.push(...parts.solid);
     emissive.push(...parts.emissive);
+    swim.push(...parts.swim);
+    screen.push(...parts.screen);
     for (const t of parts.textured) {
       const entry = textured.get(t.key) ?? { parts: [], make: t.makeTexture };
       entry.parts.push(t.geometry);
@@ -238,6 +246,8 @@ function furnitureMeshes(dto: RoomDTO): FurnitureMeshes {
   return {
     solid: merge(solid),
     emissive: merge(emissive),
+    swim: merge(swim),
+    screen: merge(screen),
     textured: [...textured.entries()]
       .sort((x, y) => (x[0] < y[0] ? -1 : 1))
       .flatMap(([key, entry]) => {
@@ -306,7 +316,8 @@ export function buildRoom(dto: RoomDTO): RoomView {
     addMesh(key, merged, materialFor(key, dto, floorMap));
   }
 
-  // Furniture: all solid parts in one mesh, all glowing parts in one, one mesh per painting.
+  // Furniture: all solid parts in one mesh, all glowing parts in one, one mesh per painting,
+  // one for swimming fish and one for TV screens.
   const textures: THREE.Texture[] = [];
   const furniture = furnitureMeshes(dto);
   if (furniture.solid) {
@@ -319,6 +330,8 @@ export function buildRoom(dto: RoomDTO): RoomView {
       new THREE.MeshBasicMaterial({ vertexColors: true }),
     );
   }
+  if (furniture.swim) addMesh('furniture:swim', furniture.swim, swimMaterial());
+  if (furniture.screen) addMesh('furniture:screen', furniture.screen, screenMaterial());
   for (const t of furniture.textured) {
     textures.push(t.texture);
     addMesh(

@@ -14,7 +14,7 @@ import { SIGNATURES } from './signatures.js';
 import { STORAGE } from './storage.js';
 import { TABLES } from './tables.js';
 
-export type { PrefabParts, TexturedPart } from './kit.js';
+export type { PrefabParts, SwimMotion, TexturedPart } from './kit.js';
 
 /** Every prefab's recipe (the type makes a missing prefab a compile error). */
 export const RECIPES: RecipeTable = {
@@ -59,6 +59,13 @@ export function buildPrefab(item: FurnitureDTO): PrefabParts {
   for (const g of parts.solid) g.applyMatrix4(m);
   for (const g of parts.emissive) g.applyMatrix4(m);
   for (const t of parts.textured) t.geometry.applyMatrix4(m);
+  for (const g of parts.screen) g.applyMatrix4(m);
+  // Swim directions turn with the item (applyMatrix4 only knows position and normal).
+  const turn = new THREE.Matrix3().getNormalMatrix(m);
+  for (const g of parts.swim) {
+    g.applyMatrix4(m);
+    g.getAttribute('swimDir').applyNormalMatrix(turn);
+  }
   return parts;
 }
 
@@ -68,6 +75,8 @@ export function triangleCount(parts: PrefabParts): number {
   return (
     parts.solid.reduce((n, g) => n + count(g), 0) +
     parts.emissive.reduce((n, g) => n + count(g), 0) +
-    parts.textured.reduce((n, t) => n + count(t.geometry), 0)
+    parts.textured.reduce((n, t) => n + count(t.geometry), 0) +
+    parts.swim.reduce((n, g) => n + count(g), 0) +
+    parts.screen.reduce((n, g) => n + count(g), 0)
   );
 }

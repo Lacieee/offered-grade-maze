@@ -137,7 +137,8 @@ export const TABLES: RecipeTable<
     b.box('solid', desk, w, 0.04, dd, 0, 0.71, dz);
     for (const sx of [-1, 1])
       b.box('solid', shade(desk, 0.85), 0.04, 0.71, dd, sx * (w / 2 - 0.02), 0, dz);
-    b.box('solid', shade(desk, 0.85), w - 0.08, 0.4, 0.02, 0, 0.31, -d / 2 + 0.02);
+    // Modesty panel; its right end hides inside the drawer block, its top under the desk.
+    b.box('solid', shade(desk, 0.85), w - 0.1, 0.39, 0.02, -0.01, 0.31, -d / 2 + 0.02);
     // Drawer block on the right.
     b.box('solid', shade(desk, 0.92), 0.36, 0.5, dd - 0.04, w / 2 - 0.22, 0.21, dz);
     // A laptop with a glowing screen edge and a notebook in the accent colour.

@@ -23,6 +23,7 @@ interface OgmHook {
   setQuality(mode: 'auto' | 'high' | 'low'): void;
   slowFrames(ms: number): void;
   portalCheck(door: string): { meanDiff: number; maxDiff: number; pixels: number };
+  setAmbientTime(seconds: number): void;
 }
 
 declare global {
