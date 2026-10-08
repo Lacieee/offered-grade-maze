@@ -1,7 +1,7 @@
 import { RoomTypeSchema } from '@ogm/shared';
 import { describe, expect, it } from 'vitest';
 import { rngFor } from '../prng/index.js';
-import { ACCENTS, PALETTES, SIGNATURE_COLORS } from './palettes.js';
+import { ACCENTS, PALETTES, RED_SHADES, SIGNATURE_COLORS } from './palettes.js';
 import { SignatureSource, signatureKey } from './signature.js';
 
 const rgb = (hex: string): number[] => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
@@ -49,6 +49,8 @@ describe('SignatureSource', () => {
       expect(keys.has(key)).toBe(false);
       keys.add(key);
       if (item.prefab === 'sig_painting') expect(item.params).toBeDefined();
+      // The red armchair is always red.
+      if (item.prefab === 'sig_red_armchair') expect(RED_SHADES).toContain(item.colors[0]);
     }
   });
 

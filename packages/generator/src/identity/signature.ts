@@ -6,7 +6,7 @@ import { PREFABS, SIGNATURE_PREFABS, type PrefabId } from '@ogm/shared';
 import type { Sfc32 } from '../prng/index.js';
 import type { ItemSpec } from '../furnish/furnish.js';
 import { paintingParams } from '../furnish/furnish.js';
-import { SIGNATURE_COLORS } from './palettes.js';
+import { RED_SHADES, SIGNATURE_COLORS } from './palettes.js';
 
 /** Uniqueness key of a signature item. */
 export function signatureKey(item: {
@@ -33,15 +33,17 @@ export class SignatureSource {
     if (options.length === 0) return null;
     for (;;) {
       const prefab = this.rng.pick(options);
-      const colors = Array.from({ length: PREFABS[prefab].colorSlots }, () =>
-        this.rng.pick(SIGNATURE_COLORS),
+      const colors = Array.from({ length: PREFABS[prefab].colorSlots }, (_, i) =>
+        // The red armchair is always red (CP06 T4); its legs take any signature colour.
+        this.rng.pick(prefab === 'sig_red_armchair' && i === 0 ? RED_SHADES : SIGNATURE_COLORS),
       );
       const item: ItemSpec =
         prefab === 'sig_painting'
           ? { prefab, colors, params: paintingParams(this.rng), signature: true }
           : { prefab, colors, signature: true };
       const key = signatureKey(item);
-      // 6 prefabs × 144 colour pairs (and 50 000 painting params): a free key is always found.
+      // 6 prefabs × at least 60 colour pairs (and 50 000 painting params): a free key is
+      // always found for a 24-room house.
       if (this.used.has(key)) continue;
       this.used.add(key);
       return item;

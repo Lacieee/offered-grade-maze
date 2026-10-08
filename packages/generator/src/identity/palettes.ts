@@ -95,6 +95,15 @@ export const SIGNATURE_COLORS: readonly string[] = [
   '#6e4220',
 ];
 
+/** Strong reds for the red armchair signature (its first colour). */
+export const RED_SHADES: readonly string[] = [
+  '#c0262d',
+  '#a3161f',
+  '#d8343a',
+  '#b8336a',
+  '#e04a2a',
+];
+
 /** Colour of the goal light (CP05 T6). */
 export const GOAL_LIGHT = {
   kind: 'goal',
