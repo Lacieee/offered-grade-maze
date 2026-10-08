@@ -51,6 +51,16 @@ Open <http://localhost:5173/?dev=fixtures&room=r00>. Click to lock the mouse, th
 - Add `&portalDebug=1` to tint portal levels (1 red, 2 green, 3 blue) and outline them.
 - Add `&quality=high` or `&quality=low` to pin portal quality (default: automatic).
 
+**Generated houses.** <http://localhost:5173/?dev=level&file=sample-hard&room=r00> loads a
+level dumped by the generator from `packages/client/src/dev/levels/`. `[` and `]` jump to the
+previous and next room, **Home** to the start room. Dump your own (git-ignored) with
+`pnpm gen dump <seed> --json packages/client/src/dev/levels/<name>.json`.
+
+**Prefab gallery.** <http://localhost:5173/?dev=prefabs> shows every prefab and variant in two
+colour sets. Click to look, **W A S D** to fly, **Q / E** down and up, **Shift** faster, **F**
+toggles footprint outlines (the collider size). Options: `&only=sofa_3seat,bed_double`,
+`&outlines=1`, `&camera=x,y,z,yaw,pitch`.
+
 ## End-to-end tests (Playwright)
 
 ```sh
