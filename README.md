@@ -71,6 +71,7 @@ pnpm gen validate M1-7K2Q-X9MP                         # validator issues, or "v
 pnpm gen dump M1-7K2Q-X9MP --json m.json --svg m.svg   # level JSON and link-graph picture
 pnpm gen sweep --difficulty easy --count 10000         # validity, retry rate, timings
 pnpm gen golden                                        # check the golden seeds (--write to update)
+pnpm gen fixtures --write                              # re-furnish the client fixture house
 ```
 
 ## Commands
@@ -98,8 +99,8 @@ docs/
   adr/               architecture decision records
   checkpoints/       CP01 … CP10 work packages
 packages/
-  shared/            @ogm/shared: seed codec, door geometry, Zod DTOs, graph searches
-  generator/         @ogm/generator: deterministic topology generator, validator, CLI
+  shared/            @ogm/shared: seed codec, door geometry, Zod DTOs, graph, prefab catalogue
+  generator/         @ogm/generator: deterministic topology, furnishing, validator, CLI
   server/            @ogm/server: Fastify backend (CP07)
   client/            @ogm/client: Three.js engine and React UI shell
 e2e/                 Playwright tests (CP03, CP10)
