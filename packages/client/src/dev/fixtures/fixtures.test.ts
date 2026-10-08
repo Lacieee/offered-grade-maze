@@ -39,7 +39,7 @@ const LINKS: Record<string, string | null> = {
   'r01.d2': 'r02.d0',
   'r02.d0': 'r03.d0',
   'r02.d1': 'r02.d0',
-  'r03.d0': 'r01.d3',
+  'r03.d0': 'r01.d2',
   'r01.d3': null,
   'r03.d1': 'r05.d0',
   'r05.d0': 'r03.d1',
@@ -139,6 +139,16 @@ describe('fixture house', () => {
       }
     }
     expect(actual).toEqual(LINKS);
+  });
+
+  it('no link arrives at a sealed door (PD9: sealed doors are decorative)', () => {
+    for (const r of FIXTURE_ROOMS) {
+      for (const d of r.doors) {
+        if (!d.link) continue;
+        const arrival = room(d.link.room).doors.find((t) => t.id === d.link?.door);
+        expect(arrival?.link, `${r.id}.${d.id} → ${d.link.room}.${d.link.door}`).not.toBeNull();
+      }
+    }
   });
 
   it('every link points at an existing door', () => {

@@ -343,7 +343,8 @@ export class PortalRenderer {
       if (!door.link || id === node.arrival) continue;
       const target = this.getRoom(door.link.room);
       const arrival = target?.doors.get(door.link.door);
-      if (!target || !arrival) continue;
+      // A link into a sealed door is invalid (PD9): show the fallback, never the panel's back.
+      if (!target || !arrival || arrival.link === null) continue;
       const toDoor = doorMatrix(door.frame);
       // Behind the portal plane: the opening faces away from the camera.
       const local = camPos.clone().applyMatrix4(toDoor.clone().invert());

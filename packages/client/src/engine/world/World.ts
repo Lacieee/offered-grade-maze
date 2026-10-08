@@ -3,8 +3,8 @@
  * game, so a room is built once and its scene is reused wherever it appears (current room,
  * behind several portals, through a self-link).
  */
-import type { RoomDTO, RoomId } from '@ogm/shared';
-import { buildRoom, type RoomView } from '../rooms/buildRoom.js';
+import type { LinkDTO, RoomDTO, RoomId } from '@ogm/shared';
+import { buildRoom, type RoomDoor, type RoomView } from '../rooms/buildRoom.js';
 
 export class World {
   private readonly rooms = new Map<RoomId, RoomView>();
@@ -41,6 +41,18 @@ export class World {
   /** The cached room, if loaded. */
   get(id: RoomId): RoomView | undefined {
     return this.rooms.get(id);
+  }
+
+  /**
+   * The door a link arrives at, if the player may go through: the target room is loaded and
+   * the arrival door is not sealed. Sealed doors are decorative (PD9): a link that arrives at
+   * one is invalid data, and is treated like a closed doorway rather than letting the player
+   * arrive inside a door panel.
+   */
+  enterableTarget(link: LinkDTO | null): RoomDoor | undefined {
+    if (!link) return undefined;
+    const door = this.rooms.get(link.room)?.doors.get(link.door);
+    return door && door.link !== null ? door : undefined;
   }
 
   /** True if the room is loaded. */

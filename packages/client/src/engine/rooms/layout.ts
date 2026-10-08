@@ -33,17 +33,33 @@ export const DOOR_PANEL_THICKNESS = 0.04;
 export const DEFAULT_FURNITURE = { w: 0.6, h: 0.8, d: 0.6 } as const;
 /** Furniture colour when `colors` is empty. */
 export const DEFAULT_FURNITURE_COLOR = '#808080';
+/**
+ * Doorway colours (PD10). Every doorway looks the same in every room, so the two halves of a
+ * doorway (one from each room) join seamlessly and a crossing is invisible.
+ */
+export const DOORWAY_FRAME_COLOR = '#e9e3d8';
+/** Doorstep colour (PD10). */
+export const DOORSTEP_COLOR = '#7b5b40';
+/** Closed door panel colour (sealed doors). */
+export const DOOR_PANEL_COLOR = '#ece8e0';
+/** Doorstep height above the floor (m). */
+export const DOORSTEP_HEIGHT = 0.012;
+/** How far the doorstep reaches into the room from the footprint edge (m). */
+export const DOORSTEP_LIP = 0.04;
 /** Door handle colour. */
 export const HANDLE_COLOR = '#3a3a3a';
 
 /** Which material a box is drawn with. Furniture boxes use their own colour. */
-export type MaterialKey = 'wall' | 'floor' | 'trim' | 'panel' | 'handle' | `furniture:${string}`;
+export type MaterialKey =
+  'wall' | 'floor' | 'doorframe' | 'doorstep' | 'panel' | 'handle' | `furniture:${string}`;
 
 /** An axis-aligned box in room coordinates. */
 export interface LayoutBox {
   mat: MaterialKey;
   min: [number, number, number];
   max: [number, number, number];
+  /** For doorway parts: the room axis the wall runs along (for door-relative shading). */
+  along?: 'x' | 'z';
 }
 
 /** One wall's frame and its door openings. */
@@ -97,6 +113,7 @@ function wallBox(
     mat,
     min: [Math.min(p.x, q.x), y0, Math.min(p.z, q.z)],
     max: [Math.max(p.x, q.x), y1, Math.max(p.z, q.z)],
+    along: Math.abs(w.right.x) > 0.5 ? 'x' : 'z',
   };
 }
 
@@ -199,16 +216,18 @@ export function layoutRoom(room: RoomDTO): RoomLayout {
     const l = c - DOOR_WIDTH / 2;
     const r = c + DOOR_WIDTH / 2;
 
-    // Threshold: floor between the footprint edge and the portal plane.
-    boxes.push(wallBox(w, 'floor', [l, r], [-WALL_HALF, 0], [-0.02, 0]));
+    // Doorstep: across the whole opening, from the portal plane to a lip in the room.
+    boxes.push(
+      wallBox(w, 'doorstep', [l, r], [-WALL_HALF, DOORSTEP_LIP], [-0.02, DOORSTEP_HEIGHT]),
+    );
     // Casing on the room side: two jambs and a head.
     const top = DOOR_HEIGHT + CASING_WIDTH;
-    boxes.push(wallBox(w, 'trim', [l - CASING_WIDTH, l], [0, CASING_DEPTH], [0, top]));
-    boxes.push(wallBox(w, 'trim', [r, r + CASING_WIDTH], [0, CASING_DEPTH], [0, top]));
+    boxes.push(wallBox(w, 'doorframe', [l - CASING_WIDTH, l], [0, CASING_DEPTH], [0, top]));
+    boxes.push(wallBox(w, 'doorframe', [r, r + CASING_WIDTH], [0, CASING_DEPTH], [0, top]));
     boxes.push(
       wallBox(
         w,
-        'trim',
+        'doorframe',
         [l - CASING_WIDTH, r + CASING_WIDTH],
         [0, CASING_DEPTH],
         [DOOR_HEIGHT, top],

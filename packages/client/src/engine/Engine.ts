@@ -391,14 +391,14 @@ export class Engine {
     this.portals?.resetTargets();
   }
 
-  /** Colliders of the current room, plus blocks on linked doors whose target is not loaded. */
+  /** Colliders of the current room, plus blocks on linked doors that cannot be entered. */
   private activeColliders(view: RoomView): Collider[] {
     const cache = this.collidersCache;
     if (cache?.room === view.id && cache.version === this.world.version) return cache.colliders;
     const colliders = [...view.colliders];
     for (const [id, block] of view.portalBlocks) {
-      const link = view.doors.get(id)?.link;
-      if (!link || !this.world.get(link.room)?.doors.has(link.door)) colliders.push(block);
+      const link = view.doors.get(id)?.link ?? null;
+      if (!this.world.enterableTarget(link)) colliders.push(block);
     }
     this.collidersCache = { room: view.id, version: this.world.version, colliders };
     return colliders;
@@ -409,7 +409,7 @@ export class Engine {
     const out: CrossableDoor[] = [];
     for (const [id, door] of view.doors) {
       if (!door.link) continue;
-      const target = this.world.get(door.link.room)?.doors.get(door.link.door);
+      const target = this.world.enterableTarget(door.link);
       if (target) out.push({ id, frame: door.frame, link: door.link, targetFrame: target.frame });
     }
     return out;

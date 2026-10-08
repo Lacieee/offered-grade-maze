@@ -109,7 +109,7 @@ describe('layoutRoom', () => {
 
   it('builds casings of the specified size and a door panel only for sealed doors', () => {
     const { boxes } = layoutRoom(room('r01'));
-    const trim = boxes.filter((b) => b.mat === 'trim');
+    const trim = boxes.filter((b) => b.mat === 'doorframe');
     expect(trim).toHaveLength(4 * 3);
     const depths = trim.map((b) => Math.min(b.max[0] - b.min[0], b.max[2] - b.min[2]));
     for (const d of depths) expect(d).toBeCloseTo(CASING_DEPTH);
@@ -216,5 +216,68 @@ describe('buildRoom', () => {
     expect(view.colliders.some((c) => c.kind === 'box')).toBe(false);
     view.dispose();
     expect(view.scene.children).toHaveLength(0);
+  });
+});
+
+describe('doorways (PD10: identical in every room, so a crossing is invisible)', () => {
+  /** Doorway vertices (frame + doorstep) near a door, in door-local coordinates, with colours. */
+  function doorwaySignature(roomId: string, doorId: string, tunnelOnly: boolean): string[] {
+    const view = buildRoom(room(roomId));
+    const door = view.doors.get(doorId);
+    if (!door) throw new Error('missing door');
+    const toLocal = door.anchor.matrix.clone().invert();
+    const out: string[] = [];
+    view.scene.traverse((o) => {
+      if (!(o instanceof THREE.Mesh) || !['doorframe', 'doorstep'].includes(o.name)) return;
+      const geometry = o.geometry as THREE.BufferGeometry;
+      const pos = geometry.getAttribute('position');
+      const col = geometry.getAttribute('color');
+      const v = new THREE.Vector3();
+      for (let i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(toLocal);
+        if (Math.abs(v.x) > 0.7 || v.z < -1e-6 || v.z > (tunnelOnly ? WALL_HALF + 1e-6 : 0.3)) {
+          continue;
+        }
+        // Rounded, with −0 folded into 0.
+        const f = (n: number) => (Math.round(n * 1e4) / 1e4 + 0).toFixed(4);
+        const c = [col.getX(i), col.getY(i), col.getZ(i)].map(f).join(',');
+        out.push(`${f(Math.abs(v.x))},${f(v.y)},${f(v.z)}|${o.name}|${c}`);
+      }
+    });
+    view.dispose();
+    return out.sort();
+  }
+
+  it('the tunnel half of every doorway is identical in shape and colour in every room', () => {
+    const reference = doorwaySignature('r00', 'd0', true);
+    expect(reference.length).toBeGreaterThan(0);
+    for (const [r, d] of [
+      ['r01', 'd0'],
+      ['r02', 'd1'],
+      ['r03', 'd1'],
+      ['r04', 'd2'],
+      ['r05', 'd1'],
+    ] as const) {
+      expect(doorwaySignature(r, d, true), `${r}.${d}`).toEqual(reference);
+    }
+  });
+
+  it('doorway materials are unlit, so room lighting cannot make the two halves differ', () => {
+    const view = buildRoom(room('r04'));
+    const names: string[] = [];
+    view.scene.traverse((o) => {
+      if (o instanceof THREE.Mesh && ['doorframe', 'doorstep'].includes(o.name)) {
+        names.push(o.name);
+        expect(o.material).toBeInstanceOf(THREE.MeshBasicMaterial);
+      }
+    });
+    expect(names.sort()).toEqual(['doorframe', 'doorstep']);
+    view.dispose();
+  });
+
+  it('every doorway has a doorstep spanning the tunnel and a lip into the room', () => {
+    const steps = layoutRoom(room('r00')).boxes.filter((b) => b.mat === 'doorstep');
+    expect(steps).toHaveLength(3);
+    for (const b of steps) expect(b.max[1]).toBeGreaterThan(0);
   });
 });

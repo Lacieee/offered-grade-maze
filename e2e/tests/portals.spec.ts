@@ -86,8 +86,12 @@ test('the spec §2 scenario: links behave as the fixture house defines', async (
   expect(await walkThrough('r01', 'd2')).toBe('r02'); // kitchen → bedroom
   expect(await walkThrough('r02', 'd0')).toBe('r03'); // turn around: same doorway → bathroom
   expect(await walkThrough('r02', 'd1')).toBe('r02'); // self-link
-  expect(await walkThrough('r03', 'd0')).toBe('r01'); // bathroom → kitchen…
-  // …and that kitchen door is sealed from the inside: walking at it goes nowhere.
+  expect(await walkThrough('r03', 'd0')).toBe('r01'); // bathroom → kitchen (one-way: back
+  // through that kitchen door leads to the bedroom, not the bathroom)
+  const state0 = await page.evaluate(() => window.__ogm?.getState());
+  expect(state0?.room).toBe('r01');
+  expect(await walkThrough('r01', 'd2')).toBe('r02');
+  // The kitchen's sealed door is decorative (PD9): walking at it goes nowhere.
   const sealed = frontOf('r01', 'd3', 0.8);
   await setPose(page, 'r01', sealed.x, sealed.z, sealed.yaw);
   await step(page, 60, true);

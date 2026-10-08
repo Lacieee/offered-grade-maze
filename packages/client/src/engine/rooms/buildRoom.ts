@@ -17,7 +17,15 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Collider, SegmentCollider } from '../player/physics.js';
 import { createPortalView, type PortalView } from '../portals/PortalMesh.js';
-import { HANDLE_COLOR, layoutRoom, type MaterialKey, type WallLayout } from './layout.js';
+import {
+  DOORSTEP_COLOR,
+  DOORWAY_FRAME_COLOR,
+  DOOR_PANEL_COLOR,
+  HANDLE_COLOR,
+  layoutRoom,
+  type MaterialKey,
+  type WallLayout,
+} from './layout.js';
 import { createLightRig, type LightRig } from './lightRig.js';
 
 /** A door as the engine sees it. */
@@ -46,10 +54,19 @@ export interface RoomView {
   dispose(): void;
 }
 
+/** Wall frame → room: x → right, y → up, z → inward (a proper rotation, never a mirror). */
+function wallToRoom(w: WallLayout): THREE.Matrix4 {
+  const m = new THREE.Matrix4().makeBasis(
+    new THREE.Vector3(w.right.x, 0, w.right.z),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(w.inward.x, 0, w.inward.z),
+  );
+  return m.setPosition(w.centre.x, 0, w.centre.z);
+}
+
 /**
- * The visible surfaces of one wall: its interior face as a single polygon with a notch per
- * door (no hidden faces, no T-junctions), plus each opening's two jambs and head, which run
- * from the face to the portal plane.
+ * The interior face of one wall: a single polygon with a notch per door (no hidden faces,
+ * no T-junctions).
  */
 export function wallGeometries(w: WallLayout, height: number): THREE.BufferGeometry[] {
   const half = w.length / 2;
@@ -64,8 +81,47 @@ export function wallGeometries(w: WallLayout, height: number): THREE.BufferGeome
   }
   outline.push(new THREE.Vector2(half, 0), new THREE.Vector2(half, height));
   outline.push(new THREE.Vector2(-half, height));
-  const parts: THREE.BufferGeometry[] = [new THREE.ShapeGeometry(new THREE.Shape(outline))];
+  const face = new THREE.ShapeGeometry(new THREE.Shape(outline));
+  face.applyMatrix4(wallToRoom(w));
+  return [face];
+}
 
+/**
+ * Door-relative flat shading for doorway parts (PD10). Doorways are unlit, so both halves of
+ * a doorway (each drawn by its own room, under its own lights) look exactly alike. The shade
+ * depends only on the face's direction relative to the door: top, along the wall (jamb
+ * faces), into/out of the room, or bottom.
+ */
+export function doorwayShade(along: number, up: number, inward: number): number {
+  if (up > 0.5) return 1;
+  if (up < -0.5) return 0.62;
+  if (Math.abs(along) > Math.abs(inward)) return 0.8;
+  return 0.92;
+}
+
+/** Adds a per-vertex colour attribute: `color` × the door-relative shade of each face. */
+function paintDoorway(
+  g: THREE.BufferGeometry,
+  color: THREE.Color,
+  axes: (n: THREE.Vector3) => [number, number, number],
+): void {
+  const normal = g.getAttribute('normal');
+  const colors = new Float32Array(normal.count * 3);
+  const n = new THREE.Vector3();
+  for (let i = 0; i < normal.count; i++) {
+    n.fromBufferAttribute(normal, i);
+    const k = doorwayShade(...axes(n));
+    colors[i * 3] = color.r * k;
+    colors[i * 3 + 1] = color.g * k;
+    colors[i * 3 + 2] = color.b * k;
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+}
+
+/** The tunnel of each opening: two jambs and a head, from the wall face to the portal plane. */
+export function doorwayGeometries(w: WallLayout): THREE.BufferGeometry[] {
+  const frame = new THREE.Color(DOORWAY_FRAME_COLOR);
+  const parts: THREE.BufferGeometry[] = [];
   for (const [l, r] of w.openings) {
     const left = new THREE.PlaneGeometry(WALL_HALF, DOOR_HEIGHT);
     left.rotateY(Math.PI / 2); // faces +u, into the opening
@@ -78,15 +134,12 @@ export function wallGeometries(w: WallLayout, height: number): THREE.BufferGeome
     head.translate((l + r) / 2, DOOR_HEIGHT, -WALL_HALF / 2);
     parts.push(left, right, head);
   }
-
-  // Wall frame → room: x → right, y → up, z → inward (a proper rotation, never a mirror).
-  const toRoom = new THREE.Matrix4().makeBasis(
-    new THREE.Vector3(w.right.x, 0, w.right.z),
-    new THREE.Vector3(0, 1, 0),
-    new THREE.Vector3(w.inward.x, 0, w.inward.z),
-  );
-  toRoom.setPosition(w.centre.x, 0, w.centre.z);
-  for (const g of parts) g.applyMatrix4(toRoom);
+  const toRoom = wallToRoom(w);
+  for (const g of parts) {
+    // Shade in the wall frame (x along the wall, z inward), then place in the room.
+    paintDoorway(g, frame, (n) => [n.x, n.y, n.z]);
+    g.applyMatrix4(toRoom);
+  }
   return parts;
 }
 
@@ -109,9 +162,12 @@ function materialFor(key: MaterialKey, dto: RoomDTO): THREE.Material {
       return color(dto.palette.wall);
     case 'floor':
       return color(dto.palette.floor);
-    case 'trim':
+    case 'doorframe':
+    case 'doorstep':
+      // Unlit, with door-relative shading baked into vertex colours (PD10).
+      return new THREE.MeshBasicMaterial({ vertexColors: true });
     case 'panel':
-      return color(dto.palette.trim);
+      return color(DOOR_PANEL_COLOR);
     case 'handle':
       return color(HANDLE_COLOR);
     default:
@@ -125,8 +181,7 @@ export function buildRoom(dto: RoomDTO): RoomView {
   scene.name = `room:${dto.id}`;
   const layout = layoutRoom(dto);
 
-  // Group boxes by material key ('panel' shares the trim colour but stays separate so CP03
-  // can tell door panels apart).
+  // Group geometry by material key; each group becomes one merged mesh (one draw call).
   const groups = new Map<MaterialKey, THREE.BufferGeometry[]>();
   const add = (key: MaterialKey, g: THREE.BufferGeometry): void => {
     const list = groups.get(key) ?? [];
@@ -138,10 +193,16 @@ export function buildRoom(dto: RoomDTO): RoomView {
     const [x1, y1, z1] = b.max;
     const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0);
     g.translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+    if (b.mat === 'doorframe' || b.mat === 'doorstep') {
+      const base = new THREE.Color(b.mat === 'doorstep' ? DOORSTEP_COLOR : DOORWAY_FRAME_COLOR);
+      // Box normals are axis-aligned; map them to (along the wall, up, inward).
+      paintDoorway(g, base, (n) => (b.along === 'z' ? [n.z, n.y, n.x] : [n.x, n.y, n.z]));
+    }
     add(b.mat, g);
   }
   for (const w of layout.walls) {
     for (const g of wallGeometries(w, dto.height)) add('wall', g);
+    for (const g of doorwayGeometries(w)) add('doorframe', g);
   }
   // Floor and ceiling planes covering the footprint, tessellated into ≤ 0.5 m tiles: big
   // triangles with a vertex on the camera plane (the camera passes the footprint edge at
