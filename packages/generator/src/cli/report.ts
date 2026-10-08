@@ -33,6 +33,8 @@ export function summary(level: Level, ms: number): string {
       const to = d.link === null ? 'sealed' : `→ ${d.link.room}.${d.link.door}`;
       lines.push(`    ${d.id} ${d.wall} ${String(d.offset).padStart(5)}  ${to}`);
     }
+    const items = r.furniture.map((f) => (f.signature === true ? `★${f.prefab}` : f.prefab));
+    lines.push(`    furniture: ${items.join(', ')}`);
   }
   lines.push('');
   lines.push(metricsLine(meta.metrics));
@@ -45,7 +47,7 @@ export function metricsLine(m: LevelMetrics): string {
     `rooms ${m.rooms}  doors ${m.doors}  links ${m.links}  shortest ${m.shortest}  ` +
     `asymmetric ${(m.asymmetricShare / 10).toFixed(1)} %  self ${m.selfLinks}  ` +
     `sealed ${m.sealedDoors}  longBack ${m.longBackLinks}  twins ${m.twins}  ` +
-    `misleading ${m.misleadingDoors}`
+    `misleading ${m.misleadingDoors}  missingRequired ${m.missingRequired}`
   );
 }
 

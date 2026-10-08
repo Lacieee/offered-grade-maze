@@ -14,10 +14,16 @@ describe('CLI helpers', () => {
     expect(text).toMatch(/asymmetric \d+\.\d %/);
   });
 
-  it('svg has a box per room and a path per link', () => {
+  it('svg has a box per room, a path per link and a floor plan per room', () => {
     const svg = levelSvg(level);
     expect(svg.startsWith('<svg')).toBe(true);
-    expect(svg.match(/<rect x=/g)).toHaveLength(level.rooms.length);
+    expect(svg.match(/<rect x="[\d.]+" y="[\d.]+" width="150" height="46" rx="6"/g)).toHaveLength(
+      level.rooms.length,
+    );
+    // One floor plan per room, with every furniture item.
+    expect(svg.match(/ · \d+(\.\d+)? × \d+(\.\d+)? m/g)).toHaveLength(level.rooms.length);
+    const items = level.rooms.reduce((n, r) => n + r.furniture.length, 0);
+    expect(svg.match(/<title>f\d\d /g)).toHaveLength(items);
     expect(svg.match(/<path d="M[\d.]+ [\d.]+ [Qc]/g)).toHaveLength(level.meta.metrics.links);
   });
 

@@ -27,8 +27,10 @@ import {
 } from '../types.js';
 import { validateLevel } from '../validate/validate.js';
 import { checkDepthInvariants } from '../validate/invariants.js';
+import { missingRequired } from '../metrics/metrics.js';
 import { histogram, issuesText, metricsLine, percentile, summary } from './report.js';
 import { levelSvg } from './svg.js';
+import { furnishFixtures } from './fixtures.js';
 
 const USAGE = `Usage: pnpm gen <command> [options]
 
@@ -37,8 +39,10 @@ const USAGE = `Usage: pnpm gen <command> [options]
   validate <seed>                              validator issues, or "valid"
   dump     <seed> [--json <file>] [--svg <file>]
   sweep    --difficulty <d> [--count 10000] [--from 0] [--max-retry 2]
-           fails on any invalid level or a retry rate of --max-retry % or more
-  golden   [--write]                           golden seeds and hashes (test/golden.json)`;
+           fails on any invalid level, a retry rate of --max-retry % or more,
+           or more than 0.1 % of rooms missing a required item
+  golden   [--write]                           golden seeds and hashes (test/golden.json)
+  fixtures [--write]                           furnish the client fixture house (CP05)`;
 
 /** Paths are relative to where the user ran `pnpm gen`, not the repository root. */
 function userPath(p: string): string {
@@ -66,6 +70,9 @@ function sweep(d: Difficulty, count: number, from: number, maxRetryPercent: numb
   const reasons = new Map<string, number>();
   const metrics = new Map<string, number[]>();
   let invalid = 0;
+  let rooms = 0;
+  let roomsMissing = 0;
+  const missingBy = new Map<string, number>();
   let retried = 0;
   let attempts = 0;
   let errors = 0;
@@ -89,6 +96,16 @@ function sweep(d: Difficulty, count: number, from: number, maxRetryPercent: numb
       levelMs.push(performance.now() - t0);
       if (level.meta.attempts > 1) retried++;
       if (validateLevel(level).length > 0 || checkDepthInvariants(level).length > 0) invalid++;
+      for (const room of level.rooms) {
+        rooms++;
+        const missing = missingRequired(room);
+        if (missing.length === 0) continue;
+        roomsMissing++;
+        for (const m of missing) {
+          const key = `${room.type}: ${m}`;
+          missingBy.set(key, (missingBy.get(key) ?? 0) + 1);
+        }
+      }
       const m = level.meta.metrics;
       for (const k of Object.keys(m) as (keyof LevelMetrics)[]) {
         const list = metrics.get(k) ?? [];
@@ -106,6 +123,16 @@ function sweep(d: Difficulty, count: number, from: number, maxRetryPercent: numb
   const pct = (x: number): string => `${((100 * x) / count).toFixed(2)} %`;
   console.log(`sweep ${d}: ${count} seeds from ${counterSeed(d, from)}`);
   console.log(`  invalid levels     ${invalid}`);
+  const missingShare = rooms === 0 ? 0 : (100 * roomsMissing) / rooms;
+  console.log(
+    `  rooms missing a required item  ${roomsMissing} of ${rooms} (${missingShare.toFixed(3)} %)` +
+      (missingBy.size > 0
+        ? `: ${[...missingBy.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .map(([k, v]) => `${k} ×${v}`)
+            .join(', ')}`
+        : ''),
+  );
   console.log(`  generation errors  ${errors}`);
   console.log(`  retried levels     ${retried} (${pct(retried)})  attempts ${attempts}`);
   console.log(
@@ -131,7 +158,10 @@ function sweep(d: Difficulty, count: number, from: number, maxRetryPercent: numb
   }
   const tooManyRetries = 100 * retried >= maxRetryPercent * count;
   if (tooManyRetries) console.log(`  FAIL: retry rate is not below ${maxRetryPercent} %`);
-  return invalid + errors > 0 || tooManyRetries ? 1 : 0;
+  // CP05: missingRequired = 0 in at least 99.9 % of rooms.
+  const tooManyMissing = 1000 * roomsMissing > rooms;
+  if (tooManyMissing) console.log('  FAIL: more than 0.1 % of rooms miss a required item');
+  return invalid + errors > 0 || tooManyRetries || tooManyMissing ? 1 : 0;
 }
 
 /** test/golden.json, next to src/ (works from src/cli and dist/cli). */
@@ -213,6 +243,19 @@ function main(argv: string[]): number {
       }
       const maxRetry = Number(values['max-retry'] ?? '2');
       return sweep(difficultyOf(values.difficulty), count, from, maxRetry);
+    }
+    case 'fixtures': {
+      const { rooms, issues } = furnishFixtures(values.write === true);
+      for (const r of rooms) {
+        console.log(
+          `${r.id} ${r.type}: ${r.furniture.map((f) => (f.signature ? `★${f.prefab}` : f.prefab)).join(', ')}`,
+        );
+      }
+      console.log(issuesText(issues.map((m) => ({ check: 'V7', message: m }))));
+      if (values.write === true && issues.length === 0) {
+        console.log('wrote packages/client/src/dev/fixtures (run pnpm format)');
+      }
+      return issues.length === 0 ? 0 : 1;
     }
     case 'golden': {
       const entries = goldenSeeds().map((seed) => {
