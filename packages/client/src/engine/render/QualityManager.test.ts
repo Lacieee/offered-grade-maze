@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { QUALITY_LEVELS, QualityManager } from './QualityManager.js';
+import { AUTO_LEVELS, QualityManager } from './QualityManager.js';
 
 /** Feeds a constant frame time every 100 ms for `seconds` (with a display refresh interval). */
 function run(q: QualityManager, from: number, seconds: number, avg: number, refresh = 0): number {
@@ -12,17 +12,29 @@ function run(q: QualityManager, from: number, seconds: number, avg: number, refr
 }
 
 describe('QualityManager', () => {
-  it('steps down in order: MSAA off, level-1 scale 0.75, depth 2', () => {
+  it('steps down in order: MSAA off, level-1 scale 0.75, then smaller deep levels', () => {
     const q = new QualityManager('auto');
-    expect(q.settings).toEqual({ msaa: true, level1Scale: 1, maxDepth: 3 });
+    expect(q.settings).toEqual({ msaa: true, level1Scale: 1, deepScale: 1, maxDepth: 3 });
     let t = run(q, 0, 2.5, 30);
-    expect(q.settings).toEqual({ msaa: false, level1Scale: 1, maxDepth: 3 });
+    expect(q.settings).toEqual({ msaa: false, level1Scale: 1, deepScale: 1, maxDepth: 3 });
     t = run(q, t, 2.1, 30);
-    expect(q.settings).toEqual({ msaa: false, level1Scale: 0.75, maxDepth: 3 });
+    expect(q.settings).toEqual({ msaa: false, level1Scale: 0.75, deepScale: 1, maxDepth: 3 });
     t = run(q, t, 2.1, 30);
-    expect(q.settings).toEqual({ msaa: false, level1Scale: 0.75, maxDepth: 2 });
+    expect(q.settings).toEqual({ msaa: false, level1Scale: 0.6, deepScale: 0.6, maxDepth: 3 });
     run(q, t, 10, 30);
-    expect(q.level).toBe(QUALITY_LEVELS.length - 1);
+    expect(q.level).toBe(AUTO_LEVELS - 1);
+  });
+
+  // CP06 review (round 3): a room three doors away showed its fallback colour on the Mac.
+  // Dropping a whole portal level is the most visible saving there is, and saves little:
+  // automatic quality keeps depth 3 and lowers resolution instead. Only Low drops it.
+  it('automatic quality never lowers the portal depth; Low does', () => {
+    const q = new QualityManager('auto');
+    for (let t = 0; t < 60_000; t += 100) {
+      q.update(t, 80);
+      expect(q.settings.maxDepth).toBe(3);
+    }
+    expect(new QualityManager('low').settings.maxDepth).toBe(2);
   });
 
   it('waits 2 s after a change before judging again', () => {
@@ -63,7 +75,7 @@ describe('QualityManager', () => {
   it('steps back up on a 60 Hz display, where frames never get below 16.7 ms', () => {
     const q = new QualityManager('auto');
     let t = run(q, 0, 7, 30);
-    expect(q.settings.maxDepth).toBe(2);
+    expect(q.level).toBe(AUTO_LEVELS - 1);
     // Steady 60 fps: every frame makes the refresh.
     t = run(q, t, 10.5, 16.7, 16.7);
     expect(q.level).toBe(2);

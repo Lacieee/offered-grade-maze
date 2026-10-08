@@ -404,7 +404,11 @@ export class Engine {
     if (!portals) return;
     const before = portals.settings;
     const next = { ...before, ...this.quality.settings };
-    if (next.msaa !== before.msaa || next.level1Scale !== before.level1Scale) {
+    if (
+      next.msaa !== before.msaa ||
+      next.level1Scale !== before.level1Scale ||
+      next.deepScale !== before.deepScale
+    ) {
       portals.resetTargets();
     }
     portals.settings = next;

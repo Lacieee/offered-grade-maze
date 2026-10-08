@@ -122,6 +122,12 @@ The fix:
 - Floor and painting textures upload when a room loads, not on the frame a portal first
   shows the room. Uploading them during play caused hitches.
 - The `?perf=1` overlay shows the quality mode and level.
+- **Automatic quality keeps portal depth 3** (review, round 3). The steps are now: MSAA off;
+  level-1 scale 0.75; then level-1 scale 0.6 with deeper levels at 0.6 of their size. A missing
+  third room is the most visible saving there is, and it saves little, because deep portals
+  are small and scissored. Only the pinned Low setting renders depth 2. An e2e test forces
+  slow frames down to the lowest automatic level and checks, from the reported pose in r05,
+  that r00 is still drawn at level 3.
 
 ### 8. Dev tools
 

@@ -240,3 +240,28 @@ test('frames between the two states of a crossing step never flash (G1 feedback)
     }
   }
 });
+
+// CP06 review: from the study (r05) the living room (r00) is three doors away, through the
+// bathroom (r03) and the kitchen (r01). On a slow frame rate it showed its flat fallback
+// colour, because automatic quality used to drop the portal depth to 2.
+test('slow frames lower resolution but keep the third room visible', async ({ page }) => {
+  const console = watchConsole(page);
+  await openFixtures(page, { room: 'r05', quality: 'auto' });
+  await page.evaluate(() => {
+    window.__ogm?.slowFrames(30);
+  });
+  await expect
+    .poll(async () => (await page.evaluate(() => window.__ogm?.info()))?.qualityLevel ?? 0, {
+      timeout: 30_000,
+    })
+    .toBe(3);
+  await setPose(page, 'r05', 0.98, 0.28, (163 * Math.PI) / 180);
+  const tree = await page.evaluate(() => window.__ogm?.portalTree() ?? []);
+  expect(tree.map((n) => `${n.room}:${String(n.level)}`)).toEqual([
+    'r05:0',
+    'r03:1',
+    'r01:2',
+    'r00:3',
+  ]);
+  expect(console).toEqual([]);
+});

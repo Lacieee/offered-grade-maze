@@ -34,8 +34,10 @@ export interface PortalSettings {
   maxPasses: number;
   /** 4× MSAA on portal targets. */
   msaa: boolean;
-  /** Resolution scale of level-1 targets (1.0; lower quality: 0.75). */
+  /** Resolution scale of level-1 targets (1.0; lower quality: 0.75, 0.6). */
   level1Scale: number;
+  /** Extra resolution scale of level-2 and deeper targets (1.0; lowest quality: 0.6). */
+  deepScale: number;
   /** `?portalDebug=1`: tint each recursion level. */
   debugTint: boolean;
 }
@@ -45,6 +47,7 @@ export const DEFAULT_PORTAL_SETTINGS: PortalSettings = {
   maxPasses: 12,
   msaa: true,
   level1Scale: 1,
+  deepScale: 1,
   debugTint: false,
 };
 
@@ -399,7 +402,10 @@ export class PortalRenderer {
 
   /** Renders one node: points its portals at its children, then draws the room. */
   private renderPass(node: PortalNode, into: THREE.WebGLRenderTarget | null = null): void {
-    const scale = node.level === 1 ? this.settings.level1Scale : (LEVEL_SCALE[node.level] ?? 0.5);
+    const scale =
+      node.level === 1
+        ? this.settings.level1Scale
+        : (LEVEL_SCALE[node.level] ?? 0.5) * (node.level >= 2 ? this.settings.deepScale : 1);
     const width = Math.max(1, Math.round(this.bufferSize.x * scale));
     const height = Math.max(1, Math.round(this.bufferSize.y * scale));
     const viewport = node.level === 0 ? this.bufferSize : new THREE.Vector2(width, height);
