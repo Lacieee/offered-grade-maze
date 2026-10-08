@@ -479,9 +479,12 @@ function specials(rng: Sfc32, draft: Draft, difficulty: Difficulty): void {
     rng.pick(specialsOnLeastPairable ? leastPairable(draft, options) : options);
 
   // Sealed (PD9): only a free slot that nothing arrives at, and nothing will (enterable()
-  // and pickArrival() skip sealed doors).
+  // and pickArrival() skip sealed doors). At most one sealed door per room, so no room is
+  // mostly closed doors.
   for (let i = 0; i < sealed; i++) {
-    const options = allFreeSlots(draft).filter((s) => draft.door(s).arrivals === 0);
+    const options = allFreeSlots(draft).filter(
+      (s) => draft.door(s).arrivals === 0 && !draft.room(s.room).doors.some((d) => d.sealed),
+    );
     if (options.length === 0) throw new AttemptFailed('no door left to seal');
     draft.door(choose(options)).sealed = true;
   }

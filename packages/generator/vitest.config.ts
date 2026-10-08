@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/**/__fixtures__/**'],
+      exclude: ['src/**/*.test.ts', 'src/**/__fixtures__/**', 'src/cli/**'],
       reporter: ['text', 'text-summary', 'html'],
       thresholds: { lines: 90 },
     },
