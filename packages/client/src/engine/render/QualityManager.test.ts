@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { QUALITY_LEVELS, QualityManager } from './QualityManager.js';
 
-/** Feeds a constant frame time every 100 ms for `seconds`. */
-function run(q: QualityManager, from: number, seconds: number, avg: number): number {
+/** Feeds a constant frame time every 100 ms for `seconds` (with a display refresh interval). */
+function run(q: QualityManager, from: number, seconds: number, avg: number, refresh = 0): number {
   let t = from;
   for (let i = 0; i < seconds * 10; i++) {
     t += 100;
-    q.update(t, avg);
+    q.update(t, avg, refresh);
   }
   return t;
 }
@@ -56,5 +56,54 @@ describe('QualityManager', () => {
     expect(low.settings.maxDepth).toBe(2);
     low.setMode('auto');
     expect(low.level).toBe(0);
+  });
+
+  // CP06 review: a room three doors away showed its fallback colour on a Mac, because
+  // quality had stepped down to depth 2 and never came back.
+  it('steps back up on a 60 Hz display, where frames never get below 16.7 ms', () => {
+    const q = new QualityManager('auto');
+    let t = run(q, 0, 7, 30);
+    expect(q.settings.maxDepth).toBe(2);
+    // Steady 60 fps: every frame makes the refresh.
+    t = run(q, t, 10.5, 16.7, 16.7);
+    expect(q.level).toBe(2);
+    run(q, t, 30, 16.7, 16.7);
+    expect(q.level).toBe(0);
+  });
+
+  it('does not step up while frames miss the refresh', () => {
+    const q = new QualityManager('auto');
+    let t = run(q, 0, 2.5, 30);
+    t = run(q, t, 30, 19, 16.7);
+    expect(q.level).toBe(1);
+    // 120 Hz display at 10 ms: below 12 ms counts as fast, as before.
+    run(q, t, 10.5, 10, 8.3);
+    expect(q.level).toBe(0);
+  });
+
+  it('a pause (hidden tab, window switch, long hitch) restarts judging instead of stepping down', () => {
+    const q = new QualityManager('auto');
+    run(q, 0, 3, 10);
+    q.pause(3000);
+    // The 2 s window still holds the pause: nothing changes until it has refilled.
+    expect(q.update(3100, 400)).toBe(false);
+    expect(q.update(4900, 400)).toBe(false);
+    expect(q.level).toBe(0);
+  });
+
+  it('waits longer before trying again after a step up that did not hold', () => {
+    const q = new QualityManager('auto');
+    let t = run(q, 0, 2.5, 30, 16.7);
+    expect(q.level).toBe(1);
+    t = run(q, t, 10.1, 16.7, 16.7);
+    expect(q.level).toBe(0);
+    // Best quality is too slow: back down…
+    t = run(q, t, 2.5, 25, 16.7);
+    expect(q.level).toBe(1);
+    // …and the next try waits twice as long (20 s).
+    t = run(q, t, 15, 16.7, 16.7);
+    expect(q.level).toBe(1);
+    run(q, t, 6, 16.7, 16.7);
+    expect(q.level).toBe(0);
   });
 });

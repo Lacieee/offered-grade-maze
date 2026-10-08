@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react';
-import type { PerfSummary } from '../engine/Engine.js';
+import type { EngineInfo, PerfSummary } from '../engine/Engine.js';
 import { useUiStore } from './store.js';
 
-/** `?perf=1` panel: FPS, frame time (average and p95 over 2 s), draw calls, triangles, passes. */
+/**
+ * `?perf=1` panel: FPS, frame time (average and p95 over 2 s), draw calls, triangles, passes,
+ * and the portal quality level (automatic quality lowers the portal depth when frames are slow).
+ */
 export function PerfOverlay() {
   const engine = useUiStore((s) => s.engine);
   const [perf, setPerf] = useState<PerfSummary | null>(null);
+  const [info, setInfo] = useState<EngineInfo | null>(null);
 
   useEffect(() => {
     if (!engine) return;
     const id = window.setInterval(() => {
       setPerf(engine.getPerf());
+      setInfo(engine.debugInfo());
     }, 250);
     return () => {
       window.clearInterval(id);
@@ -30,6 +35,11 @@ export function PerfOverlay() {
         calls {perf.drawCalls} · tris {perf.triangles}
       </div>
       <div>passes {perf.passes}</div>
+      {info && (
+        <div>
+          quality {info.qualityMode} L{info.qualityLevel}
+        </div>
+      )}
     </div>
   );
 }

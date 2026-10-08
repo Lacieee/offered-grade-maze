@@ -99,7 +99,31 @@ owner asked for swimming aquarium fish and TV static.
   freezes it at 0, and `__ogm.setAmbientTime(t)` sets it, so screenshots stay deterministic.
   The gallery animates too; `still=1` stops it.
 
-### 7. Dev tools
+### 7. Automatic quality recovers (changes CP03 T6)
+
+Review finding: on the Mac, a room three doors away showed its flat fallback colour until
+the player walked one room closer. Automatic quality had stepped down to depth 2 and never
+came back. Two causes:
+
+- **Pauses counted as slow frames.** A hidden tab or a window switch stops the frame loop.
+  The first frame afterwards carried the whole gap into the 2 s average and stepped quality
+  down.
+- **The step-up rule could not be met at 60 Hz.** T6 steps up after 10 s below 12 ms. At
+  60 Hz (Safari's frame rate, most external displays) no frame is faster than 16.7 ms.
+
+The fix:
+
+- A single frame gap over 0.25 s is a pause. It clears the frame statistics and restarts the
+  2 s judging window. Back-to-back long frames are a slow machine and count as usual.
+- Frames are fast below 12 ms **or** within 10 % of the display refresh interval. The
+  refresh interval is estimated as the 10th percentile frame time.
+- If quality steps down within 6 s of stepping up, the step up did not hold, so the next wait
+  doubles (10 → 20 → 40 → 80 s). This stops quality from flipping back and forth.
+- Floor and painting textures upload when a room loads, not on the frame a portal first
+  shows the room. Uploading them during play caused hitches.
+- The `?perf=1` overlay shows the quality mode and level.
+
+### 8. Dev tools
 
 - **Gallery** (`/?dev=prefabs`): own renderer and scene, outside the engine. Wall-hung items
   get a wall behind them. Options `only=`, `camera=x,y,z,yaw,pitch` and `outlines=1` make

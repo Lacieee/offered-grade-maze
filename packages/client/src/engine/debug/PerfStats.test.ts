@@ -29,4 +29,22 @@ describe('PerfStats', () => {
     stats.record(3000, 16, render);
     expect(stats.summary().avgMs).toBe(16);
   });
+
+  it('reports the display refresh interval as the 10th percentile frame time', () => {
+    const stats = new PerfStats(2000);
+    let t = 0;
+    for (let i = 0; i < 100; i++) {
+      const ms = i % 10 === 0 ? 33.3 : 16.7;
+      t += ms;
+      stats.record(t, ms, render);
+    }
+    expect(stats.summary().refreshMs).toBeCloseTo(16.7);
+  });
+
+  it('reset forgets every frame (after a pause)', () => {
+    const stats = new PerfStats(2000);
+    stats.record(0, 16, render);
+    stats.reset();
+    expect(stats.summary().avgMs).toBe(0);
+  });
 });

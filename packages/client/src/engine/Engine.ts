@@ -36,6 +36,13 @@ export type { QualityMode } from './render/QualityManager.js';
 
 /** Default mouse sensitivity (radians per pixel). */
 export const DEFAULT_SENSITIVITY = 0.0022;
+/**
+ * A single gap between frames longer than this (s) is a pause, not a slow frame: a hidden
+ * tab, a window switch, a long hitch. It must not step portal quality down (CP06 review).
+ * Back-to-back long frames are a slow machine and count as usual.
+ */
+export const PAUSE_GAP = 0.25;
+
 /** Pitch limit (radians). */
 export const MAX_PITCH = deg(85);
 
@@ -126,6 +133,8 @@ export class Engine {
   /** Test hook mode: the loop renders but does not simulate; `debugStep` advances time. */
   private manual = false;
   private slowFrameMs = 0;
+  /** The previous frame came after a pause (see {@link PAUSE_GAP}). */
+  private lastFramePaused = false;
   /** Render interpolation factor used in manual (test hook) mode. */
   private manualAlpha = 1;
   /** The crossing made in the last simulation step (render interpolation spans it). */
@@ -411,6 +420,18 @@ export class Engine {
       renderer.setRenderTarget(this.prewarmTarget);
       renderer.compile(view.scene, camera);
       renderer.setRenderTarget(null);
+      // Upload floor and painting textures now, not on the frame a portal first shows them.
+      view.scene.traverse((o) => {
+        if (!(o instanceof THREE.Mesh)) return;
+        const materials = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of materials as THREE.Material[]) {
+          const map =
+            m instanceof THREE.MeshLambertMaterial || m instanceof THREE.MeshBasicMaterial
+              ? m.map
+              : null;
+          if (map) renderer.initTexture(map);
+        }
+      });
     }
   }
 
@@ -509,14 +530,20 @@ export class Engine {
       }
     }
     this.render(alpha);
-    if (dt > 0) {
+    const paused = dt > PAUSE_GAP && !this.lastFramePaused;
+    this.lastFramePaused = paused;
+    if (paused) {
+      this.perf.reset();
+      this.quality.pause(now);
+    } else if (dt > 0) {
       const info = this.renderer?.info.render;
       this.perf.record(now, dt * 1000, {
         drawCalls: info?.calls ?? 0,
         triangles: info?.triangles ?? 0,
         passes: this.portals?.passes ?? 1,
       });
-      if (this.quality.update(now, this.perf.summary().avgMs)) {
+      const summary = this.perf.summary();
+      if (this.quality.update(now, summary.avgMs, summary.refreshMs)) {
         this.applyQuality();
         this.events.emit('quality', this.quality.level);
       }
