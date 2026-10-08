@@ -1,0 +1,5 @@
+# Dumped levels for local work (pnpm gen dump <seed> --json packages/client/src/dev/levels/<name>.json).
+# Only the two samples are committed.
+*.json
+!sample-medium.json
+!sample-hard.json

@@ -51,7 +51,7 @@ export function ClickToPlay() {
 }
 
 /** Dev-only label with the current room and player position. */
-export function DevHud() {
+export function DevHud({ hint }: { hint: string }) {
   const room = useUiStore((s) => s.room);
   const engine = useUiStore((s) => s.engine);
   const [state, setState] = useState<EngineState | null>(null);
@@ -70,7 +70,7 @@ export function DevHud() {
   return (
     <div className="dev-hud" data-testid="dev-hud">
       {room ?? '—'}
-      {pos} · keys 1–6 switch rooms
+      {pos} · {hint}
     </div>
   );
 }

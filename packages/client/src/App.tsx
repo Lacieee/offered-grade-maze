@@ -32,6 +32,28 @@ export function App() {
     const ui = useUiStore.getState();
     const canvas = document.createElement('canvas');
     host.appendChild(canvas);
+
+    if (import.meta.env.DEV && devScene === 'prefabs') {
+      // The prefab gallery (CP06 T5) runs its own small renderer, not the game engine.
+      let stopGallery: (() => void) | null = null;
+      let cancelled = false;
+      import('./dev/prefabGallery.js').then(
+        ({ startPrefabGallery }) => {
+          if (cancelled) return;
+          stopGallery = startPrefabGallery(canvas, host);
+          useUiStore.getState().setStatus('gallery');
+        },
+        (err: unknown) => {
+          useUiStore.getState().setStatus('error', String(err));
+        },
+      );
+      return () => {
+        cancelled = true;
+        stopGallery?.();
+        canvas.remove();
+      };
+    }
+
     const engine = new Engine();
     const quality = params.get('quality');
     try {
@@ -62,7 +84,19 @@ export function App() {
     let cancelled = false;
     let stopScene: (() => void) | null = null;
     let removeHook: (() => void) | null = null;
-    if (import.meta.env.DEV && devScene === 'fixtures') {
+    if (import.meta.env.DEV && devScene === 'level') {
+      void Promise.all([import('./dev/levelScene.js'), import('./dev/testHook.js')])
+        .then(async ([{ loadLevelFile, startLevelScene }, { installTestHook }]) => {
+          const level = await loadLevelFile(params.get('file') ?? 'sample-medium');
+          if (cancelled) return;
+          stopScene = startLevelScene(engine, level, params.get('room'));
+          removeHook = installTestHook(engine);
+          useUiStore.getState().setStatus('running');
+        })
+        .catch((err: unknown) => {
+          useUiStore.getState().setStatus('error', String(err));
+        });
+    } else if (import.meta.env.DEV && devScene === 'fixtures') {
       void Promise.all([import('./dev/fixtureScene.js'), import('./dev/testHook.js')]).then(
         ([{ startFixtureScene }, { installTestHook }]) => {
           if (cancelled) return;
@@ -98,7 +132,14 @@ export function App() {
         <div className="overlay">
           {status === 'running' && !locked && <ClickToPlay />}
           {status === 'running' && showPerf && <PerfOverlay />}
-          {status === 'running' && import.meta.env.DEV && <DevHud />}
+          {status === 'running' && import.meta.env.DEV && (
+            <DevHud hint={devScene === 'level' ? '[ ] switch rooms' : 'keys 1–6 switch rooms'} />
+          )}
+          {status === 'gallery' && (
+            <div className="dev-hud">
+              prefab gallery · click to look · WASD Q E move · Shift faster · F footprints
+            </div>
+          )}
           {graphicsReset && <GraphicsReset />}
         </div>
       )}
