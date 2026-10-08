@@ -51,6 +51,11 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
+      - name: Generator sweeps (10 000 seeds per difficulty, CP04)
+        run: |
+          for d in easy medium hard; do pnpm gen sweep --difficulty "$d" --count 10000; done
+          pnpm gen golden
+
   e2e:
     name: Playwright (portals and visual baselines)
     runs-on: ubuntu-latest

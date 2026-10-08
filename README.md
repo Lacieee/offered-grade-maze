@@ -62,6 +62,17 @@ pnpm test:e2e:update     # rewrite the baselines after an intended visual change
 Baselines are per platform. On a new platform (for example the first run on macOS) the
 first run writes them and reports them as new; run it again to compare.
 
+## Level generator CLI
+
+```sh
+pnpm gen random --difficulty hard                      # fresh seed and its summary
+pnpm gen show M1-7K2Q-X9MP                             # rooms, depths, links, metrics
+pnpm gen validate M1-7K2Q-X9MP                         # validator issues, or "valid"
+pnpm gen dump M1-7K2Q-X9MP --json m.json --svg m.svg   # level JSON and link-graph picture
+pnpm gen sweep --difficulty easy --count 10000         # validity, retry rate, timings
+pnpm gen golden                                        # check the golden seeds (--write to update)
+```
+
 ## Commands
 
 | Command              | What it does                                                       |
@@ -75,6 +86,7 @@ first run writes them and reports them as new; run it again to compare.
 | `pnpm test:e2e`      | Playwright portal and visual tests (see above)                     |
 | `pnpm format`        | Formats with Prettier (`pnpm format:check` verifies)               |
 | `pnpm db:up/db:down` | Starts or stops the local PostgreSQL container                     |
+| `pnpm gen …`         | Level generator CLI (see above)                                    |
 
 ## Repository layout
 
@@ -82,12 +94,12 @@ first run writes them and reports them as new; run it again to compare.
 AGENTS.md            rules for every contributor, glossary, definition of done
 docs/
   architecture.md    architecture and implementation plan
-  decisions.md       final product decisions PD1–PD8
+  decisions.md       final product decisions PD1–PD10
   adr/               architecture decision records
   checkpoints/       CP01 … CP10 work packages
 packages/
-  shared/            @ogm/shared: seed codec, door geometry, Zod DTOs
-  generator/         @ogm/generator: deterministic PRNG (level generation from CP04)
+  shared/            @ogm/shared: seed codec, door geometry, Zod DTOs, graph searches
+  generator/         @ogm/generator: deterministic topology generator, validator, CLI
   server/            @ogm/server: Fastify backend (CP07)
   client/            @ogm/client: Three.js engine and React UI shell
 e2e/                 Playwright tests (CP03, CP10)

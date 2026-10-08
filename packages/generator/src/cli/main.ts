@@ -7,7 +7,7 @@
  *   pnpm gen show <seed>
  *   pnpm gen validate <seed>
  *   pnpm gen dump <seed> --json out.json --svg out.svg
- *   pnpm gen sweep --difficulty <d> --count 10000 [--from 0]
+ *   pnpm gen sweep --difficulty <d> --count 10000 [--from 0] [--max-retry 2]
  *   pnpm gen golden [--write]
  */
 import { randomBytes } from 'node:crypto';
@@ -36,7 +36,8 @@ const USAGE = `Usage: pnpm gen <command> [options]
   show     <seed>                              summary: rooms, depths, links, metrics
   validate <seed>                              validator issues, or "valid"
   dump     <seed> [--json <file>] [--svg <file>]
-  sweep    --difficulty <d> [--count 10000] [--from 0]
+  sweep    --difficulty <d> [--count 10000] [--from 0] [--max-retry 2]
+           fails on any invalid level or a retry rate of --max-retry % or more
   golden   [--write]                           golden seeds and hashes (test/golden.json)`;
 
 /** Paths are relative to where the user ran `pnpm gen`, not the repository root. */
@@ -59,7 +60,7 @@ function timed(seed: string): { level: Level; ms: number } {
   return { level, ms: performance.now() - t0 };
 }
 
-function sweep(d: Difficulty, count: number, from: number): number {
+function sweep(d: Difficulty, count: number, from: number, maxRetryPercent: number): number {
   const levelMs: number[] = [];
   const attemptMs: number[] = [];
   const reasons = new Map<string, number>();
@@ -128,7 +129,9 @@ function sweep(d: Difficulty, count: number, from: number): number {
       console.log(`    ${k.padEnd(16)} ${histogram(values)}`);
     }
   }
-  return invalid + errors > 0 ? 1 : 0;
+  const tooManyRetries = 100 * retried >= maxRetryPercent * count;
+  if (tooManyRetries) console.log(`  FAIL: retry rate is not below ${maxRetryPercent} %`);
+  return invalid + errors > 0 || tooManyRetries ? 1 : 0;
 }
 
 /** test/golden.json, next to src/ (works from src/cli and dist/cli). */
@@ -144,6 +147,7 @@ function main(argv: string[]): number {
         difficulty: { type: 'string', short: 'd' },
         count: { type: 'string', short: 'n' },
         from: { type: 'string' },
+        'max-retry': { type: 'string' },
         json: { type: 'string' },
         svg: { type: 'string' },
         write: { type: 'boolean' },
@@ -207,7 +211,8 @@ function main(argv: string[]): number {
       if (!Number.isSafeInteger(count) || count < 1 || !Number.isSafeInteger(from) || from < 0) {
         throw new UsageError('--count and --from must be non-negative integers');
       }
-      return sweep(difficultyOf(values.difficulty), count, from);
+      const maxRetry = Number(values['max-retry'] ?? '2');
+      return sweep(difficultyOf(values.difficulty), count, from, maxRetry);
     }
     case 'golden': {
       const entries = goldenSeeds().map((seed) => {

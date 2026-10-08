@@ -25,6 +25,6 @@ Final decisions from the product owner (recorded in CP01). They override
 | §18, T1.1: Intel Iris Xe class reference laptop                                                                                                                                        | PD5           |
 | §2 "One-way door = an arrival door sealed from the inside"; §8.2 step 7 "Sealing prefers doors that are already the arrival point of a non-reciprocated link"                          | PD9           |
 | CP02 T3 link table: `r03.d0 → r01.d3` (now `r03.d0 → r01.d2`)                                                                                                                          | PD9           |
-| CP04 T2 step 7: a sealed door is preferably an arrival door. Instead, a sealed door must never be an arrival door; the validator rejects a link into a sealed door (structural check). | PD9           |
+| CP04 T3 step 7: a sealed door is preferably an arrival door. Instead, a sealed door must never be an arrival door; the validator rejects a link into a sealed door (structural check). | PD9           |
 | CP02 T2: door casing in `palette.trim`; jambs and threshold in the room's colours                                                                                                      | PD10          |
 | §24 open items (timer, pickup, language, hosting, laptop…)                                                                                                                             | PD1–PD8       |
