@@ -2,7 +2,7 @@
   "name": "@ogm/shared",
   "version": "0.0.0",
   "private": true,
-  "description": "Pure TypeScript contracts shared by client and server: seed codec, door geometry, wire DTOs.",
+  "description": "Pure TypeScript contracts shared by client and server: seed codec, door geometry, wire DTOs, graph searches.",
   "type": "module",
   "exports": {
     ".": {
