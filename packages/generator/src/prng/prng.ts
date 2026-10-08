@@ -161,8 +161,8 @@ export class Sfc32 {
  * The PRNG stream for one subsystem of one seed, seeded with
  * `cyrb128(`${canonicalSeed}|${label}`)`.
  *
- * Labels in use: `topology#<attempt>`, `room:<id>:layout`, `room:<id>:furnish`,
- * `room:<id>:palette`, `identity`.
+ * Labels in use: `topology#<attempt>/<step>` (steps 1–12, CP04), `room:<id>:layout`,
+ * `room:<id>:furnish`, `room:<id>:palette`, `identity`.
  */
 export function rngFor(canonicalSeed: string, label: string): Sfc32 {
   return new Sfc32(cyrb128(`${canonicalSeed}|${label}`));

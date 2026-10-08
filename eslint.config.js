@@ -116,6 +116,27 @@ export default defineConfig(
     rules: determinismRules,
   },
   {
+    // Not generation logic: tests may cross-check against Node crypto and time themselves;
+    // the CLI prints random seeds and timings (ADR-0005). Workspace import bans still apply.
+    files: ['packages/generator/src/**/*.test.ts', 'packages/generator/src/cli/**/*.ts'],
+    rules: {
+      'no-restricted-globals': 'off',
+      'no-restricted-properties': 'off',
+      'no-restricted-syntax': 'off',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@ogm/client', '@ogm/client/*', '@ogm/server', '@ogm/server/*'],
+              message: '@ogm/generator must not depend on the client or the server.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['packages/client/src/**/*.tsx'],
     extends: [reactHooks.configs.flat.recommended],
   },
