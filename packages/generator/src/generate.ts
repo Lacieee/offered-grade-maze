@@ -3,8 +3,9 @@
  */
 import { parseSeed, type Difficulty } from '@ogm/shared';
 import { rngFor } from './prng/index.js';
+import { furnishHouse, tempId, type HouseRoom } from './furnish/house.js';
 import { finalise } from './topology/finalise.js';
-import { AttemptFailed } from './topology/model.js';
+import { AttemptFailed, type Draft } from './topology/model.js';
 import { buildTopology } from './topology/steps.js';
 import {
   GenerationError,
@@ -18,6 +19,20 @@ import { validateLevel } from './validate/validate.js';
 /** PRNG label of one step of one attempt. */
 export function topologyLabel(attempt: number, step: number): string {
   return `topology#${attempt}/${step}`;
+}
+
+/** The rooms of a draft as the furnisher needs them (temporary ids, grid units). */
+export function houseRooms(draft: Draft): HouseRoom[] {
+  return draft.rooms.map((r) => ({
+    tempId: tempId(r.idx),
+    twinOf: r.twinOf === null ? null : tempId(r.twinOf),
+    type: r.type,
+    widthU: r.widthU,
+    depthU: r.depthU,
+    doors: r.doors.map((d) => ({ wall: d.wall, offset: d.offset })),
+    isStart: r.idx === 0,
+    isGoal: r.idx === draft.L,
+  }));
 }
 
 /** Outcome of one attempt, reported to {@link GenerateOptions.onAttempt}. */
@@ -42,12 +57,14 @@ export function runAttempt(
 ): { level: Level; issues: ValidationIssue[] } | { level: null; reason: string } {
   try {
     const draft = buildTopology(difficulty, (step) => rngFor(seed, topologyLabel(attempt, step)));
+    const furnished = furnishHouse(seed, houseRooms(draft));
     const level = finalise(
       rngFor(seed, topologyLabel(attempt, 12)),
       draft,
       seed,
       difficulty,
       attempt,
+      furnished,
     );
     return { level, issues: validateLevel(level) };
   } catch (e) {

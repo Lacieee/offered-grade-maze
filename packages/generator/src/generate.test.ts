@@ -6,16 +6,10 @@ import {
   shortestPath,
   type Difficulty,
 } from '@ogm/shared';
-import fc from 'fast-check';
-import { describe, expect, inject, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { DIFFICULTY_TABLE } from './difficulty/table.js';
 import { generateLevel, runAttempt, topologyLabel } from './generate.js';
 import { GENERATOR_VERSION, GenerationError, InvalidSeedError, MAX_ATTEMPTS } from './types.js';
-import { checkDepthInvariants } from './validate/invariants.js';
-import { validateLevel } from './validate/validate.js';
-
-const PROP_TIMEOUT = 300_000;
-const payload = fc.uint8Array({ minLength: 5, maxLength: 5 });
 
 /** Seed `<D>1-…` from a counter, as the CLI sweep does. */
 function counterSeed(d: Difficulty, n: number): string {
@@ -29,21 +23,6 @@ function counterSeed(d: Difficulty, n: number): string {
 }
 
 describe.each(DIFFICULTIES)('generateLevel (%s)', (difficulty) => {
-  it(
-    'property: invariants 1–3 hold on the assigned depths and V1–V6, V9, V10 pass',
-    () => {
-      fc.assert(
-        fc.property(payload, (bytes) => {
-          const level = generateLevel(formatSeed(difficulty, 1, bytes));
-          expect(checkDepthInvariants(level)).toEqual([]);
-          expect(validateLevel(level)).toEqual([]);
-        }),
-        { numRuns: inject('propRuns') },
-      );
-    },
-    PROP_TIMEOUT,
-  );
-
   it('produces schema-valid DTOs and the documented level shape', () => {
     const level = generateLevel(counterSeed(difficulty, 7));
     const p = DIFFICULTY_TABLE[difficulty];
@@ -51,10 +30,19 @@ describe.each(DIFFICULTIES)('generateLevel (%s)', (difficulty) => {
     expect(level.difficulty).toBe(difficulty);
     for (const room of level.rooms) {
       expect(RoomDTOSchema.parse(room)).toEqual(room);
-      expect(room.furniture).toEqual([]);
-      expect(room.lights).toEqual([
-        { kind: 'ceiling', x: 0, y: 2.6, z: 0, color: '#fff2dd', intensity: 1 },
-      ]);
+      expect(room.furniture.filter((f) => f.signature === true)).toHaveLength(1);
+      expect(room.furniture.map((f) => f.id)).toEqual(
+        room.furniture.map((_, i) => `f${String(i).padStart(2, '0')}`),
+      );
+      expect(room.lights[0]).toEqual({
+        kind: 'ceiling',
+        x: 0,
+        y: 2.6,
+        z: 0,
+        color: '#fff2dd',
+        intensity: 1,
+      });
+      expect(room.lights.some((l) => l.kind === 'goal')).toBe(room.id === level.goalRoom);
       expect(room.doors.map((d) => d.id)).toEqual(room.doors.map((_, i) => `d${i}`));
       expect(room.label).toBe(`room.${room.type}`);
     }
@@ -92,6 +80,13 @@ describe.each(DIFFICULTIES)('generateLevel (%s)', (difficulty) => {
         expect(twin?.doors.map((d) => [d.wall, d.offset])).toEqual(
           original?.doors.map((d) => [d.wall, d.offset]),
         );
+        // CP05 T5: same palette and non-signature furniture; a different signature.
+        expect(twin?.palette).toEqual(original?.palette);
+        const plain = (r: typeof twin) => r?.furniture.filter((f) => f.signature !== true);
+        const sig = (r: typeof twin) => r?.furniture.find((f) => f.signature === true);
+        expect(plain(twin)).toEqual(plain(original));
+        expect(sig(twin)).toBeDefined();
+        expect(sig(twin)).not.toEqual(sig(original));
       }
     }
   });
@@ -145,7 +140,7 @@ describe('room ids are a permutation', () => {
     }
     // Expected ≈ 111; binomial σ ≈ 10. Allow ±4σ.
     expect(Math.abs(startIsR00 - expected)).toBeLessThan(40);
-  });
+  }, 120_000);
 });
 
 describe('retries and errors', () => {

@@ -73,6 +73,17 @@ function drawCount(rng: Sfc32, r: Range): number {
   return rng.int(r.min, r.max >= OPEN_MAX ? r.min + OPEN_RANGE_SPAN : r.max);
 }
 
+/**
+ * Size range (grid units, even) for a room with `load` = doors (+1 for the goal room): the
+ * lower bound rises through the type's range, a third of the span per door above one, so a
+ * 4-door bathroom is always 4 × 4 m and a 2-door one may be 3 × 3 m.
+ */
+export function sizeRange(r: Range, load: number): Range {
+  const steps = (r.max - r.min) / 2;
+  const lift = Math.min(steps, Math.floor((Math.max(0, load - 1) * steps) / 3));
+  return { min: r.min + 2 * lift, max: r.max };
+}
+
 /** Builds the full link graph of one attempt. */
 export function buildTopology(difficulty: Difficulty, rngOf: StepRng): Draft {
   const p = DIFFICULTY_TABLE[difficulty];
@@ -125,6 +136,7 @@ export function buildTopology(difficulty: Difficulty, rngOf: StepRng): Draft {
     const min = room.idx === 0 ? Math.max(2, p.doorsPerRoom.min) : p.doorsPerRoom.min;
     let c = r5.int(min, p.doorsPerRoom.max);
     if (room.type === 'hallway') c = Math.min(4, c + 1);
+    c = Math.min(c, ROOM_TYPES[room.type].maxDoors);
     room.doorCount = c;
   }
   for (const twin of twins) twin.doorCount = draft.room(twin.twinOf ?? 0).doorCount;
@@ -136,8 +148,12 @@ export function buildTopology(difficulty: Difficulty, rngOf: StepRng): Draft {
   for (const room of draft.rooms) {
     if (room.twinOf !== null) continue;
     const t = ROOM_TYPES[room.type];
-    room.widthU = 2 * r5.int(t.width.min / 2, t.width.max / 2);
-    room.depthU = 2 * r5.int(t.depth.min / 2, t.depth.max / 2);
+    // More doors (or the goal zone) need more floor for the furniture (CP05, ADR-0006).
+    const load = room.doorCount + (room.idx === L ? 1 : 0);
+    const w = sizeRange(t.width, load);
+    const d = sizeRange(t.depth, load);
+    room.widthU = 2 * r5.int(w.min / 2, w.max / 2);
+    room.depthU = 2 * r5.int(d.min / 2, d.max / 2);
     room.doors = placeDoors(r5, room.widthU, room.depthU, room.doorCount);
   }
   for (const twin of twins) {
@@ -302,7 +318,10 @@ function easeOneWayLinks(draft: Draft, doorRange: Range, reciprocalPerMille: num
   const adjustable = draft.rooms.filter((r) => r.twinOf === null && !r.isOriginal);
   const countRange = (r: TRoom): Range => {
     const min = r.idx === 0 ? Math.max(2, doorRange.min) : doorRange.min;
-    const max = r.type === 'hallway' ? Math.min(4, doorRange.max + 1) : doorRange.max;
+    const max = Math.min(
+      ROOM_TYPES[r.type].maxDoors,
+      r.type === 'hallway' ? Math.min(4, doorRange.max + 1) : doorRange.max,
+    );
     return { min: r.type === 'hallway' ? Math.min(max, min + 1) : min, max };
   };
   for (let guard = 0; guard < 8 * draft.rooms.length; guard++) {
@@ -375,7 +394,9 @@ function assignDepths(rng: Sfc32, draft: Draft, ease: DifficultyParams | null): 
 
     const growable = draft
       .layer(k)
-      .filter((r) => r.twinOf === null && !r.isOriginal && r.doorCount < 4);
+      .filter(
+        (r) => r.twinOf === null && !r.isOriginal && r.doorCount < ROOM_TYPES[r.type].maxDoors,
+      );
     if (growable.length > 0) {
       rng.pick(growable).doorCount++;
       continue;

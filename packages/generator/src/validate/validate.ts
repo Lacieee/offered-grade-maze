@@ -19,6 +19,7 @@ import {
 import { DIFFICULTY_TABLE, type Range } from '../difficulty/table.js';
 import { levelHash } from '../hash/canonical.js';
 import { computeMetrics } from '../metrics/metrics.js';
+import { checkFurniture } from './furniture.js';
 import type { CheckId, Level, LevelMetrics, ValidationIssue } from '../types.js';
 
 /** Tolerance for metre comparisons (all generated values are multiples of 0.25). */
@@ -41,6 +42,7 @@ export function validateLevel(level: Level): ValidationIssue[] {
   const structuralOk = checkStructure(level, add);
   checkDoorPlacement(level.rooms, add);
   if (!structuralOk) return issues;
+  checkFurniture(level.rooms, level.startRoom, level.goalRoom, add);
 
   // ---------------------------------------------------------------- graph (V1–V4)
   const R = distancesFrom(level.rooms, level.startRoom);

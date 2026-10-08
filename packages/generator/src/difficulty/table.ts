@@ -94,16 +94,57 @@ export interface RoomTypeParams {
   floor: FloorKind;
   /** Weight when filling rooms beyond the first of each type. */
   weight: number;
+  /**
+   * Most doors a room of this type may have (CP05, ADR-0006): a 3–4 m bathroom with four
+   * door clearance zones often has no wall left for a bathtub or a shower.
+   */
+  maxDoors: number;
 }
 
 /** Room types (CP04 T1). Metres × 4 = units: living 6.0–8.0 m → 24–32 units. */
 export const ROOM_TYPES: Readonly<Record<RoomType, RoomTypeParams>> = {
-  living: { width: { min: 24, max: 32 }, depth: { min: 24, max: 36 }, floor: 'wood', weight: 1 },
-  kitchen: { width: { min: 16, max: 24 }, depth: { min: 16, max: 24 }, floor: 'tile', weight: 1 },
-  bedroom: { width: { min: 16, max: 24 }, depth: { min: 18, max: 24 }, floor: 'carpet', weight: 2 },
-  bathroom: { width: { min: 12, max: 16 }, depth: { min: 12, max: 16 }, floor: 'tile', weight: 1 },
-  hallway: { width: { min: 8, max: 10 }, depth: { min: 20, max: 36 }, floor: 'wood', weight: 2 },
-  study: { width: { min: 14, max: 20 }, depth: { min: 14, max: 20 }, floor: 'carpet', weight: 1 },
+  living: {
+    width: { min: 24, max: 32 },
+    depth: { min: 24, max: 36 },
+    floor: 'wood',
+    weight: 1,
+    maxDoors: 4,
+  },
+  kitchen: {
+    width: { min: 16, max: 24 },
+    depth: { min: 16, max: 24 },
+    floor: 'tile',
+    weight: 1,
+    maxDoors: 4,
+  },
+  bedroom: {
+    width: { min: 16, max: 24 },
+    depth: { min: 18, max: 24 },
+    floor: 'carpet',
+    weight: 2,
+    maxDoors: 4,
+  },
+  bathroom: {
+    width: { min: 12, max: 16 },
+    depth: { min: 12, max: 16 },
+    floor: 'tile',
+    weight: 1,
+    maxDoors: 3,
+  },
+  hallway: {
+    width: { min: 8, max: 10 },
+    depth: { min: 20, max: 36 },
+    floor: 'wood',
+    weight: 2,
+    maxDoors: 4,
+  },
+  study: {
+    width: { min: 14, max: 20 },
+    depth: { min: 14, max: 20 },
+    floor: 'carpet',
+    weight: 1,
+    maxDoors: 4,
+  },
 };
 
 /** All room types in a fixed order (iteration order for generation). */

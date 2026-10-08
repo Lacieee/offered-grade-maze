@@ -23,6 +23,8 @@ export interface LevelMetrics {
   twins: number;
   /** (spine room except goal, linked door) pairs that do not lead closer to the goal. */
   misleadingDoors: number;
+  /** Required items (CP05 T1) missing from their rooms, summed over the house. */
+  missingRequired: number;
 }
 
 /** Generation facts that are not sent to players (debug view and tests only). */
@@ -55,8 +57,8 @@ export interface Level {
   meta: LevelMeta;
 }
 
-/** Validator check ids (V7 and V8 arrive in CP05). */
-export type CheckId = 'V1' | 'V2' | 'V3' | 'V4' | 'V5' | 'V6' | 'V9' | 'V10';
+/** Validator check ids. */
+export type CheckId = 'V1' | 'V2' | 'V3' | 'V4' | 'V5' | 'V6' | 'V7' | 'V8' | 'V9' | 'V10' | 'V11';
 
 /** One problem found by the validator. */
 export interface ValidationIssue {

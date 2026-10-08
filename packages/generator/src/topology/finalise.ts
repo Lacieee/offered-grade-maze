@@ -1,11 +1,11 @@
 /**
- * Step 12: shuffle room ids, convert units to metres and build the `Level`.
+ * Step 12: shuffle room ids, convert units to metres and build the `Level` (with the
+ * furnishing of CP05, done per temporary id before the shuffle).
  */
 import {
   ROOM_HEIGHT,
   type Difficulty,
   type DoorDTO,
-  type PaletteDTO,
   type RoomDTO,
   type RoomId,
   type Spawn,
@@ -16,25 +16,8 @@ import { levelHash } from '../hash/canonical.js';
 import { computeMetrics } from '../metrics/metrics.js';
 import type { Sfc32 } from '../prng/index.js';
 import { GENERATOR_VERSION, type Level } from '../types.js';
-import type { Draft } from './model.js';
-
-/** Neutral grey palette until CP05 adds palettes. */
-export const NEUTRAL_PALETTE: PaletteDTO = {
-  wall: '#c8c8c8',
-  floor: '#8c8c8c',
-  trim: '#e6e6e6',
-  ceiling: '#f0f0f0',
-};
-
-/** The single ceiling light of CP04. */
-export const CEILING_LIGHT = {
-  kind: 'ceiling',
-  x: 0,
-  y: 2.6,
-  z: 0,
-  color: '#fff2dd',
-  intensity: 1,
-} as const;
+import { tempId, type FurnishedRoom } from '../furnish/house.js';
+import { AttemptFailed, type Draft } from './model.js';
 
 /** Goal object position in the goal room (CP05 reserves a zone for it). */
 export const GOAL_POSITION = { x: 0, y: 1.2, z: 0 } as const;
@@ -67,6 +50,7 @@ export function finalise(
   seed: string,
   difficulty: Difficulty,
   attempt: number,
+  furnished: ReadonlyMap<string, FurnishedRoom>,
 ): Level {
   const N = draft.rooms.length;
   // permutation[i] = new number of temporary room i.
@@ -75,6 +59,8 @@ export function finalise(
   const L = draft.L;
 
   const rooms: RoomDTO[] = draft.rooms.map((r) => {
+    const f = furnished.get(tempId(r.idx));
+    if (f === undefined) throw new AttemptFailed(`room ${tempId(r.idx)} was not furnished`);
     const doors: DoorDTO[] = r.doors.map((d) => ({
       id: `d${d.id}`,
       wall: d.wall,
@@ -89,10 +75,10 @@ export function finalise(
       depth: metres(r.depthU),
       height: ROOM_HEIGHT,
       floor: ROOM_TYPES[r.type].floor,
-      palette: { ...NEUTRAL_PALETTE },
+      palette: f.palette,
       doors,
-      furniture: [],
-      lights: [{ ...CEILING_LIGHT }],
+      furniture: f.furniture,
+      lights: f.lights,
     };
     if (r.idx === L) room.goal = { ...GOAL_POSITION };
     return room;

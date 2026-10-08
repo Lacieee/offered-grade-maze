@@ -1,6 +1,8 @@
 /**
  * Hand-built levels for validator tests. Every room is 4 × 4 m with one door per wall
  * (d0 N, d1 E, d2 S, d3 W, offset 0), so placement is always valid unless a test changes it.
+ * Each room has one signature painting and a ceiling light (plus the goal light in the goal
+ * room), so the furniture checks pass too.
  */
 import { WALLS, distancesFrom, type Difficulty, type RoomDTO } from '@ogm/shared';
 import { levelHash } from '../../hash/canonical.js';
@@ -37,8 +39,27 @@ export function handLevel(
           link: to === null ? null : { room, door },
         };
       }),
-      furniture: [],
-      lights: [],
+      // One unique signature per room (V7): a painting hung on the north wall.
+      furniture: [
+        {
+          id: 'f00',
+          prefab: 'sig_painting',
+          x: -0.625,
+          z: -1.875,
+          rot: 0,
+          variant: 0,
+          colors: ['#c0262d', '#f2f2f2'],
+          signature: true,
+          params: { pattern: 'stripes', seed: Number(id.slice(1)) },
+        },
+      ],
+      lights:
+        id === goal
+          ? [
+              { kind: 'ceiling', x: 0, y: 2.6, z: 0, color: '#fff2dd', intensity: 1 },
+              { kind: 'goal', x: 0, y: 1.2, z: 0, color: '#ffcf6b', intensity: 1.2 },
+            ]
+          : [{ kind: 'ceiling', x: 0, y: 2.6, z: 0, color: '#fff2dd', intensity: 1 }],
       ...(id === goal ? { goal: { x: 0, y: 1.2, z: 0 } } : {}),
     }));
   return finish({

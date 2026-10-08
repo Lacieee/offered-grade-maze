@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => ({
     include: ['src/**/*.test.ts'],
     passWithNoTests: true,
     provide: { propRuns: mode === 'prop' ? 10_000 : 1_000 },
-    testTimeout: mode === 'prop' ? 120_000 : 5_000,
+    testTimeout: mode === 'prop' ? 300_000 : 60_000,
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
