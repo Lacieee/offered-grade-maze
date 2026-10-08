@@ -7,7 +7,7 @@ the short version of how we work. Read it before every task.
 ## Read first
 
 1. This file.
-2. `docs/decisions.md`: final product decisions (PD1–PD8).
+2. `docs/decisions.md`: final product decisions (PD1–PD10).
 3. `docs/architecture.md`: the architecture and implementation plan.
 4. The checkpoint file you are working on, in `docs/checkpoints/`.
 
@@ -38,16 +38,18 @@ improvising. Architecture changes get an ADR in `docs/adr/` (copy `0000-template
 
 ## Product decisions (final, from the product owner)
 
-| ID  | Decision                                                                                                                                        |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| PD1 | The timer never pauses: not on Esc, not on tab switch, not while the debug view is open.                                                        |
-| PD2 | The goal (the Offered Grade diploma) is collected by walking into it. There is no interaction key.                                              |
-| PD3 | UI language: **English is the default**, Hungarian is available as a second language.                                                           |
-| PD4 | The game runs **locally** via Docker Compose (app + PostgreSQL). There is no cloud deployment, no staging environment.                          |
-| PD5 | Reference machine for performance: **MacBook Pro with Apple M1 Max**, macOS, latest Chrome and Safari.                                          |
-| PD6 | The admin/debug view stays enabled in release builds.                                                                                           |
-| PD7 | Product name shown in the UI: **Offered Grade Maze**. The goal object is called "Offered Grade" in English and "Megajánlott jegy" in Hungarian. |
-| PD8 | The result is flagged `debug_used = true` if the debug view was opened during the game; the result is still valid.                              |
+| ID   | Decision                                                                                                                                        |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| PD1  | The timer never pauses: not on Esc, not on tab switch, not while the debug view is open.                                                        |
+| PD2  | The goal (the Offered Grade diploma) is collected by walking into it. There is no interaction key.                                              |
+| PD3  | UI language: **English is the default**, Hungarian is available as a second language.                                                           |
+| PD4  | The game runs **locally** via Docker Compose (app + PostgreSQL). There is no cloud deployment, no staging environment.                          |
+| PD5  | Reference machine for performance: **MacBook Pro with Apple M1 Max**, macOS, latest Chrome and Safari.                                          |
+| PD6  | The admin/debug view stays enabled in release builds.                                                                                           |
+| PD7  | Product name shown in the UI: **Offered Grade Maze**. The goal object is called "Offered Grade" in English and "Megajánlott jegy" in Hungarian. |
+| PD8  | The result is flagged `debug_used = true` if the debug view was opened during the game; the result is still valid.                              |
+| PD9  | Sealed (closed) doors are decorative: no link may arrive at a sealed door. One-way passages come only from asymmetric links.                    |
+| PD10 | Every doorway looks identical in every room (frame, jambs, doorstep; unlit), so crossing a door is not noticeable.                              |
 
 ## Packages and the dependency rule
 
@@ -103,7 +105,7 @@ given where they differ.
 | Room (helyiség) | `Room`            | A concrete room with a stable ID (`r00`…`r23`), type, footprint, palette, furniture and doors. One identity no matter how it is reached.      |
 | Door            | `Door`            | A physical doorway in a wall of one room. ID unique within the room (`d0`…`d3`).                                                              |
 | Link            | `Link`            | Directed connection `(room, door) → (targetRoom, targetDoor)`. Each door has at most one outgoing link; the reverse direction is independent. |
-| Sealed door     | `link = null`     | A door with no outgoing link. Rendered as a closed panel. Creates one-way connections.                                                        |
+| Sealed door     | `link = null`     | A door with no outgoing link. Rendered as a closed panel. Decorative: no link ever arrives at it (PD9).                                       |
 | Reciprocal pair | derived           | Two links that point at each other's doors. Feels like a normal door.                                                                         |
 | Asymmetric link | derived           | A link whose target door leads somewhere other than back.                                                                                     |
 | Self-link       | derived           | A link whose target room is the same room (via a different door). A door never links to itself.                                               |
