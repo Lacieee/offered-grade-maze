@@ -32,8 +32,6 @@ export const CASING_WIDTH = 0.08;
 export const CASING_DEPTH = 0.02;
 /** Thickness of a sealed door panel (m). */
 export const DOOR_PANEL_THICKNESS = 0.04;
-/** Furniture colour when `colors` is empty. */
-export const DEFAULT_FURNITURE_COLOR = '#808080';
 /**
  * Doorway colours (PD10). Every doorway looks the same in every room, so the two halves of a
  * doorway (one from each room) join seamlessly and a crossing is invisible.
@@ -50,9 +48,8 @@ export const DOORSTEP_LIP = 0.04;
 /** Door handle colour. */
 export const HANDLE_COLOR = '#3a3a3a';
 
-/** Which material a box is drawn with. Furniture boxes use their own colour. */
-export type MaterialKey =
-  'wall' | 'floor' | 'doorframe' | 'doorstep' | 'panel' | 'handle' | `furniture:${string}`;
+/** Which material a box is drawn with. */
+export type MaterialKey = 'wall' | 'floor' | 'doorframe' | 'doorstep' | 'panel' | 'handle';
 
 /** An axis-aligned box in room coordinates. */
 export interface LayoutBox {
@@ -266,14 +263,10 @@ export function layoutRoom(room: RoomDTO): RoomLayout {
     }
   }
 
+  // Furniture geometry comes from the prefab recipes (CP06); colliders keep using the
+  // catalogue footprint, never the visual mesh.
   for (const f of room.furniture) {
     const fp = furnitureFootprint(f);
-    const color = f.colors[0] ?? DEFAULT_FURNITURE_COLOR;
-    boxes.push({
-      mat: `furniture:${color.toLowerCase()}`,
-      min: [fp.minX, fp.y0, fp.minZ],
-      max: [fp.maxX, fp.y1, fp.maxZ],
-    });
     if (!fp.blocks) continue;
     const box: BoxCollider = {
       kind: 'box',
