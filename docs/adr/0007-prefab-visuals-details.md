@@ -42,7 +42,14 @@ T1 asks for the footprint to match within 2 cm and the height to come from `meta
 - **Triangles.** 12–600 per item. T1 targets 50–600; tiny items (a bin, an umbrella stand)
   need fewer than 50 and look right.
 
-A unit test checks all four rules for every prefab and variant.
+- **No z-fighting.** Faces of two primitives with different colours or materials never share
+  a plane where they overlap (Apple GPUs drew the aquarium cabinet's door panel in flickering
+  blocks). Panels stand proud of bodies, bases are inset 1.5 cm, caps sit on bodies instead
+  of covering them. Faces nobody can see are exempt: undersides below 1 m (the eye is at
+  1.65 m) and the backs of wall-hung items.
+
+A unit test checks all five rules for every prefab and variant (`coplanar.ts` finds
+overlapping coplanar faces).
 
 ### 3. Lighting additions
 
@@ -67,13 +74,32 @@ A unit test checks all four rules for every prefab and variant.
 ### 5. Room merge
 
 - One mesh for all `solid` parts of a room (furniture and ceiling fixtures), one for all
-  `emissive` parts, and one per painting texture. Walls, floor, ceiling and door casings stay
-  as in CP02.
+  `emissive` parts, one per painting texture, one for swimming fish and one for TV screens.
+  Walls, floor, ceiling and door casings stay as in CP02.
 - Colliders still come from the catalogue footprint, never from the mesh.
-- Measured on 30 generated rooms (5 Hard seeds × 6 room types): at most 13 draw calls and
-  about 3 600 triangles per room, against budgets of 60 and 60 000.
+- Measured on 30 generated rooms (5 Hard seeds × 6 room types): at most 14 draw calls and
+  about 3 650 triangles per room, against budgets of 60 and 60 000.
 
-### 6. Dev tools
+### 6. Animated parts (product owner request, beyond CP06 scope)
+
+CP06 puts animations other than the clock pendulum out of scope. After review, the product
+owner asked for swimming aquarium fish and TV static.
+
+- Both run in the vertex or fragment shader from one shared time uniform (`animated.ts`).
+  Room meshes stay merged and static: no per-frame geometry or texture uploads, one draw
+  call and one shader program each.
+- **Fish** swim back and forth along the tank (`amplitude · sin(speed · t + phase)`), bob a
+  little and turn at each end: they squash to nothing along the swim and grow back half
+  turned. A half turn instead of a mirror image keeps the triangles' winding, so the fish do
+  not turn inside out. Unit tests check that every fish stays inside the water at every
+  moment and that its head leads in both directions. Fish glow a little, lit by the tank.
+- **TV static**: grey noise cells (120 × 68) that change 20 times a second, with a slow
+  rolling band. The hash uses small inputs, so it is stable on mobile GPUs.
+- **Time**: the engine advances it by the frame time. Any test-hook call (manual stepping)
+  freezes it at 0, and `__ogm.setAmbientTime(t)` sets it, so screenshots stay deterministic.
+  The gallery animates too; `still=1` stops it.
+
+### 7. Dev tools
 
 - **Gallery** (`/?dev=prefabs`): own renderer and scene, outside the engine. Wall-hung items
   get a wall behind them. Options `only=`, `camera=x,y,z,yaw,pitch` and `outlines=1` make
@@ -89,5 +115,6 @@ A unit test checks all four rules for every prefab and variant.
 - Textures are identical on every machine, so visual baselines stay stable.
 - Generated levels changed (red armchair), so the golden hashes were refreshed. The fixture
   house has no red armchair and did not change.
-- New prefabs must pass the recipe test (footprint, height, bottom and triangle count) before
-  they can merge.
+- New prefabs must pass the recipe test (footprint, height, bottom, triangle count and no
+  z-fighting) before they can merge.
+- Animated parts need a frozen time in screenshot tests; the test hook provides it.
