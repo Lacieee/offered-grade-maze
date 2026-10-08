@@ -35,73 +35,76 @@
   "furniture": [
     {
       "id": "f00",
-      "prefab": "desk",
-      "x": 0.6,
-      "z": -1.85,
+      "prefab": "desk_set",
+      "x": 0.375,
+      "z": -1.625,
       "rot": 0,
       "variant": 0,
-      "colors": ["#6a4a30"],
-      "params": {
-        "w": 1.4,
-        "h": 0.75,
-        "d": 0.7
-      }
+      "colors": ["#222428", "#b09a7a", "#222428"]
     },
     {
       "id": "f01",
-      "prefab": "office_chair",
-      "x": 0.6,
-      "z": -1.15,
+      "prefab": "bookshelf",
+      "x": 1.5,
+      "z": -2,
       "rot": 0,
       "variant": 0,
-      "colors": ["#222428"],
-      "params": {
-        "w": 0.55,
-        "h": 0.9,
-        "d": 0.55
-      }
+      "colors": ["#b09a7a", "#2a6f9e"]
     },
     {
       "id": "f02",
-      "prefab": "bookshelf",
-      "x": 2.05,
-      "z": 0.2,
-      "rot": 1,
+      "prefab": "sig_giant_plant",
+      "x": 1.875,
+      "z": 1.875,
+      "rot": 3,
       "variant": 0,
-      "colors": ["#5a3f2a"],
-      "params": {
-        "w": 1.2,
-        "h": 1.9,
-        "d": 0.35
-      }
+      "colors": ["#f2f2f2", "#7a2fa0"],
+      "signature": true
     },
     {
       "id": "f03",
-      "prefab": "filing_cabinet",
-      "x": -1.9,
-      "z": 1.85,
-      "rot": 0,
+      "prefab": "rug_medium",
+      "x": 0,
+      "z": 0.5,
+      "rot": 3,
       "variant": 0,
-      "colors": ["#7d8389"],
-      "params": {
-        "w": 0.5,
-        "h": 1.1,
-        "d": 0.6
-      }
+      "colors": ["#b09a7a", "#5a3f2a"]
     },
     {
       "id": "f04",
-      "prefab": "globe",
-      "x": -1.7,
-      "z": -1.9,
+      "prefab": "armchair",
+      "x": -1.75,
+      "z": 1.75,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#2f6f8f", "#7d8389"]
+    },
+    {
+      "id": "f05",
+      "prefab": "floor_lamp",
+      "x": -2,
+      "z": -2,
       "rot": 0,
       "variant": 0,
-      "colors": ["#2f6f8f"],
-      "params": {
-        "w": 0.5,
-        "h": 1.0,
-        "d": 0.5
-      }
+      "colors": ["#b09a7a", "#5a3f2a"]
+    },
+    {
+      "id": "f06",
+      "prefab": "wall_clock",
+      "x": -1.75,
+      "z": -2.125,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#4a5a4a", "#7d8389"]
+    },
+    {
+      "id": "f07",
+      "prefab": "plant_small",
+      "x": 2.125,
+      "z": -2.125,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#2a6f9e", "#2f6f8f"]
     }
   ],
   "lights": [
@@ -111,12 +114,28 @@
       "y": 2.6,
       "z": 0,
       "color": "#ffefd6",
-      "intensity": 1.0
+      "intensity": 1
+    },
+    {
+      "kind": "lamp",
+      "x": -2,
+      "y": 1.5,
+      "z": -2,
+      "color": "#ffd9a0",
+      "intensity": 0.8
+    },
+    {
+      "kind": "goal",
+      "x": 0,
+      "y": 1.2,
+      "z": 0,
+      "color": "#ffcf6b",
+      "intensity": 1.2
     }
   ],
   "goal": {
     "x": 0,
     "y": 1.2,
-    "z": 0.6
+    "z": 0
   }
 }

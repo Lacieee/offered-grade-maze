@@ -93,6 +93,9 @@ export function frontOf(
 export function watchConsole(page: Page): string[] {
   const messages: string[] = [];
   page.on('console', (m) => {
+    // The software GL driver (SwiftShader) reports performance hints such as "GPU stall due
+    // to ReadPixels" when the test reads pixels back. They come from the test, not the app.
+    if (/GL Driver Message \(OpenGL, Performance,/.test(m.text())) return;
     if (m.type() === 'error' || m.type() === 'warning') messages.push(`${m.type()}: ${m.text()}`);
   });
   page.on('pageerror', (e) => messages.push(`pageerror: ${e.message}`));

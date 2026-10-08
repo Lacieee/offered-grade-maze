@@ -194,6 +194,8 @@ test('a lost WebGL context is restored without reloading the page', async ({ pag
 test('frames between the two states of a crossing step never flash (G1 feedback)', async ({
   page,
 }) => {
+  // Renders 18 crossings × several frames in software GL: about 2 minutes with furniture.
+  test.setTimeout(360_000);
   await openFixtures(page);
   // Kitchen → bedroom through r01.d2, straight on and at an angle like the G1 recording. The
   // start distances make the crossing step's previous state land 1–4 cm before the door, so

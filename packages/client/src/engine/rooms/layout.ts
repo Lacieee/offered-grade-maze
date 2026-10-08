@@ -11,8 +11,11 @@ import {
   DOOR_HEIGHT,
   DOOR_WIDTH,
   WALLS,
+  GRID,
+  PREFABS,
   WALL_HALF,
   doorFrame,
+  rotatedFootprint,
   wallLength,
   type DoorDTO,
   type DoorFrame,
@@ -29,8 +32,6 @@ export const CASING_WIDTH = 0.08;
 export const CASING_DEPTH = 0.02;
 /** Thickness of a sealed door panel (m). */
 export const DOOR_PANEL_THICKNESS = 0.04;
-/** Placeholder furniture size when `params` gives none (m). */
-export const DEFAULT_FURNITURE = { w: 0.6, h: 0.8, d: 0.6 } as const;
 /** Furniture colour when `colors` is empty. */
 export const DEFAULT_FURNITURE_COLOR = '#808080';
 /**
@@ -81,7 +82,7 @@ export interface WallLayout {
 export interface RoomLayout {
   walls: WallLayout[];
   boxes: LayoutBox[];
-  /** Permanent colliders: walls, jambs, sealed doors, furniture. */
+  /** Permanent colliders: walls, jambs, sealed doors, blocking furniture. */
   colliders: Collider[];
   /**
    * A segment across each linked opening at the portal plane. Only active while the target
@@ -145,23 +146,39 @@ export function solidIntervals(
   return out.filter(([a, b]) => b - a > 1e-9);
 }
 
-/** Footprint of a furniture item after its quarter-turn rotation (axis-aligned). */
-export function furnitureFootprint(f: FurnitureDTO): {
+/** Floor rectangle and height span of a furniture item (m), from the prefab catalogue. */
+export interface FurnitureBounds {
   minX: number;
   maxX: number;
   minZ: number;
   maxZ: number;
-  h: number;
-} {
-  const num = (k: string, fallback: number): number => {
-    const v = f.params?.[k];
-    return typeof v === 'number' && v > 0 ? v : fallback;
+  /** Bottom and top above the floor: wall-hung items hang at their mount height. */
+  y0: number;
+  y1: number;
+  /** False for rugs and wall-hung items: no collider. */
+  blocks: boolean;
+}
+
+/**
+ * Bounds of a furniture item after its quarter-turn rotation (axis-aligned), from the
+ * catalogue footprint of its variant (an unknown variant falls back to the first).
+ */
+export function furnitureFootprint(f: FurnitureDTO): FurnitureBounds {
+  const meta = PREFABS[f.prefab];
+  const variant = f.variant < meta.footprint.length ? f.variant : 0;
+  const { w, d } = rotatedFootprint(f.prefab, variant, f.rot);
+  const sx = w * GRID;
+  const sz = d * GRID;
+  const y0 = meta.mountY === undefined ? 0 : meta.mountY - meta.height / 2;
+  return {
+    minX: f.x - sx / 2,
+    maxX: f.x + sx / 2,
+    minZ: f.z - sz / 2,
+    maxZ: f.z + sz / 2,
+    y0,
+    y1: y0 + meta.height,
+    blocks: meta.blocks,
   };
-  const w = num('w', DEFAULT_FURNITURE.w);
-  const h = num('h', DEFAULT_FURNITURE.h);
-  const d = num('d', DEFAULT_FURNITURE.d);
-  const [sx, sz] = f.rot % 2 === 0 ? [w, d] : [d, w];
-  return { minX: f.x - sx / 2, maxX: f.x + sx / 2, minZ: f.z - sz / 2, maxZ: f.z + sz / 2, h };
 }
 
 /** Position along a wall (u) of a room point, e.g. a door frame origin. */
@@ -254,9 +271,10 @@ export function layoutRoom(room: RoomDTO): RoomLayout {
     const color = f.colors[0] ?? DEFAULT_FURNITURE_COLOR;
     boxes.push({
       mat: `furniture:${color.toLowerCase()}`,
-      min: [fp.minX, 0, fp.minZ],
-      max: [fp.maxX, fp.h, fp.maxZ],
+      min: [fp.minX, fp.y0, fp.minZ],
+      max: [fp.maxX, fp.y1, fp.maxZ],
     });
+    if (!fp.blocks) continue;
     const box: BoxCollider = {
       kind: 'box',
       minX: fp.minX,

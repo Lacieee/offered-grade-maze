@@ -1,4 +1,4 @@
-import { DOOR_HEIGHT, DOOR_WIDTH, WALL_HALF, type RoomDTO } from '@ogm/shared';
+import { DOOR_HEIGHT, DOOR_WIDTH, PREFABS, WALL_HALF, type RoomDTO } from '@ogm/shared';
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_ROOMS, fixtureRoom } from '../../dev/fixtures/index.js';
@@ -7,7 +7,6 @@ import { buildRoom } from './buildRoom.js';
 import {
   CASING_DEPTH,
   CASING_WIDTH,
-  DEFAULT_FURNITURE,
   furnitureFootprint,
   layoutRoom,
   solidIntervals,
@@ -47,28 +46,39 @@ describe('solidIntervals', () => {
 });
 
 describe('furnitureFootprint', () => {
-  const base = { id: 'f00', prefab: 'desk', x: 1, z: 2, variant: 0, colors: [] };
-  it('uses params and swaps width and depth on odd quarter turns', () => {
-    const params = { w: 2, h: 0.7, d: 1 };
-    expect(furnitureFootprint({ ...base, rot: 0, params })).toEqual({
-      minX: 0,
-      maxX: 2,
-      minZ: 1.5,
-      maxZ: 2.5,
-      h: 0.7,
+  const base = { id: 'f00', x: 1, z: 2, variant: 0, colors: [] };
+  it('uses the catalogue footprint and swaps width and depth on odd quarter turns', () => {
+    // desk_set: 5 × 5 units = 1.25 m; bed_double variant 1: 6 × 8 units = 1.5 × 2 m.
+    expect(furnitureFootprint({ ...base, prefab: 'desk_set', rot: 0 })).toEqual({
+      minX: 0.375,
+      maxX: 1.625,
+      minZ: 1.375,
+      maxZ: 2.625,
+      y0: 0,
+      y1: 0.75,
+      blocks: true,
     });
-    expect(furnitureFootprint({ ...base, rot: 1, params })).toMatchObject({
-      minX: 0.5,
-      maxX: 1.5,
-      minZ: 1,
-      maxZ: 3,
-    });
+    expect(furnitureFootprint({ ...base, prefab: 'bed_double', variant: 1, rot: 1 })).toMatchObject(
+      {
+        minX: 0,
+        maxX: 2,
+        minZ: 1.25,
+        maxZ: 2.75,
+      },
+    );
   });
 
-  it('falls back to 0.6 × 0.8 × 0.6 m', () => {
-    const fp = furnitureFootprint({ ...base, rot: 2 });
-    expect(fp.maxX - fp.minX).toBeCloseTo(DEFAULT_FURNITURE.w);
-    expect(fp.h).toBe(DEFAULT_FURNITURE.h);
+  it('hangs wall-hung items at their mount height; rugs and hung items do not block', () => {
+    const painting = furnitureFootprint({ ...base, prefab: 'painting', rot: 0 });
+    expect(painting.y0).toBeCloseTo(1.1);
+    expect(painting.y1).toBeCloseTo(1.9);
+    expect(painting.blocks).toBe(false);
+    expect(furnitureFootprint({ ...base, prefab: 'rug_large', rot: 0 }).blocks).toBe(false);
+  });
+
+  it('falls back to the first variant for an unknown one', () => {
+    const fp = furnitureFootprint({ ...base, prefab: 'coat_rack', variant: 5, rot: 0 });
+    expect(fp.maxX - fp.minX).toBeCloseTo(0.5);
   });
 });
 
@@ -121,11 +131,12 @@ describe('layoutRoom', () => {
     expect(boxes.filter((b) => b.mat === 'handle')).toHaveLength(1);
   });
 
-  it('makes one furniture collider per item', () => {
-    const r = room('r05');
-    expect(layoutRoom(r).colliders.filter((c) => c.kind === 'box')).toHaveLength(
-      r.furniture.length,
-    );
+  it('makes one furniture collider per blocking item', () => {
+    for (const r of FIXTURE_ROOMS) {
+      expect(layoutRoom(r).colliders.filter((c) => c.kind === 'box')).toHaveLength(
+        r.furniture.filter((f) => PREFABS[f.prefab].blocks).length,
+      );
+    }
   });
 });
 
@@ -144,7 +155,8 @@ describe('buildRoom', () => {
       expect(points).toHaveLength(4);
       expect(view.lights.points).toHaveLength(4);
       expect(hemis[0]?.intensity).toBe(HEMI_INTENSITY);
-      expect(points.map((p) => p.intensity)).toEqual([POINT_LIGHT_SCALE, 0, 0, 0]);
+      const expected = [0, 1, 2, 3].map((i) => (dto.lights[i]?.intensity ?? 0) * POINT_LIGHT_SCALE);
+      expect(points.map((p) => p.intensity)).toEqual(expected);
       view.dispose();
     },
   );

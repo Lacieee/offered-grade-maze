@@ -2,7 +2,7 @@
   "id": "r02",
   "type": "bedroom",
   "label": "room.bedroom",
-  "width": 5.0,
+  "width": 5,
   "depth": 5.5,
   "height": 2.8,
   "floor": "carpet",
@@ -16,7 +16,7 @@
     {
       "id": "d0",
       "wall": "S",
-      "offset": 0.0,
+      "offset": 0,
       "link": {
         "room": "r03",
         "door": "d0"
@@ -25,7 +25,7 @@
     {
       "id": "d1",
       "wall": "E",
-      "offset": -1.0,
+      "offset": -1,
       "link": {
         "room": "r02",
         "door": "d0"
@@ -35,59 +35,76 @@
   "furniture": [
     {
       "id": "f00",
-      "prefab": "bed",
-      "x": -1.4,
-      "z": -1.6,
+      "prefab": "bed_double",
+      "x": -1.75,
+      "z": -1.75,
       "rot": 0,
-      "variant": 0,
-      "colors": ["#e8e2d4"],
-      "params": {
-        "w": 1.6,
-        "h": 0.5,
-        "d": 2.0
-      }
+      "variant": 1,
+      "colors": ["#9a8fb0", "#9a8fb0", "#e8e2d4"]
     },
     {
       "id": "f01",
       "prefab": "wardrobe",
-      "x": 1.0,
-      "z": -2.4,
+      "x": 1.5,
+      "z": -2.375,
       "rot": 0,
-      "variant": 0,
-      "colors": ["#5e4630"],
-      "params": {
-        "w": 1.2,
-        "h": 2.0,
-        "d": 0.6
-      }
+      "variant": 1,
+      "colors": ["#e8e2d4", "#e8e2d4"]
     },
     {
       "id": "f02",
       "prefab": "nightstand",
-      "x": -0.25,
-      "z": -2.45,
+      "x": -0.75,
+      "z": -2.5,
       "rot": 0,
       "variant": 0,
-      "colors": ["#7a5c40"],
-      "params": {
-        "w": 0.45,
-        "h": 0.55,
-        "d": 0.45
-      }
+      "colors": ["#5e4630"]
     },
     {
       "id": "f03",
-      "prefab": "desk",
-      "x": -1.9,
-      "z": 1.9,
-      "rot": 0,
+      "prefab": "sig_grandfather_clock",
+      "x": 2.25,
+      "z": 1.25,
+      "rot": 3,
       "variant": 0,
-      "colors": ["#8c6b4a"],
-      "params": {
-        "w": 1.1,
-        "h": 0.75,
-        "d": 0.6
-      }
+      "colors": ["#1f7a4a", "#f2f2f2"],
+      "signature": true
+    },
+    {
+      "id": "f04",
+      "prefab": "floor_lamp",
+      "x": -2.25,
+      "z": 2.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#c4a99a", "#9a8fb0"]
+    },
+    {
+      "id": "f05",
+      "prefab": "side_table",
+      "x": -1.25,
+      "z": 2.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#9a8fb0"]
+    },
+    {
+      "id": "f06",
+      "prefab": "mirror_standing",
+      "x": 2.375,
+      "z": 1.75,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#5e4630"]
+    },
+    {
+      "id": "f07",
+      "prefab": "plant_large",
+      "x": 2.25,
+      "z": 2.5,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#c4a99a", "#4f5a6a"]
     }
   ],
   "lights": [
@@ -97,7 +114,15 @@
       "y": 2.6,
       "z": 0,
       "color": "#ffe9d2",
-      "intensity": 1.0
+      "intensity": 1
+    },
+    {
+      "kind": "lamp",
+      "x": -2.25,
+      "y": 1.5,
+      "z": 2.5,
+      "color": "#ffd9a0",
+      "intensity": 0.8
     }
   ]
 }

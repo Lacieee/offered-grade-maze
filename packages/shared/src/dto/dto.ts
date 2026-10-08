@@ -6,6 +6,7 @@
  */
 import { z } from 'zod';
 import { WALLS } from '../geometry/geometry.js';
+import { PREFAB_IDS } from '../prefabs/catalog.js';
 import { CANONICAL_SEED_PATTERN, DIFFICULTIES } from '../seed/seed.js';
 
 // ---------------------------------------------------------------- primitives
@@ -16,8 +17,8 @@ export const RoomIdSchema = z.string().regex(/^r\d{2}$/);
 export const DoorIdSchema = z.string().regex(/^d\d$/);
 /** Furniture ID, unique within its room, `f00`…`f99`. */
 export const FurnitureIdSchema = z.string().regex(/^f\d{2}$/);
-/** Prefab ID from the prefab catalogue, e.g. `sofa` or `floor_lamp`. */
-export const PrefabIdSchema = z.string().regex(/^[a-z][a-z0-9_]*$/);
+/** Prefab ID from the prefab catalogue (CP05), e.g. `sofa_3seat` or `floor_lamp`. */
+export const PrefabIdSchema = z.enum(PREFAB_IDS);
 /** CSS hex colour, `#rrggbb`. */
 export const ColorSchema = z.string().regex(/^#[0-9a-f]{6}$/i);
 /** Finite number (Zod rejects NaN and ±Infinity). */

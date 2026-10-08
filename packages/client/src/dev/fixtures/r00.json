@@ -2,7 +2,7 @@
   "id": "r00",
   "type": "living",
   "label": "room.living",
-  "width": 7.0,
+  "width": 7,
   "depth": 7.5,
   "height": 2.8,
   "floor": "wood",
@@ -16,7 +16,7 @@
     {
       "id": "d0",
       "wall": "N",
-      "offset": -1.0,
+      "offset": -1,
       "link": {
         "room": "r01",
         "door": "d0"
@@ -44,73 +44,85 @@
   "furniture": [
     {
       "id": "f00",
-      "prefab": "sofa",
-      "x": 0,
-      "z": 2.9,
-      "rot": 0,
-      "variant": 0,
-      "colors": ["#5b6f8a"],
-      "params": {
-        "w": 2.2,
-        "h": 0.8,
-        "d": 0.9
-      }
+      "prefab": "sofa_3seat",
+      "x": 0.625,
+      "z": 3.25,
+      "rot": 2,
+      "variant": 1,
+      "colors": ["#c9b79c", "#2f7f6f"]
     },
     {
       "id": "f01",
-      "prefab": "coffee_table",
-      "x": 0,
-      "z": 1.6,
-      "rot": 0,
+      "prefab": "tv_unit",
+      "x": -3.25,
+      "z": 2.75,
+      "rot": 1,
       "variant": 0,
-      "colors": ["#6b4a2e"],
-      "params": {
-        "w": 1.0,
-        "h": 0.45,
-        "d": 0.6
-      }
+      "colors": ["#2f7f6f", "#2f2f33"]
     },
     {
       "id": "f02",
-      "prefab": "tv_unit",
-      "x": 1.6,
-      "z": -3.4,
+      "prefab": "coffee_table",
+      "x": -1.5,
+      "z": 2,
       "rot": 0,
       "variant": 0,
-      "colors": ["#2f2f33"],
-      "params": {
-        "w": 1.6,
-        "h": 0.6,
-        "d": 0.45
-      }
+      "colors": ["#4a5b6e"]
     },
     {
       "id": "f03",
-      "prefab": "armchair",
-      "x": -2.6,
-      "z": 2.6,
+      "prefab": "sig_aquarium",
+      "x": -2.875,
+      "z": -3.5,
       "rot": 0,
       "variant": 0,
-      "colors": ["#9a4b3d"],
-      "params": {
-        "w": 0.8,
-        "h": 0.9,
-        "d": 0.8
-      }
+      "colors": ["#7a2fa0", "#1f7a4a"],
+      "signature": true
     },
     {
       "id": "f04",
-      "prefab": "bookshelf",
-      "x": 3.2,
-      "z": -1.8,
-      "rot": 1,
+      "prefab": "rug_large",
+      "x": 1,
+      "z": 1.25,
+      "rot": 2,
+      "variant": 1,
+      "colors": ["#2f7f6f", "#4a5b6e"]
+    },
+    {
+      "id": "f05",
+      "prefab": "side_table",
+      "x": -0.5,
+      "z": 3.5,
+      "rot": 2,
       "variant": 0,
-      "colors": ["#7a5534"],
-      "params": {
-        "w": 1.2,
-        "h": 1.8,
-        "d": 0.4
-      }
+      "colors": ["#2f2f33"]
+    },
+    {
+      "id": "f06",
+      "prefab": "floor_lamp",
+      "x": 3.25,
+      "z": 3.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#a0754d", "#7a3f35"]
+    },
+    {
+      "id": "f07",
+      "prefab": "plant_large",
+      "x": 3.25,
+      "z": -3.5,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#7a3f35", "#8c6b4a"]
+    },
+    {
+      "id": "f08",
+      "prefab": "wall_clock",
+      "x": -2.5,
+      "z": -3.625,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#6b4a2e", "#7a3f35"]
     }
   ],
   "lights": [
@@ -120,7 +132,15 @@
       "y": 2.6,
       "z": 0,
       "color": "#fff1dc",
-      "intensity": 1.0
+      "intensity": 1
+    },
+    {
+      "kind": "lamp",
+      "x": 3.25,
+      "y": 1.5,
+      "z": 3.5,
+      "color": "#ffd9a0",
+      "intensity": 0.8
     }
   ]
 }

@@ -7,6 +7,7 @@ import {
   WALL_HALF,
   doorFrame,
   maxDoorOffset,
+  PREFABS,
   type RoomDTO,
 } from '@ogm/shared';
 import { describe, expect, it } from 'vitest';
@@ -177,25 +178,32 @@ describe('fixture house', () => {
   );
 
   it.each(FIXTURE_ROOMS.map((r) => [r.id, r] as const))(
-    '%s: 3–6 furniture boxes inside the footprint and clear of every door zone',
+    '%s: catalogue furniture inside the footprint, one signature, blocking items clear of door zones',
     (_id, r) => {
       expect(r.furniture.length).toBeGreaterThanOrEqual(3);
-      expect(r.furniture.length).toBeLessThanOrEqual(6);
+      expect(r.furniture.filter((f) => f.signature === true)).toHaveLength(1);
       for (const f of r.furniture) {
+        expect(f.colors).toHaveLength(PREFABS[f.prefab].colorSlots);
+        expect(f.params?.w).toBeUndefined();
         const fp = furnitureFootprint(f);
         expect(fp.minX).toBeGreaterThanOrEqual(-r.width / 2);
         expect(fp.maxX).toBeLessThanOrEqual(r.width / 2);
         expect(fp.minZ).toBeGreaterThanOrEqual(-r.depth / 2);
         expect(fp.maxZ).toBeLessThanOrEqual(r.depth / 2);
+        if (!fp.blocks) continue;
         for (const d of r.doors) expect(overlaps(fp, clearanceZone(r, d))).toBe(false);
       }
     },
   );
 
   it.each(FIXTURE_ROOMS.map((r) => [r.id, r] as const))(
-    '%s: one ceiling light at (0, 2.6, 0)',
+    '%s: ceiling light first at (0, 2.6, 0), one lamp light per floor lamp, goal light in r05',
     (_id, r) => {
-      expect(r.lights).toEqual([expect.objectContaining({ kind: 'ceiling', x: 0, y: 2.6, z: 0 })]);
+      expect(r.lights[0]).toEqual(expect.objectContaining({ kind: 'ceiling', x: 0, y: 2.6, z: 0 }));
+      const lamps = r.furniture.filter((f) => f.prefab === 'floor_lamp');
+      expect(r.lights.filter((l) => l.kind === 'lamp')).toHaveLength(lamps.length);
+      expect(r.lights.filter((l) => l.kind === 'goal')).toHaveLength(r.id === FIXTURE_GOAL ? 1 : 0);
+      expect(r.lights.length).toBeLessThanOrEqual(4);
     },
   );
 

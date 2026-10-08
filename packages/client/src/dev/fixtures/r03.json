@@ -16,7 +16,7 @@
     {
       "id": "d0",
       "wall": "S",
-      "offset": 0.0,
+      "offset": 0,
       "link": {
         "room": "r01",
         "door": "d2"
@@ -36,44 +36,88 @@
     {
       "id": "f00",
       "prefab": "bathtub",
-      "x": -1.3,
-      "z": -0.6,
-      "rot": 0,
+      "x": -1.375,
+      "z": -0.125,
+      "rot": 1,
       "variant": 0,
-      "colors": ["#f5f7f8"],
-      "params": {
-        "w": 0.75,
-        "h": 0.6,
-        "d": 1.6
-      }
+      "colors": ["#c23b6b", "#e8e2d8"]
     },
     {
       "id": "f01",
       "prefab": "toilet",
-      "x": 1.45,
-      "z": 0.9,
-      "rot": 0,
+      "x": 1.375,
+      "z": 0.25,
+      "rot": 3,
       "variant": 0,
-      "colors": ["#ffffff"],
-      "params": {
-        "w": 0.45,
-        "h": 0.8,
-        "d": 0.6
-      }
+      "colors": ["#c9d8dc"]
     },
     {
       "id": "f02",
       "prefab": "washbasin",
+      "x": -1.5,
+      "z": -1.375,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#9fb8bc", "#c23b6b"]
+    },
+    {
+      "id": "f03",
+      "prefab": "sig_grandfather_clock",
       "x": 1.5,
-      "z": -0.2,
+      "z": -1.5,
       "rot": 3,
       "variant": 0,
-      "colors": ["#dfe9ec"],
+      "colors": ["#c0262d", "#138a8a"],
+      "signature": true
+    },
+    {
+      "id": "f04",
+      "prefab": "floor_lamp",
+      "x": -1.5,
+      "z": 1.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#c9d8dc", "#ffffff"]
+    },
+    {
+      "id": "f05",
+      "prefab": "towel_rack",
+      "x": 1.625,
+      "z": 0.875,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#c23b6b", "#c23b6b"]
+    },
+    {
+      "id": "f06",
+      "prefab": "painting",
+      "x": -1.625,
+      "z": 0.875,
+      "rot": 1,
+      "variant": 1,
+      "colors": ["#f5f7f8", "#c23b6b", "#d0d6d8"],
       "params": {
-        "w": 0.6,
-        "h": 0.85,
-        "d": 0.45
+        "pattern": "grid",
+        "seed": 6282
       }
+    },
+    {
+      "id": "f07",
+      "prefab": "plant_large",
+      "x": 1.5,
+      "z": 1.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#f5f7f8", "#f5f7f8"]
+    },
+    {
+      "id": "f08",
+      "prefab": "wall_clock",
+      "x": -1,
+      "z": -1.625,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#ffffff", "#ffffff"]
     }
   ],
   "lights": [
@@ -83,7 +127,15 @@
       "y": 2.6,
       "z": 0,
       "color": "#f0f8ff",
-      "intensity": 1.0
+      "intensity": 1
+    },
+    {
+      "kind": "lamp",
+      "x": -1.5,
+      "y": 1.5,
+      "z": 1.5,
+      "color": "#ffd9a0",
+      "intensity": 0.8
     }
   ]
 }
