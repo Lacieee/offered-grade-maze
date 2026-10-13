@@ -203,12 +203,15 @@ describe('animated parts (CP06 review)', () => {
     for (const g of aquarium().swim) {
       const pos = g.getAttribute('position');
       const s = g.getAttribute('swim');
+      // One assertion per fish (an expect per vertex and step took seconds under load).
+      let widest = 0;
       for (let t = 0; t < 30; t += 0.05) {
         for (let i = 0; i < pos.count; i++) {
           const x = pos.getX(i) + swimOffset(s.getX(i), s.getY(i), s.getZ(i), s.getW(i), t);
-          expect(Math.abs(x)).toBeLessThanOrEqual(inner);
+          widest = Math.max(widest, Math.abs(x));
         }
       }
+      expect(widest).toBeLessThanOrEqual(inner);
     }
   });
 
