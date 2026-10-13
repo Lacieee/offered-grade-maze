@@ -179,7 +179,7 @@ pnpm --filter @ogm/e2e exec playwright install chromium   # once per machine
 pnpm test:e2e            # portal checks, visual baselines, the goal, sound, settings, the game
 pnpm test:e2e:update     # rewrite the baselines after an intended visual change
 E2E_API=1 pnpm test:e2e  # also the real API: playthroughs, debug view, seed replay, release build
-E2E_API=1 E2E_LONG=1 pnpm test:e2e robustness   # 100 autopilot games with 300 ms latency (~1.5 h)
+E2E_API=1 E2E_LONG=1 pnpm test:e2e robustness   # 100 autopilot games with 300 ms latency (~1 h)
 ```
 
 The autopilot (`window.__ogm.autopilot.followPath()` in dev builds; in release builds only

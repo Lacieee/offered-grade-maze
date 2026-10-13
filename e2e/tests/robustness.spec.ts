@@ -1,7 +1,7 @@
 /**
  * Latency robustness (CP10 B2), long: 100 autopilot runs, Easy and Medium mixed, with a
  * 300 ms delay on every API route, on the real API. Every run must complete with no empty
- * doorway (no missing portal target). Opt-in: `E2E_API=1 E2E_LONG=1` (about 1.5 h in
+ * doorway (no missing portal target). Opt-in: `E2E_API=1 E2E_LONG=1` (about 1 h in
  * SwiftShader); `E2E_RUNS` changes the number of runs.
  */
 import { expect, test } from '@playwright/test';

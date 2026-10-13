@@ -75,7 +75,7 @@ other as a late compile. In the walks so far there were none at all.
   walk, in Auto quality and in Low quality at full screen. Playwright cannot drive Safari
   (WebKit is not Safari), so Safari and Firefox use the manual procedure in
   `docs/release/browser-checklist.md` (`tour(180)` and **Copy log**).
-- The 100-run latency test (B2) takes about 1.5 hours in SwiftShader. It is opt-in
+- The 100-run latency test (B2) took 1.0 hour in SwiftShader. It is opt-in
   (`E2E_LONG=1`) rather than part of every CI run; it was run for the release candidate.
 - The e2e CI job's time limit is raised to 90 minutes for the nine playthroughs.
 
