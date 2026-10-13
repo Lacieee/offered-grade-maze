@@ -1,6 +1,7 @@
 /**
  * Chooses the screen for the game phase (CP08 T6). The canvas stays mounted underneath.
  */
+import { Suspense, lazy, useEffect } from 'react';
 import { useUiStore } from '../ui/store.js';
 import type { GameController } from './game/controller.js';
 import { useGame } from './game/store.js';
@@ -18,11 +19,40 @@ import {
 } from './ui/screens.js';
 import { SettingsScreen } from './ui/settings.js';
 
+/** Loaded on first open (CP10 A1.4). */
+const DebugOverlay = lazy(() => import('./debug/DebugOverlay.js'));
+
+/**
+ * Debug view toggle keys (CP10 A1.1), by `event.code`: the key under Esc reports `Backquote`
+ * on ANSI and `IntlBackslash` on Apple ISO keyboards; F9 may need fn on a Mac.
+ */
+export const DEBUG_KEYS: readonly string[] = ['Backquote', 'IntlBackslash', 'F9'];
+
 export function GameShell({ game, showOverlay }: { game: GameController; showOverlay: boolean }) {
   const settingsOpen = useGame((s) => s.settingsOpen);
+  const debugOpen = useGame((s) => s.debugOpen);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (DEBUG_KEYS.includes(e.code) && !e.repeat) {
+        e.preventDefault();
+        game.toggleDebug();
+      } else if (e.code === 'Escape' && useGame.getState().debugOpen) {
+        game.closeDebug();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [game]);
   return (
     <>
       <PhaseScreen game={game} showOverlay={showOverlay} />
+      {debugOpen && (
+        <Suspense fallback={null}>
+          <DebugOverlay game={game} />
+        </Suspense>
+      )}
       {settingsOpen && <SettingsScreen />}
     </>
   );
@@ -31,6 +61,7 @@ export function GameShell({ game, showOverlay }: { game: GameController; showOve
 function PhaseScreen({ game, showOverlay }: { game: GameController; showOverlay: boolean }) {
   const phase = useGame((s) => s.phase);
   const locked = useUiStore((s) => s.pointerLocked);
+  const debugOpen = useGame((s) => s.debugOpen);
   switch (phase) {
     case 'title':
       return <TitleScreen game={game} />;
@@ -44,7 +75,7 @@ function PhaseScreen({ game, showOverlay }: { game: GameController; showOverlay:
       return showOverlay ? (
         <>
           <Hud />
-          {!locked && <PauseOverlay game={game} />}
+          {!locked && !debugOpen && <PauseOverlay game={game} />}
         </>
       ) : null;
     case 'completing':

@@ -574,3 +574,202 @@ input[type='checkbox']:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
+
+/* ---------------------------------------------------------------- debug view (CP10 A2) */
+
+/* The game keeps running behind a 30 % backdrop. */
+.debug-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 30%);
+  pointer-events: auto;
+}
+
+.debug-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(1400px, 100%);
+  padding: 16px 20px;
+  background: rgb(14 16 22 / 88%);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 45%);
+  overflow: hidden;
+}
+
+.debug-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.debug-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.debug-hint {
+  margin: 0;
+  flex: 1;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.debug-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.debug-facts div {
+  display: flex;
+  gap: 6px;
+}
+
+.debug-facts dt {
+  opacity: 0.65;
+}
+
+.debug-facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.debug-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  font-size: 0.85rem;
+}
+
+.debug-legend {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+
+.debug-graph {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background: rgb(255 255 255 / 3%);
+  border-radius: 8px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.debug-graph:active {
+  cursor: grabbing;
+}
+
+.dbg-node rect {
+  fill: #20242e;
+  stroke: #4a5160;
+  stroke-width: 1.2;
+}
+
+.dbg-node.dbg-start rect {
+  fill: #1f5a37;
+}
+
+.dbg-node.dbg-goal rect {
+  fill: #7a5c12;
+}
+
+.dbg-node.dbg-current rect {
+  stroke: #58a6ff;
+  stroke-width: 4;
+}
+
+.dbg-title {
+  fill: #f2f2f2;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dbg-door {
+  fill: #c9ced8;
+  font-size: 10.5px;
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+.dbg-link {
+  fill: none;
+  stroke: #8b93a5;
+  stroke-width: 1.3;
+}
+
+.dbg-link:hover {
+  stroke: #ffffff;
+  stroke-width: 2.4;
+}
+
+.dbg-oneWay {
+  stroke-dasharray: 6 4;
+}
+
+.dbg-self {
+  stroke: #b48ead;
+}
+
+.dbg-arrowhead {
+  fill: #8b93a5;
+}
+
+.dbg-path {
+  fill: none;
+  stroke: #ff8c1a;
+  stroke-width: 4.5;
+  pointer-events: none;
+}
+
+.dbg-arrowhead-path {
+  fill: #ff8c1a;
+}
+
+.dbg-twin {
+  stroke: #b48ead;
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.dbg-sealed rect {
+  fill: #20242e;
+  stroke: #e06c75;
+  stroke-width: 1.3;
+}
+
+.dbg-sealed path {
+  stroke: #e06c75;
+  stroke-width: 1.3;
+}
+
+.dbg-hover {
+  fill: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: #0b0b0d;
+  stroke-width: 3px;
+  text-anchor: middle;
+}
+
+.debug-path {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.debug-status {
+  margin: 24px 0;
+  opacity: 0.8;
+}

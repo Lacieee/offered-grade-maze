@@ -6,6 +6,7 @@
 import {
   type CreateGameRequest,
   type CreateGameResponse,
+  type DebugResponse,
   type RoomDTO,
   type RoomId,
   type Spawn,
@@ -33,6 +34,8 @@ export interface GameEngine {
   getState(): EngineState;
   /** The pickup animation (CP09 T1.6); resolves when it ends. */
   playPickup(): Promise<void>;
+  /** In-world door labels of the debug view (CP10 A2). */
+  setDoorLabels(on: boolean, sealedText?: string): void;
   on<K extends keyof EngineEvents>(event: K, cb: (payload: EngineEvents[K]) => void): Unsubscribe;
 }
 
@@ -101,7 +104,7 @@ export class GameController {
     this.abandon();
     this.deps.engine.unlockPointer();
     this.deps.engine.resetWorld();
-    this.set({ ...INITIAL_GAME_STATE, phase: 'title' });
+    this.set({ ...INITIAL_GAME_STATE, phase: 'title', doorLabels: this.get().doorLabels });
   }
 
   /** New game screen (optionally on a tab with a prefilled seed). */
@@ -120,6 +123,7 @@ export class GameController {
     this.requested = new Set();
     this.set({
       ...INITIAL_GAME_STATE,
+      doorLabels: this.get().doorLabels,
       phase: 'loading',
       seed: request.mode === 'seed' ? request.seed.trim().toUpperCase() : null,
       difficulty: request.mode === 'random' ? request.difficulty : null,
@@ -201,7 +205,10 @@ export class GameController {
         if (gen === this.generation) this.receive(rooms);
       },
       onAccepted: () => {
-        if (gen === this.generation) void this.ensureNearby();
+        if (gen !== this.generation) return;
+        void this.ensureNearby();
+        // The debug view follows the player: current room and path from it (CP10 A1.3).
+        if (this.get().debugOpen) void this.refreshDebug();
       },
       onDesync: (t, server) => {
         if (gen !== this.generation) return;
@@ -223,6 +230,60 @@ export class GameController {
   /** Back to the game after the pause overlay (call from a user gesture). */
   resume(): void {
     if (this.get().phase === 'playing') this.deps.engine.lockPointer();
+  }
+
+  // ---------------------------------------------------------------- debug view (CP10)
+
+  /**
+   * Opens the debug view (CP10 A1.2): releases the pointer, marks the game `debugUsed` (PD8)
+   * and loads the house. The game and the timer keep running (PD1).
+   */
+  openDebug(): void {
+    const s = this.get();
+    if (s.phase !== 'playing' || s.debugOpen) return;
+    this.deps.engine.unlockPointer();
+    this.set({ debugOpen: true, debugUsed: true, debugFailed: false });
+    void this.refreshDebug();
+  }
+
+  /** Closes the debug view; one click on the game locks the pointer again. */
+  closeDebug(): void {
+    if (this.get().debugOpen) this.set({ debugOpen: false });
+  }
+
+  /** Shows or hides the in-world door labels (debug view toggle). */
+  setDoorLabels(on: boolean, sealedText: string): void {
+    this.deps.engine.setDoorLabels(on, sealedText);
+    this.set({ doorLabels: on });
+  }
+
+  /** Opens or closes the debug view (the toggle key). */
+  toggleDebug(): void {
+    if (this.get().debugOpen) this.closeDebug();
+    else this.openDebug();
+  }
+
+  /**
+   * The debug data for the current game (`GET /games/:id/debug`); marks the game `debugUsed`
+   * like opening the view does (the autopilot reads its path from here).
+   */
+  async debug(): Promise<DebugResponse> {
+    const gameId = this.get().gameId;
+    if (!gameId) throw new Error('No game');
+    this.set({ debugUsed: true });
+    return this.deps.api.debug(gameId);
+  }
+
+  private async refreshDebug(): Promise<void> {
+    const gen = this.generation;
+    try {
+      const data = await this.debug();
+      if (gen === this.generation && this.get().debugOpen) {
+        this.set({ debugData: data, debugFailed: false });
+      }
+    } catch {
+      if (gen === this.generation && this.get().debugOpen) this.set({ debugFailed: true });
+    }
   }
 
   /** The current transition queue (tests). */
@@ -249,7 +310,7 @@ export class GameController {
     const clientElapsedMs = Math.floor(stoppedAt - s.startedAt);
     this.deps.engine.setInputEnabled(false);
     this.sound?.pickup();
-    this.set({ phase: 'completing', stoppedAt });
+    this.set({ phase: 'completing', stoppedAt, debugOpen: false });
     const queue = this.queue;
     // The result shows once the pickup animation has played and the server has the result.
     const animation = this.deps.engine.playPickup();
@@ -358,6 +419,7 @@ export class GameController {
   /** Stops the current game's background work. */
   private abandon(): void {
     this.generation++;
+    if (this.get().debugOpen) this.set({ debugOpen: false, debugData: null });
     this.queue?.stop();
     this.queue = null;
     this.sound?.dispose();

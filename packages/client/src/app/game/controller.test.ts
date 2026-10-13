@@ -48,6 +48,10 @@ class FakeEngine implements GameEngine {
   setInputEnabled(enabled: boolean) {
     this.inputEnabled = enabled;
   }
+  labels = false;
+  setDoorLabels(on: boolean) {
+    this.labels = on;
+  }
   lockPointer() {
     this.locked = true;
   }
@@ -298,5 +302,50 @@ describe('GameController (CP08 T5)', () => {
     expect(sound.setVolumes).toHaveBeenCalledWith({ master: 10, music: 20, sfx: 30 });
     game.toTitle();
     expect(sound.dispose).toHaveBeenCalledOnce();
+  });
+
+  it('debug view (CP10 A1): opens only while playing, releases the pointer, flags the game, follows the player', async () => {
+    const api = new MockApi(0, () => clock);
+    const debugSpy = vi.spyOn(api, 'debug');
+    const { engine, game } = make(api);
+    await game.newGame({ mode: 'random', difficulty: 'medium' });
+    game.openDebug(); // ready: not yet
+    expect(useGame.getState().debugOpen).toBe(false);
+    game.begin();
+    await flushAsync();
+    const startedAt = useGame.getState().startedAt;
+    game.toggleDebug();
+    expect(engine.locked).toBe(false);
+    expect(useGame.getState()).toMatchObject({ debugOpen: true, debugUsed: true });
+    await flushAsync();
+    expect(useGame.getState().debugData?.current).toBe('r00');
+    // The game keeps running: crossings are sent, the view refetches and follows the player.
+    const door = shortestPath(FIXTURE_ROOMS, 'r00', FIXTURE_GOAL)?.[0]?.exitDoor ?? '';
+    engine.cross(door);
+    await flushAsync();
+    expect(useGame.getState().debugData?.current).toBe(engine.room);
+    expect(debugSpy).toHaveBeenCalledTimes(2);
+    expect(useGame.getState().startedAt).toBe(startedAt);
+    game.toggleDebug();
+    expect(useGame.getState().debugOpen).toBe(false);
+    // The result is flagged (PD8).
+    await playToGoal(engine);
+    engine.events.emit('goalReached', { room: FIXTURE_GOAL });
+    await flushAsync(700);
+    expect(useGame.getState().result?.debugUsed).toBe(true);
+  });
+
+  it('debug view: a failed load shows as failed; a new game closes the view', async () => {
+    const api = new MockApi(0, () => clock);
+    vi.spyOn(api, 'debug').mockRejectedValue(new ApiError(404, 'not_found', 'Disabled'));
+    const { game } = make(api);
+    await game.newGame({ mode: 'random', difficulty: 'easy' });
+    game.begin();
+    await flushAsync();
+    game.openDebug();
+    await flushAsync();
+    expect(useGame.getState()).toMatchObject({ debugOpen: true, debugFailed: true });
+    await game.newGame({ mode: 'random', difficulty: 'easy' });
+    expect(useGame.getState().debugOpen).toBe(false);
   });
 });

@@ -2,7 +2,7 @@
  * Game UI state (CP08 T5, T6). The controller writes it; screens read it. Per-frame values
  * (the timer) are not stored here, so nothing re-renders every frame.
  */
-import type { Difficulty, ResultDTO } from '@ogm/shared';
+import type { DebugResponse, Difficulty, ResultDTO } from '@ogm/shared';
 import { create } from 'zustand';
 import type { MessageKey } from '../i18n/index.js';
 
@@ -52,6 +52,14 @@ export interface GameState {
   debugUsed: boolean;
   /** The settings screen is open over the current screen (CP09 T7). */
   settingsOpen: boolean;
+  /** The debug view is open over the game (CP10 A1); the game keeps running. */
+  debugOpen: boolean;
+  /** The last `GET /games/:id/debug` answer while the debug view is open. */
+  debugData: DebugResponse | null;
+  /** Loading the debug data failed (network, or the view is disabled on the server). */
+  debugFailed: boolean;
+  /** In-world door labels are shown (debug view toggle). */
+  doorLabels: boolean;
 }
 
 export const INITIAL_GAME_STATE: GameState = {
@@ -70,6 +78,10 @@ export const INITIAL_GAME_STATE: GameState = {
   desync: false,
   debugUsed: false,
   settingsOpen: false,
+  debugOpen: false,
+  debugData: null,
+  debugFailed: false,
+  doorLabels: false,
 };
 
 export const useGame = create<GameState>()(() => ({ ...INITIAL_GAME_STATE }));
