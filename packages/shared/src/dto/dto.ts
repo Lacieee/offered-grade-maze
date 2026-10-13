@@ -160,6 +160,23 @@ export const ResultDTOSchema = z.object({
 
 export const CompleteResponseSchema = z.object({ result: ResultDTOSchema });
 
+/** `GET /games/:id/rooms?ids=…` (CP07 T4): at most 24 ids. */
+export const RoomsResponseSchema = z.object({ rooms: z.array(RoomDTOSchema) });
+
+/** `POST /client-errors` (CP07 T4): a client-side error report, at most 8 kB in total. */
+export const ClientErrorRequestSchema = z.object({
+  message: z.string().min(1).max(2000),
+  stack: z.string().max(6000).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
+});
+
+/** `GET /health` (CP07 T4). */
+export const HealthResponseSchema = z.object({
+  status: z.literal('ok'),
+  db: z.enum(['ok', 'down']),
+  version: z.string().min(1),
+});
+
 // ---------------------------------------------------------------- debug view
 
 /**
@@ -203,6 +220,15 @@ export const ApiErrorSchema = z.object({
   error: z.object({ code: z.string().min(1), message: z.string() }),
 });
 
+/**
+ * 409 `desync` from `POST /games/:id/transitions` (CP07 T5): the server's view of the game,
+ * so the client can resynchronise. The game stays playable.
+ */
+export const DesyncErrorSchema = ApiErrorSchema.extend({
+  current: RoomIdSchema,
+  lastSeq: UIntSchema,
+});
+
 // ---------------------------------------------------------------- types
 
 export type RoomId = z.infer<typeof RoomIdSchema>;
@@ -228,3 +254,7 @@ export type PathStep = z.infer<typeof PathStepSchema>;
 export type DebugRoomDTO = z.infer<typeof DebugRoomDTOSchema>;
 export type DebugResponse = z.infer<typeof DebugResponseSchema>;
 export type ApiError = z.infer<typeof ApiErrorSchema>;
+export type DesyncError = z.infer<typeof DesyncErrorSchema>;
+export type RoomsResponse = z.infer<typeof RoomsResponseSchema>;
+export type ClientErrorRequest = z.infer<typeof ClientErrorRequestSchema>;
+export type HealthResponse = z.infer<typeof HealthResponseSchema>;

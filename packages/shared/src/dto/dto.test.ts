@@ -5,6 +5,7 @@ import type { Difficulty } from '../seed/seed.js';
 import * as fx from './__fixtures__/fixtures.js';
 import {
   ApiErrorSchema,
+  ClientErrorRequestSchema,
   ColorSchema,
   CompleteRequestSchema,
   CompleteResponseSchema,
@@ -12,14 +13,17 @@ import {
   CreateGameResponseSchema,
   DebugResponseSchema,
   DebugRoomDTOSchema,
+  DesyncErrorSchema,
   DoorDTOSchema,
   DoorIdSchema,
   FurnitureDTOSchema,
+  HealthResponseSchema,
   LightDTOSchema,
   PathStepSchema,
   ResultDTOSchema,
   RoomDTOSchema,
   RoomIdSchema,
+  RoomsResponseSchema,
   SpawnSchema,
   StartResponseSchema,
   TransitionRequestSchema,
@@ -207,6 +211,36 @@ const cases: Case[] = [
     schema: ApiErrorSchema,
     valid: [fx.apiError],
     invalid: [{ code: 'bad_seed', message: 'x' }, { error: { message: 'x' } }],
+  },
+  {
+    name: 'DesyncError',
+    schema: DesyncErrorSchema,
+    valid: [{ error: { code: 'desync', message: 'x' }, current: 'r03', lastSeq: 4 }],
+    invalid: [
+      { error: { code: 'desync', message: 'x' }, current: 'r03' },
+      { error: { code: 'desync', message: 'x' }, current: 'kitchen', lastSeq: 4 },
+    ],
+  },
+  {
+    name: 'RoomsResponse',
+    schema: RoomsResponseSchema,
+    valid: [{ rooms: [room] }, { rooms: [] }],
+    invalid: [{ rooms: [{ ...room, id: 'x' }] }, {}],
+  },
+  {
+    name: 'ClientErrorRequest',
+    schema: ClientErrorRequestSchema,
+    valid: [{ message: 'boom' }, { message: 'boom', stack: 'at x', context: { room: 'r01' } }],
+    invalid: [{ message: '' }, { stack: 'at x' }, { message: 'x'.repeat(2001) }],
+  },
+  {
+    name: 'HealthResponse',
+    schema: HealthResponseSchema,
+    valid: [{ status: 'ok', db: 'down', version: '1.0.0' }],
+    invalid: [
+      { status: 'ok', db: 'maybe', version: '1' },
+      { status: 'bad', db: 'ok', version: '1' },
+    ],
   },
 ];
 
