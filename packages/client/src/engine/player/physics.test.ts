@@ -146,6 +146,27 @@ describe('collision', () => {
     expect(clear(b, colliders)).toBe(true);
   });
 
+  it('a centre exactly on a box edge is pushed out, never NaN (CP09: NaN audio listener)', () => {
+    const b = box(-0.5, 1, 0.5, 2);
+    for (const [x, z] of [
+      [-0.5, 1.5], // on the west edge
+      [0.5, 1.5], // east
+      [0, 1], // north
+      [0, 2], // south
+      [0.5, 2], // a corner
+    ] as const) {
+      const c = circleContact(x, z, R, b);
+      expect(c, `${String(x)}, ${String(z)}`).not.toBeNull();
+      expect(Number.isFinite(c?.nx) && Number.isFinite(c?.nz), `${String(x)}, ${String(z)}`).toBe(
+        true,
+      );
+      expect(c?.depth).toBeCloseTo(R, 9);
+      const out = stepBody({ x, z, vx: 0, vz: 0 }, idle, 0, DT, [b]);
+      expect(Number.isFinite(out.x) && Number.isFinite(out.z)).toBe(true);
+      expect(clear(out, [b], 1e-6)).toBe(true);
+    }
+  });
+
   it('between two boxes 0.7 m apart: passable', () => {
     const boxes = [box(-1.35, -3, -0.35, -2), box(0.35, -3, 1.35, -2)];
     const b = run({ x: 0.03, z: 0, vx: 0, vz: 0 }, fwd, 0, boxes, 3);

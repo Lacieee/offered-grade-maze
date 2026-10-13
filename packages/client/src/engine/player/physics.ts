@@ -136,7 +136,9 @@ function segmentContact(x: number, z: number, r: number, s: SegmentCollider): Co
 }
 
 function boxContact(x: number, z: number, r: number, b: BoxCollider): Contact | null {
-  const inside = x > b.minX && x < b.maxX && z > b.minZ && z < b.maxZ;
+  // On the edge counts as inside: there the nearest point is the centre itself, and the
+  // normal below would be 0 / 0.
+  const inside = x >= b.minX && x <= b.maxX && z >= b.minZ && z <= b.maxZ;
   if (inside) {
     // Push out through the nearest side.
     const options: Contact[] = [
