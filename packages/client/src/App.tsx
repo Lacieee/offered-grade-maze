@@ -122,17 +122,23 @@ export function App() {
     } else {
       // The game (CP08): the real API, or the in-browser mock with `?mock=1` (dev only).
       let controller: GameController | null = null;
+      // The mock is exposed for tests only once this mount owns it: under Strict Mode a
+      // cancelled first mount must not leave its mock in `window.__ogmMock`.
+      let exposeMock: (() => void) | null = null;
       const api: Promise<GameApi> =
         import.meta.env.DEV && params.get('mock') === '1'
           ? import('./dev/mockApi.js').then(({ MockApi }) => {
               const mock = new MockApi(Number(params.get('latency') ?? 0) || 0);
-              mock.expose();
+              exposeMock = () => {
+                mock.expose();
+              };
               return mock;
             })
           : Promise.resolve(new HttpApi());
       void api
         .then(async (gameApi) => {
           if (cancelled) return;
+          exposeMock?.();
           controller = new GameController({
             engine,
             api: gameApi,
