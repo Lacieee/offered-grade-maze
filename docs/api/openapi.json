@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Offered Grade Maze API",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "description": "Game sessions, room streaming, door transitions and results (CP07)."
   },
   "components": {
