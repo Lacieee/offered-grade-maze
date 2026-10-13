@@ -62,6 +62,17 @@ export function portalCheck(engine: Engine, door: DoorId): PortalCheckResult {
   const direct = new THREE.WebGLRenderTarget(w, h, spec);
   const mask = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType });
 
+  // The current room's sprites and points (the goal's halo and sparkles, CP09) draw
+  // additively over the doorway; they are not part of the portal image, so they are hidden
+  // for the check (in the target room as well when a door leads back into the same room).
+  const hidden: THREE.Object3D[] = [];
+  room.scene.traverse((o) => {
+    if ((o instanceof THREE.Sprite || o instanceof THREE.Points) && o.visible) {
+      hidden.push(o);
+      o.visible = false;
+    }
+  });
+
   try {
     // A: the normal frame (portal shows the level-1 pass).
     portals.render(room, camera, screen);
@@ -114,6 +125,7 @@ export function portalCheck(engine: Engine, door: DoorId): PortalCheckResult {
     }
     return { meanDiff: pixels > 0 ? sum / (pixels * 3) : Number.NaN, maxDiff: max, pixels };
   } finally {
+    for (const o of hidden) o.visible = true;
     portals.settings = saved;
     screen.dispose();
     direct.dispose();
