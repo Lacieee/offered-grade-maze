@@ -4,9 +4,9 @@ A first-person browser game set in an impossible house. Doors are seamless windo
 rooms, but they don't always lead back the way you came. Find the **Offered Grade** diploma
 (_Megajánlott jegy_) as fast as you can.
 
-> Status: **CP07 – Backend API and persistence**. The server creates validated games, streams
-> rooms ahead of the player, checks every door crossing and stores results in PostgreSQL. The
-> client is wired to it in CP08. See `docs/checkpoints/`.
+> Status: **CP08 – Client integration and UI shell**. The whole player journey works:
+> title, new game (random or seed), a streamed house, the goal (a placeholder box until
+> CP09), and a stored result with a copyable seed. See `docs/checkpoints/`.
 
 ## Prerequisites
 
@@ -80,6 +80,21 @@ Without a reachable database the server's integration tests are skipped with a w
 (`OGM_REQUIRE_DB=1` makes them fail instead, as in CI). The API is described in
 `docs/api/openapi.json`.
 
+## Play (dev)
+
+```sh
+pnpm install && pnpm build
+pnpm db:up                                   # PostgreSQL
+pnpm --filter @ogm/server start              # API on :8080
+pnpm dev                                     # client on :5173, proxies /api to :8080
+```
+
+Open <http://localhost:5173>. Without a server, add `?mock=1` for the in-browser mock API on
+the fixture house (dev builds only); `&latency=300` delays every response by 300 ms.
+`?seed=M1-7K2Q-X9MP` opens New game with that seed. Add `&perf=1` for the performance
+overlay (it also counts missing portal targets and rooms still being built). The language
+(EN | HU) is on the title screen.
+
 ## Run the engine (dev)
 
 ```sh
@@ -110,8 +125,9 @@ toggles footprint outlines (the collider size). Options: `&only=sofa_3seat,bed_d
 
 ```sh
 pnpm --filter @ogm/e2e exec playwright install chromium   # once per machine
-pnpm test:e2e            # portal checks and visual baselines (starts its own dev server)
+pnpm test:e2e            # portal checks, visual baselines, the game on the mock API
 pnpm test:e2e:update     # rewrite the baselines after an intended visual change
+E2E_API=1 pnpm test:e2e  # also the real-API journey (needs pnpm build and pnpm db:up)
 ```
 
 Baselines are per platform. On a new platform (for example the first run on macOS) the
