@@ -3,7 +3,16 @@ import { PNG } from 'pngjs';
 
 /** Mirror of the client's `window.__ogm` test hook (packages/client/src/dev/testHook.ts). */
 interface OgmHook {
-  getState(): { room: string; x: number; z: number; yaw: number; pitch: number };
+  getState(): {
+    room: string;
+    x: number;
+    z: number;
+    yaw: number;
+    pitch: number;
+    status?: string;
+    elapsedMs?: number;
+    seed?: string | null;
+  };
   setPose(room: string, x: number, z: number, yaw: number, pitch?: number): void;
   step(n: number, keys?: Partial<Record<'forward' | 'back' | 'left' | 'right', boolean>>): void;
   renderAt(alpha: number): void;
@@ -42,6 +51,12 @@ interface OgmHook {
   } | null;
   goalSource(): { x: number; y: number; z: number; level: number } | null;
   maskSurfaces(on: boolean): void;
+  debug?(): Promise<DebugData>;
+  autopilot?: {
+    followPath(from?: 'current' | 'start'): Promise<'completed' | 'stuck'>;
+    stop(): void;
+    lastStop(): string;
+  };
   game?(): {
     phase: string;
     gameId: string | null;
@@ -51,6 +66,16 @@ interface OgmHook {
     desync: boolean;
     reconnecting: boolean;
   };
+}
+
+/** The parts of `GET /games/:id/debug` the tests read. */
+export interface DebugData {
+  seed: string;
+  start: string;
+  goal: string;
+  current: string;
+  pathFromStart: { room: string; arriveDoor: string | null; exitDoor: string | null }[];
+  pathFromCurrent: { room: string; arriveDoor: string | null; exitDoor: string | null }[];
 }
 
 /** The parts of a RoomDTO the tests read. */

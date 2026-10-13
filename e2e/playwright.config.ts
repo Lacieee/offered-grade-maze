@@ -20,7 +20,15 @@ const DATABASE_URL = process.env.TEST_DATABASE_URL ?? 'postgres://ogm:ogm@localh
  */
 export default defineConfig({
   testDir: './tests',
-  testIgnore: API ? [] : ['**/api.spec.ts'],
+  testIgnore: API
+    ? []
+    : [
+        '**/api.spec.ts',
+        '**/playthrough.spec.ts',
+        '**/seed-replay.spec.ts',
+        '**/debug.spec.ts',
+        '**/release.spec.ts',
+      ],
   snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}-{platform}{ext}',
   fullyParallel: false,
   workers: 1,

@@ -139,3 +139,24 @@ export async function playToResult(page: Page, doors?: readonly string[]): Promi
   await walkIntoGoal(page);
   await expect(page.getByTestId('result-screen')).toBeVisible({ timeout: 30_000 });
 }
+
+/**
+ * From the title screen: New game → seed tab → type `seed` → Start, wait for Ready (CP10).
+ */
+export async function startSeed(page: Page, seed: string): Promise<void> {
+  if (await page.getByTestId('title-screen').isVisible()) {
+    await page.getByRole('button', { name: 'New game' }).click();
+  }
+  await page.getByRole('tab', { name: 'Enter seed' }).click();
+  await page.getByTestId('seed-input').fill(seed);
+  await page.getByTestId('start-button').click();
+  await page.getByTestId('ready-screen').waitFor({ timeout: 30_000 });
+}
+
+/** Runs the autopilot to the goal (CP10 A3) and waits for the result screen. */
+export async function autopilotToResult(page: Page): Promise<void> {
+  const result = await page.evaluate(() => window.__ogm?.autopilot?.followPath() ?? 'missing');
+  const why = await page.evaluate(() => window.__ogm?.autopilot?.lastStop() ?? '');
+  expect(result, `autopilot: ${why}`).toBe('completed');
+  await expect(page.getByTestId('result-screen')).toBeVisible({ timeout: 30_000 });
+}
