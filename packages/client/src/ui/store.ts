@@ -3,7 +3,7 @@ import type { RoomId } from '@ogm/shared';
 import { create } from 'zustand';
 import type { Engine } from '../engine/Engine.js';
 
-export type AppStatus = 'booting' | 'home' | 'running' | 'gallery' | 'unsupported' | 'error';
+export type AppStatus = 'booting' | 'game' | 'running' | 'gallery' | 'unsupported' | 'error';
 
 export interface UiState {
   status: AppStatus;

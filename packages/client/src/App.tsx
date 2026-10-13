@@ -1,14 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { parseSeed } from '@ogm/shared';
+import { useEffect, useRef, useState } from 'react';
+import { GameShell } from './app/GameShell.js';
+import { GameController } from './app/game/controller.js';
+import { useGame } from './app/game/store.js';
+import { UnsupportedScreen as GameUnsupported } from './app/ui/screens.js';
 import { Engine, UnsupportedError } from './engine/Engine.js';
+import { HttpApi, type GameApi } from './engine/net/api.js';
 import { PerfOverlay } from './ui/PerfOverlay.js';
-import {
-  ClickToPlay,
-  DevHud,
-  ErrorScreen,
-  GraphicsReset,
-  HomeScreen,
-  UnsupportedScreen,
-} from './ui/Screens.js';
+import { ClickToPlay, DevHud, ErrorScreen, GraphicsReset } from './ui/Screens.js';
 import { useUiStore } from './ui/store.js';
 
 /**
@@ -17,6 +16,7 @@ import { useUiStore } from './ui/store.js';
  */
 export function App() {
   const hostRef = useRef<HTMLDivElement>(null);
+  const [game, setGame] = useState<GameController | null>(null);
   const status = useUiStore((s) => s.status);
   const locked = useUiStore((s) => s.pointerLocked);
   const graphicsReset = useUiStore((s) => s.graphicsReset);
@@ -109,7 +109,55 @@ export function App() {
         },
       );
     } else {
-      ui.setStatus('home');
+      // The game (CP08): the real API, or the in-browser mock with `?mock=1` (dev only).
+      let controller: GameController | null = null;
+      const api: Promise<GameApi> =
+        import.meta.env.DEV && params.get('mock') === '1'
+          ? import('./dev/mockApi.js').then(({ MockApi }) => {
+              const mock = new MockApi(Number(params.get('latency') ?? 0) || 0);
+              mock.expose();
+              return mock;
+            })
+          : Promise.resolve(new HttpApi());
+      void api
+        .then(async (gameApi) => {
+          if (cancelled) return;
+          controller = new GameController({ engine, api: gameApi });
+          if (import.meta.env.DEV) {
+            const { installTestHook } = await import('./dev/testHook.js');
+            // The cleanup may have run while the import was loading.
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            if (cancelled) return;
+            const c = controller;
+            removeHook = installTestHook(engine, () => {
+              const s = useGame.getState();
+              return {
+                phase: s.phase,
+                gameId: s.gameId,
+                seed: s.seed,
+                lastSeq: c.transitions?.lastSeq ?? 0,
+                pending: c.transitions?.pending ?? 0,
+                desync: s.desync,
+                reconnecting: s.reconnecting,
+              };
+            });
+          }
+          // `/?seed=M1-7K2Q-X9MP` opens New game on the seed tab, prefilled (CP08 T7).
+          const seed = params.get('seed');
+          if (seed !== null) {
+            const parsed = parseSeed(seed);
+            controller.toNewGame('seed', parsed.ok ? parsed.seed.canonical : seed);
+          } else controller.toTitle();
+          setGame(controller);
+          useUiStore.getState().setStatus('game');
+        })
+        .catch((err: unknown) => {
+          useUiStore.getState().setStatus('error', String(err));
+        });
+      stopScene = () => {
+        controller?.dispose();
+        setGame(null);
+      };
     }
 
     return () => {
@@ -140,11 +188,12 @@ export function App() {
               prefab gallery · click to look · WASD Q E move · Shift faster · F footprints
             </div>
           )}
+          {status === 'game' && showPerf && <PerfOverlay />}
           {graphicsReset && <GraphicsReset />}
         </div>
       )}
-      {status === 'home' && <HomeScreen />}
-      {status === 'unsupported' && <UnsupportedScreen />}
+      {status === 'game' && game && <GameShell game={game} showOverlay={showOverlay} />}
+      {status === 'unsupported' && <GameUnsupported />}
       {status === 'error' && <ErrorScreen />}
     </>
   );

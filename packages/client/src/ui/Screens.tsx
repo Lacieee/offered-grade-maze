@@ -1,16 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useT } from '../app/i18n/index.js';
 import type { EngineState } from '../engine/Engine.js';
 import { useUiStore } from './store.js';
-
-/** Shown instead of the game when WebGL2 is missing. */
-export function UnsupportedScreen() {
-  return (
-    <div className="screen" role="alert">
-      <h1>Offered Grade Maze</h1>
-      <p>This game needs a desktop browser with WebGL2.</p>
-    </div>
-  );
-}
 
 /** Shown when start-up fails for another reason. */
 export function ErrorScreen() {
@@ -19,23 +10,6 @@ export function ErrorScreen() {
     <div className="screen" role="alert">
       <h1>Something went wrong</h1>
       <p>{error ?? 'Unknown error.'}</p>
-    </div>
-  );
-}
-
-/** Placeholder home screen until the real menus arrive in CP08. */
-export function HomeScreen() {
-  return (
-    <div className="screen">
-      <h1>Offered Grade Maze</h1>
-      <p>The game arrives in a later checkpoint.</p>
-      {import.meta.env.DEV && (
-        <p>
-          <a className="interactive" href="?dev=fixtures&room=r00">
-            Open the fixture house (dev)
-          </a>
-        </p>
-      )}
     </div>
   );
 }
@@ -77,9 +51,10 @@ export function DevHud({ hint }: { hint: string }) {
 
 /** Shown while the WebGL context is lost and being restored. */
 export function GraphicsReset() {
+  const t = useT();
   return (
     <div className="graphics-reset" role="status" data-testid="graphics-reset">
-      Graphics reset — restoring…
+      {t('graphics.reset')}
     </div>
   );
 }

@@ -13,7 +13,12 @@ export const sharedAlias = {
 export default defineConfig({
   plugins: [react()],
   resolve: { alias: sharedAlias },
-  server: { port: 5173, strictPort: false },
+  server: {
+    port: 5173,
+    strictPort: false,
+    // The API (CP07) runs on :8080 (`pnpm --filter @ogm/server start` or `pnpm start:local`).
+    proxy: { '/api': process.env.OGM_API_URL ?? 'http://localhost:8080' },
+  },
   build: {
     target: 'es2022',
     sourcemap: true,
