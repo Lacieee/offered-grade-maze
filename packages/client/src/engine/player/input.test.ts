@@ -8,6 +8,8 @@ const press = (code: string, key: string, repeat = false) => ({ code, key, repea
 function locked(): InputState {
   const input = new InputState();
   input.setLocked(true);
+  // The first movement after locking is dropped (the pointer's jump).
+  input.mouseMove(0, 0);
   return input;
 }
 
@@ -81,6 +83,23 @@ describe('InputState', () => {
     input.mouseMove(2, -4);
     expect(input.consumeLook()).toEqual({ dx: 5, dy: -3 });
     expect(input.consumeLook()).toEqual({ dx: 0, dy: 0 });
+  });
+
+  // CP08: Chrome reports the pointer's jump to the lock position as the first movement
+  // (seen as -480, -270 on a 960 × 540 page), which tilted the view at the Ready click.
+  it('drops the first mouse movement after the lock is gained', () => {
+    const input = new InputState();
+    input.setLocked(true);
+    input.mouseMove(-480, -270);
+    expect(input.consumeLook()).toEqual({ dx: 0, dy: 0 });
+    input.mouseMove(3, -2);
+    expect(input.consumeLook()).toEqual({ dx: 3, dy: -2 });
+    // Again after the lock is lost and regained.
+    input.setLocked(false);
+    input.setLocked(true);
+    input.mouseMove(400, 200);
+    input.mouseMove(1, 1);
+    expect(input.consumeLook()).toEqual({ dx: 1, dy: 1 });
   });
 
   it('clear() releases everything (window blur)', () => {

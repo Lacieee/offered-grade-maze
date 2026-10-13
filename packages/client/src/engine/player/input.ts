@@ -27,6 +27,8 @@ export class InputState {
   private lookDx = 0;
   private lookDy = 0;
   private locked = false;
+  /** The first movement after gaining the lock is the pointer's jump, not the player's. */
+  private skipMove = false;
 
   /** Whether the pointer is locked (input is live). */
   get isLocked(): boolean {
@@ -35,6 +37,7 @@ export class InputState {
 
   /** Updates the lock state. Losing the lock clears all keys and pending look. */
   setLocked(locked: boolean): void {
+    if (locked && !this.locked) this.skipMove = true;
     this.locked = locked;
     if (!locked) this.clear();
   }
@@ -58,6 +61,10 @@ export class InputState {
   /** Accumulates mouse movement (pixels) while locked. */
   mouseMove(dx: number, dy: number): void {
     if (!this.locked) return;
+    if (this.skipMove) {
+      this.skipMove = false;
+      return;
+    }
     this.lookDx += dx;
     this.lookDy += dy;
   }
