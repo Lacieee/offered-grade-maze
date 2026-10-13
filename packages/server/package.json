@@ -2,7 +2,7 @@
   "name": "@ogm/server",
   "version": "0.0.0",
   "private": true,
-  "description": "Fastify backend (filled in CP07).",
+  "description": "Fastify backend: game sessions, room streaming, door transitions, results (CP07).",
   "type": "module",
   "exports": {
     ".": {
@@ -11,13 +11,37 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "drizzle"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:prop": "vitest run"
+    "test:prop": "vitest run",
+    "start": "node dist/main.js",
+    "openapi": "tsc -p tsconfig.build.json && node dist/openapi.js",
+    "db:generate": "drizzle-kit generate",
+    "bench:create": "tsc -p tsconfig.build.json && node dist/bench/create.js"
+  },
+  "dependencies": {
+    "@fastify/helmet": "13.1.1",
+    "@fastify/rate-limit": "11.2.0",
+    "@fastify/static": "10.1.5",
+    "@fastify/swagger": "9.9.1",
+    "@ogm/generator": "workspace:*",
+    "@ogm/shared": "workspace:*",
+    "drizzle-orm": "0.45.3",
+    "fastify": "5.12.5",
+    "fastify-type-provider-zod": "7.0.0",
+    "pg": "8.23.1",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "@types/pg": "8.23.1",
+    "drizzle-kit": "0.31.11",
+    "openapi-types": "12.1.3"
   }
 }
