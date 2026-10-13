@@ -23,6 +23,21 @@ jobs:
     timeout-minutes: 15
     env:
       TURBO_TELEMETRY_DISABLED: 1
+      # Server integration tests need PostgreSQL; fail instead of skipping.
+      OGM_REQUIRE_DB: 1
+      TEST_DATABASE_URL: postgres://ogm:ogm@localhost:5432/ogm
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ogm
+          POSTGRES_PASSWORD: ogm
+          POSTGRES_DB: ogm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ogm -d ogm" --health-interval 2s --health-timeout 3s
+          --health-retries 30
     steps:
       - uses: actions/checkout@v4
 
@@ -50,6 +65,11 @@ jobs:
 
       - name: Format check
         run: pnpm format:check
+
+      - name: OpenAPI up to date
+        run: |
+          pnpm --filter @ogm/server openapi
+          git diff --exit-code docs/api/openapi.json
 
       - name: Generator sweeps (10 000 seeds per difficulty, CP04)
         run: |
@@ -88,3 +108,27 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report
           retention-days: 7
+
+  docker:
+    name: Docker image and local stack (PD4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start (docker compose up --build)
+        run: docker compose up --build --detach --wait
+
+      - name: Health check reports the database
+        run: |
+          curl -fsS http://localhost:8080/api/v1/health | tee health.json
+          grep -q '"db":"ok"' health.json
+          curl -fsS http://localhost:8080/ | grep -q '<div id="root">'
+
+      - name: Logs
+        if: always()
+        run: docker compose logs
+
+      - name: Stop
+        if: always()
+        run: docker compose down -v

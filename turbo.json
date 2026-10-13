@@ -23,6 +23,11 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "@ogm/server#test": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "passThroughEnv": ["OGM_REQUIRE_DB", "TEST_DATABASE_URL"]
     }
   }
 }

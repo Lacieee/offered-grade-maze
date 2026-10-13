@@ -4,9 +4,9 @@ A first-person browser game set in an impossible house. Doors are seamless windo
 rooms, but they don't always lead back the way you came. Find the **Offered Grade** diploma
 (_Megajánlott jegy_) as fast as you can.
 
-> Status: **CP03 – Portal rendering**. Every doorway of the six-room fixture house is a live,
-> seamless window into the room it leads to, and you can walk through. See
-> `docs/checkpoints/`.
+> Status: **CP07 – Backend API and persistence**. The server creates validated games, streams
+> rooms ahead of the player, checks every door crossing and stores results in PostgreSQL. The
+> client is wired to it in CP08. See `docs/checkpoints/`.
 
 ## Prerequisites
 
@@ -34,6 +34,51 @@ docker compose -f docker/docker-compose.dev.yml exec db psql -U ogm -c 'select 1
 
 Stop it with `pnpm db:down`. Delete its data with
 `docker compose -f docker/docker-compose.dev.yml down -v`.
+
+## Run locally (the whole product, PD4)
+
+Needs only Docker Desktop:
+
+```sh
+pnpm start:local         # = docker compose up --build
+```
+
+Open <http://localhost:8080>. `http://localhost:8080/api/v1/health` reports
+`{"status":"ok","db":"ok",…}` once the database is up. Stop with Ctrl+C (or
+`docker compose down`).
+
+**Reset data** (delete every game and result): `docker compose down -v`.
+
+The image (`docker/Dockerfile`) builds `shared`, `generator`, `client` and `server`, and runs
+the server as a non-root user. The server applies database migrations before it listens.
+Configuration (environment variables of the `app` service in `docker-compose.yml`):
+
+| Variable             | Default                                 | Meaning                         |
+| -------------------- | --------------------------------------- | ------------------------------- |
+| `PORT`               | `8080`                                  | HTTP port                       |
+| `DATABASE_URL`       | `postgres://ogm:ogm@localhost:5432/ogm` | PostgreSQL                      |
+| `LOG_LEVEL`          | `info`                                  | pino level (`silent` … `trace`) |
+| `DEBUG_VIEW_ENABLED` | `true`                                  | debug endpoint (PD6)            |
+| `PREFETCH_RADIUS`    | `4`                                     | door hops streamed ahead        |
+| `LEVEL_CACHE_SIZE`   | `100`                                   | levels in the LRU cache         |
+| `RATE_LIMIT_ENABLED` | `true`                                  | off for local load tests        |
+| `CLIENT_DIST`        | `packages/client/dist`                  | built client to serve           |
+
+## Server (dev)
+
+```sh
+pnpm db:up                                   # PostgreSQL on localhost:5432
+pnpm build
+pnpm --filter @ogm/server start              # http://localhost:8080 (API and built client)
+pnpm --filter @ogm/server test               # integration tests on a fresh database each
+pnpm --filter @ogm/server openapi            # regenerate docs/api/openapi.json
+pnpm --filter @ogm/server bench:create       # POST /games timing, Hard, cache misses
+pnpm --filter @ogm/server db:generate        # new migration after a schema change
+```
+
+Without a reachable database the server's integration tests are skipped with a warning
+(`OGM_REQUIRE_DB=1` makes them fail instead, as in CI). The API is described in
+`docs/api/openapi.json`.
 
 ## Run the engine (dev)
 
@@ -86,18 +131,19 @@ pnpm gen fixtures --write                              # re-furnish the client f
 
 ## Commands
 
-| Command              | What it does                                                       |
-| -------------------- | ------------------------------------------------------------------ |
-| `pnpm build`         | Builds every package (Turborepo, cached)                           |
-| `pnpm dev`           | Starts the client dev server (http://localhost:5173)               |
-| `pnpm lint`          | ESLint with type information, plus the generator determinism guard |
-| `pnpm typecheck`     | `tsc` in every package                                             |
-| `pnpm test`          | Vitest; `shared` and `generator` with coverage (≥ 90 % lines)      |
-| `pnpm test:prop`     | Property-based tests with 10 000 runs each                         |
-| `pnpm test:e2e`      | Playwright portal and visual tests (see above)                     |
-| `pnpm format`        | Formats with Prettier (`pnpm format:check` verifies)               |
-| `pnpm db:up/db:down` | Starts or stops the local PostgreSQL container                     |
-| `pnpm gen …`         | Level generator CLI (see above)                                    |
+| Command              | What it does                                                        |
+| -------------------- | ------------------------------------------------------------------- |
+| `pnpm build`         | Builds every package (Turborepo, cached)                            |
+| `pnpm dev`           | Starts the client dev server (http://localhost:5173)                |
+| `pnpm lint`          | ESLint with type information, plus the generator determinism guard  |
+| `pnpm typecheck`     | `tsc` in every package                                              |
+| `pnpm test`          | Vitest; `shared` and `generator` with coverage (≥ 90 % lines)       |
+| `pnpm test:prop`     | Property-based tests with 10 000 runs each                          |
+| `pnpm test:e2e`      | Playwright portal and visual tests (see above)                      |
+| `pnpm format`        | Formats with Prettier (`pnpm format:check` verifies)                |
+| `pnpm db:up/db:down` | Starts or stops the local PostgreSQL container                      |
+| `pnpm start:local`   | Builds and runs the whole product in Docker (http://localhost:8080) |
+| `pnpm gen …`         | Level generator CLI (see above)                                     |
 
 ## Repository layout
 
@@ -107,14 +153,16 @@ docs/
   architecture.md    architecture and implementation plan
   decisions.md       final product decisions PD1–PD10
   adr/               architecture decision records
+  api/openapi.json   generated API description (CP07)
   checkpoints/       CP01 … CP10 work packages
 packages/
   shared/            @ogm/shared: seed codec, door geometry, Zod DTOs, graph, prefab catalogue
   generator/         @ogm/generator: deterministic topology, furnishing, validator, CLI
-  server/            @ogm/server: Fastify backend (CP07)
+  server/            @ogm/server: Fastify API, game sessions, PostgreSQL (Drizzle)
   client/            @ogm/client: Three.js engine and React UI shell
 e2e/                 Playwright tests (CP03, CP10)
-docker/              Docker Compose files
+docker/              Dockerfile and the dev database compose file
+docker-compose.yml   the whole product locally (pnpm start:local)
 .github/workflows/   CI
 ```
 
