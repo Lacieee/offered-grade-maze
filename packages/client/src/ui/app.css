@@ -35,6 +35,8 @@ body,
   position: fixed;
   inset: 0;
   pointer-events: none;
+  /* Above the game screens and the debug view (the perf panel's buttons stay clickable). */
+  z-index: 5;
 }
 
 .overlay .interactive {
@@ -85,6 +87,17 @@ body,
     Menlo,
     monospace;
   border-radius: 4px;
+}
+
+.perf-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.perf-actions button {
+  font: inherit;
+  padding: 1px 6px;
 }
 
 .dev-hud {

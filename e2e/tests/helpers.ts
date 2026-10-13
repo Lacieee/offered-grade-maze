@@ -56,6 +56,7 @@ interface OgmHook {
     followPath(from?: 'current' | 'start'): Promise<'completed' | 'stuck'>;
     stop(): void;
     lastStop(): string;
+    tour(seconds?: number, seed?: string): Promise<number>;
   };
   game?(): {
     phase: string;

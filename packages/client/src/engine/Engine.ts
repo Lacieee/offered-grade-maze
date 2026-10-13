@@ -162,6 +162,11 @@ export interface EngineInfo {
   missingPortalTargets: number;
   /** Rooms received but not built yet. */
   pendingRooms: number;
+  /**
+   * Shader programs compiled while rendering (not prewarmed when a room was built), summed
+   * since start: each one is a hitch (CP10 B1).
+   */
+  renderCompiles: number;
   /** Player settings as applied (CP09 T7). */
   fov: number;
   sensitivity: number;
@@ -195,6 +200,7 @@ export class Engine {
   private pickup: { start: number; done: () => void } | null = null;
   private readonly input = new InputState();
   private driver: InputDriver | null = null;
+  private renderCompiles = 0;
   /** In-world door labels of the debug view (CP10 A2), or null when off. */
   private doorLabels: DoorLabels | null = null;
   private readonly clock = new FixedStepClock();
@@ -543,6 +549,7 @@ export class Engine {
       drawCalls: this.renderer?.info.render.calls ?? 0,
       missingPortalTargets: this.portals?.missingTargets ?? 0,
       pendingRooms: this.builder.size,
+      renderCompiles: this.renderCompiles,
       fov: this.camera?.fov ?? 0,
       sensitivity: this.look.sensitivity,
       invertY: this.look.invertY,
@@ -886,7 +893,9 @@ export class Engine {
     camera.updateMatrixWorld();
     this.animateGoal(camera.position);
     renderer.info.reset();
+    const programs = renderer.info.programs?.length ?? 0;
     portals.render(view, camera);
+    this.renderCompiles += Math.max(0, (renderer.info.programs?.length ?? 0) - programs);
     this.debugOverlay?.draw(portals.getPortalTree());
   }
 }

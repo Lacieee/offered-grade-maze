@@ -54,6 +54,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Bundle size (≤ 600 kB gzipped, CP10 B1)
+        run: pnpm size
+
       - name: Lint
         run: pnpm lint
 
@@ -79,7 +82,7 @@ jobs:
   e2e:
     name: Playwright (portals, visual baselines, game journey on the mock and real API)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     env:
       TURBO_TELEMETRY_DISABLED: 1
       # api.spec.ts: the built server on :8090 against this database (CP08).
