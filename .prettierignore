@@ -9,3 +9,4 @@ docs/architecture.md
 docs/checkpoints
 e2e/test-results
 e2e/playwright-report
+docs/api/openapi.json
