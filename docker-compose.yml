@@ -19,6 +19,7 @@ services:
       retries: 30
 
   app:
+    image: offered-grade-maze:1.0.0
     build:
       context: .
       dockerfile: docker/Dockerfile
