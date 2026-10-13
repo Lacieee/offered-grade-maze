@@ -178,31 +178,24 @@ describe('buildRoom', () => {
     },
   );
 
-  it('the goal room shows a glowing placeholder box at the goal (CP08 T5); others do not', () => {
-    const glowAt = (dto: RoomDTO, x: number, y: number, z: number): boolean => {
-      const view = buildRoom(dto);
-      const mesh = view.scene.getObjectByName('furniture:emissive');
-      let found = false;
-      if (mesh instanceof THREE.Mesh) {
-        const pos = (mesh.geometry as THREE.BufferGeometry).getAttribute('position');
-        for (let i = 0; i < pos.count; i++) {
-          if (
-            Math.abs(pos.getX(i) - x) <= 0.17 &&
-            Math.abs(pos.getZ(i) - z) <= 0.17 &&
-            Math.abs(pos.getY(i) - y) <= 0.17
-          ) {
-            found = true;
-          }
-        }
-      }
-      view.dispose();
-      return found;
-    };
+  it('the goal room holds the Offered Grade at its goal with the goal light (CP09 T1)', () => {
     const goalRoom = room('r05');
-    const goal = goalRoom.goal;
-    if (!goal) throw new Error('r05 has no goal');
-    expect(glowAt(goalRoom, goal.x, goal.y, goal.z)).toBe(true);
-    expect(glowAt(room('r00'), goal.x, goal.y, goal.z)).toBe(false);
+    const g = goalRoom.goal;
+    if (!g) throw new Error('r05 has no goal');
+    const view = buildRoom(goalRoom);
+    expect(view.goal).not.toBeNull();
+    expect(view.scene.getObjectByName('goal')).toBe(view.goal?.group);
+    expect(
+      view.goal
+        ?.worldPosition()
+        .toArray()
+        .map((v) => +v.toFixed(3)),
+    ).toEqual([g.x, g.y, g.z]);
+    view.dispose();
+    const other = buildRoom(room('r00'));
+    expect(other.goal).toBeNull();
+    expect(other.scene.getObjectByName('goal')).toBeUndefined();
+    other.dispose();
   });
 
   it('exposes every door with its frame, link and anchor', () => {

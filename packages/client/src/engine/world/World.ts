@@ -15,6 +15,12 @@ export class World {
     return this.versionValue;
   }
 
+  /** The goal room, once built (CP09). */
+  goalRoom(): RoomView | undefined {
+    for (const view of this.rooms.values()) if (view.goal) return view;
+    return undefined;
+  }
+
   /** Builds and caches the rooms not cached yet. Returns the newly built views. */
   load(dtos: readonly RoomDTO[]): RoomView[] {
     const built: RoomView[] = [];
