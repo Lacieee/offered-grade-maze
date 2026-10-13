@@ -95,6 +95,15 @@ the fixture house (dev builds only); `&latency=300` delays every response by 300
 overlay (it also counts missing portal targets and rooms still being built). The language
 (EN | HU) is on the title screen.
 
+**Settings** (title screen or pause overlay): language, mouse sensitivity, invert Y, field of
+view, head bob, master / music / effects volume and graphics quality. They apply at once and
+are kept in `localStorage` (`ogm.settings`; the language in `ogm.lang`). `?quality=` in the
+URL overrides the quality setting.
+
+**Sound** is synthesised with Web Audio and starts with the click on the Ready screen:
+footsteps by floor type, a quiet ambient bed, a hum from the Offered Grade that you can
+follow through doorways, and a stinger at the pickup.
+
 ## Run the engine (dev)
 
 ```sh
@@ -125,10 +134,15 @@ toggles footprint outlines (the collider size). Options: `&only=sofa_3seat,bed_d
 
 ```sh
 pnpm --filter @ogm/e2e exec playwright install chromium   # once per machine
-pnpm test:e2e            # portal checks, visual baselines, the game on the mock API
+pnpm test:e2e            # portal checks, visual baselines, the goal, sound, settings, the game
 pnpm test:e2e:update     # rewrite the baselines after an intended visual change
 E2E_API=1 pnpm test:e2e  # also the real-API journey (needs pnpm build and pnpm db:up)
 ```
+
+`goal.spec.ts` measures that the Offered Grade is the brightest object from every door of
+the goal room and through doorways (portal levels 1 and 2); the screenshots land in
+`e2e/test-results/`. `GOAL_HOUSES=sample-easy,my-level pnpm test:e2e goal` runs it on other
+dumped levels.
 
 Baselines are per platform. On a new platform (for example the first run on macOS) the
 first run writes them and reports them as new; run it again to compare.
