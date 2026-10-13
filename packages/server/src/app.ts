@@ -53,6 +53,9 @@ export interface App {
   cache: LevelCache;
 }
 
+/** Request body limit for every route (bytes, CP10 B4). */
+export const BODY_LIMIT = 16 * 1024;
+
 /** Builds the app (call `app.ready()` or `app.listen()` next). */
 export async function buildApp(deps: AppDeps): Promise<App> {
   const { config } = deps;
@@ -76,6 +79,8 @@ export async function buildApp(deps: AppDeps): Promise<App> {
       return typeof header === 'string' && /^[\w-]{1,64}$/.test(header) ? header : randomUUID();
     },
     trustProxy: false,
+    // The largest real body is a few hundred bytes; client error reports allow 8 kB.
+    bodyLimit: BODY_LIMIT,
   }).withTypeProvider<ZodTypeProvider>();
 
   app.setValidatorCompiler(validatorCompiler);

@@ -483,6 +483,19 @@ describe.skipIf(!DB_AVAILABLE)('API (CP07 T4–T6)', () => {
       expect([big.status, errorCode(big)]).toEqual([413, 'payload_too_large']);
     });
 
+    it('every game route refuses bodies over 16 kB with 413 (CP10 B4)', async () => {
+      const pad = 'x'.repeat(17 * 1024);
+      const g = await createGame(t, { seed: MEDIUM });
+      for (const [path, body] of [
+        ['/api/v1/games', { mode: 'random', difficulty: 'easy', pad }],
+        [`/api/v1/games/${g.gameId}/transitions`, { seq: 1, from: 'r00', door: 'd0', pad }],
+        [`/api/v1/games/${g.gameId}/complete`, { lastSeq: 0, clientElapsedMs: 1, pad }],
+      ] as const) {
+        const r = await t.call('POST', path, body);
+        expect([r.status, errorCode(r)], path).toEqual([413, 'payload_too_large']);
+      }
+    });
+
     it('GET /health reports the database', async () => {
       const ok = expectBody(await t.call('GET', '/api/v1/health'), 200, HealthResponseSchema);
       expect(ok.db).toBe('ok');
