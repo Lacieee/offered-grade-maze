@@ -16,6 +16,10 @@ interface OgmHook {
     drawCalls: number;
     missingPortalTargets: number;
     pendingRooms: number;
+    fov: number;
+    sensitivity: number;
+    invertY: boolean;
+    headBob: boolean;
   };
   portalTree(): {
     room: string;
@@ -29,6 +33,15 @@ interface OgmHook {
   roomDto(id: string): RoomDto | undefined;
   doorPose(room: string, door: string, dist: number): { x: number; z: number; yaw: number } | null;
   missingLog(): string[];
+  goalScreen(): {
+    x: number;
+    y: number;
+    radius: number;
+    level: number;
+    distance: number;
+  } | null;
+  goalSource(): { x: number; y: number; z: number; level: number } | null;
+  maskSurfaces(on: boolean): void;
   game?(): {
     phase: string;
     gameId: string | null;
@@ -43,6 +56,8 @@ interface OgmHook {
 /** The parts of a RoomDTO the tests read. */
 export interface RoomDto {
   id: string;
+  width: number;
+  depth: number;
   doors: { id: string; link: { room: string; door: string } | null }[];
   furniture: unknown[];
   goal?: { x: number; y: number; z: number };
@@ -53,6 +68,12 @@ declare global {
     __ogm?: OgmHook;
     __ogmHudRenders?: number;
     __ogmMock?: { lastSeq(gameId: string): number; desync(gameId: string): boolean };
+    __ogmAudio?: {
+      state(): string;
+      footsteps(): number;
+      stingers(): number;
+      humAudible(): boolean;
+    };
   }
 }
 

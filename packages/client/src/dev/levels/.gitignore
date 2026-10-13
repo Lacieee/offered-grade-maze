@@ -1,5 +1,7 @@
 # Dumped levels for local work (pnpm gen dump <seed> --json packages/client/src/dev/levels/<name>.json).
-# Only the two samples are committed.
+# Committed: the three samples and the houses of the goal view test (e2e/tests/goal.spec.ts).
 *.json
+!sample-easy.json
 !sample-medium.json
 !sample-hard.json
+!view-*.json
