@@ -77,11 +77,26 @@ jobs:
           pnpm gen golden
 
   e2e:
-    name: Playwright (portals and visual baselines)
+    name: Playwright (portals, visual baselines, game journey on the mock and real API)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       TURBO_TELEMETRY_DISABLED: 1
+      # api.spec.ts: the built server on :8090 against this database (CP08).
+      E2E_API: 1
+      TEST_DATABASE_URL: postgres://ogm:ogm@localhost:5432/ogm
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ogm
+          POSTGRES_PASSWORD: ogm
+          POSTGRES_DB: ogm
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ogm -d ogm" --health-interval 2s --health-timeout 3s
+          --health-retries 30
     steps:
       - uses: actions/checkout@v4
 
@@ -97,6 +112,9 @@ jobs:
 
       - name: Install Chromium
         run: pnpm --filter @ogm/e2e exec playwright install --with-deps chromium
+
+      - name: Build (the real-API tests run the built server)
+        run: pnpm build
 
       - name: Playwright
         run: pnpm test:e2e

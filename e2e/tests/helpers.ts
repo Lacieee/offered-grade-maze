@@ -14,6 +14,8 @@ interface OgmHook {
     qualityMode: string;
     contextLost: boolean;
     drawCalls: number;
+    missingPortalTargets: number;
+    pendingRooms: number;
   };
   portalTree(): {
     room: string;
@@ -24,11 +26,33 @@ interface OgmHook {
   slowFrames(ms: number): void;
   portalCheck(door: string): { meanDiff: number; maxDiff: number; pixels: number };
   setAmbientTime(seconds: number): void;
+  roomDto(id: string): RoomDto | undefined;
+  doorPose(room: string, door: string, dist: number): { x: number; z: number; yaw: number } | null;
+  missingLog(): string[];
+  game?(): {
+    phase: string;
+    gameId: string | null;
+    seed: string | null;
+    lastSeq: number;
+    pending: number;
+    desync: boolean;
+    reconnecting: boolean;
+  };
+}
+
+/** The parts of a RoomDTO the tests read. */
+export interface RoomDto {
+  id: string;
+  doors: { id: string; link: { room: string; door: string } | null }[];
+  furniture: unknown[];
+  goal?: { x: number; y: number; z: number };
 }
 
 declare global {
   interface Window {
     __ogm?: OgmHook;
+    __ogmHudRenders?: number;
+    __ogmMock?: { lastSeq(gameId: string): number; desync(gameId: string): boolean };
   }
 }
 
