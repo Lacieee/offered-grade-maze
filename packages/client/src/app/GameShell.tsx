@@ -16,8 +16,19 @@ import {
   TitleScreen,
   UnsupportedScreen,
 } from './ui/screens.js';
+import { SettingsScreen } from './ui/settings.js';
 
 export function GameShell({ game, showOverlay }: { game: GameController; showOverlay: boolean }) {
+  const settingsOpen = useGame((s) => s.settingsOpen);
+  return (
+    <>
+      <PhaseScreen game={game} showOverlay={showOverlay} />
+      {settingsOpen && <SettingsScreen />}
+    </>
+  );
+}
+
+function PhaseScreen({ game, showOverlay }: { game: GameController; showOverlay: boolean }) {
   const phase = useGame((s) => s.phase);
   const locked = useUiStore((s) => s.pointerLocked);
   switch (phase) {
@@ -37,7 +48,12 @@ export function GameShell({ game, showOverlay }: { game: GameController; showOve
         </>
       ) : null;
     case 'completing':
-      return <CompletingScreen />;
+      return (
+        <>
+          <div className="pickup-flash" data-testid="pickup-flash" />
+          <CompletingScreen />
+        </>
+      );
     case 'result':
       return <ResultScreen game={game} />;
     case 'error':

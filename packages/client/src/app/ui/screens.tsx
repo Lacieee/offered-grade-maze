@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { GameController } from '../game/controller.js';
 import { formatClock, formatResultTime, useGame } from '../game/store.js';
 import { LANGS, useLang, useT } from '../i18n/index.js';
+import { SettingsButton } from './settings.js';
 
 declare global {
   interface Window {
@@ -56,6 +57,7 @@ export function TitleScreen({ game }: { game: GameController }) {
           {t('title.newGame')}
         </button>
         <p className="hint">{t('title.controls')}</p>
+        <SettingsButton />
         <LangToggle />
       </div>
     </div>
@@ -330,6 +332,7 @@ export function PauseOverlay({ game }: { game: GameController }) {
           {t('pause.resume')}
         </button>
         {seed && <SeedCopy seed={seed} />}
+        <SettingsButton />
         <button
           type="button"
           onClick={() => {

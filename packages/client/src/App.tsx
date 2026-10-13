@@ -4,11 +4,19 @@ import { GameShell } from './app/GameShell.js';
 import { GameController } from './app/game/controller.js';
 import { useGame } from './app/game/store.js';
 import { UnsupportedScreen as GameUnsupported } from './app/ui/screens.js';
-import { Engine, UnsupportedError } from './engine/Engine.js';
+import { GameAudio } from './app/game/audio.js';
+import { useSettings, type Settings } from './app/settings/settings.js';
+import { DEFAULT_SENSITIVITY, Engine, UnsupportedError } from './engine/Engine.js';
+import type { Volumes } from './engine/audio/AudioEngine.js';
 import { HttpApi, type GameApi } from './engine/net/api.js';
 import { PerfOverlay } from './ui/PerfOverlay.js';
 import { ClickToPlay, DevHud, ErrorScreen, GraphicsReset } from './ui/Screens.js';
 import { useUiStore } from './ui/store.js';
+
+/** Volumes from the settings. */
+function volumesOf(s: Settings): Volumes {
+  return { master: s.master, music: s.music, sfx: s.sfx };
+}
 
 /**
  * Mounts the engine on a full-window canvas and renders the React overlay on top.
@@ -56,9 +64,12 @@ export function App() {
 
     const engine = new Engine();
     const quality = params.get('quality');
+    // `?quality=` pins the quality (tests); otherwise the setting decides (CP09 T7).
+    const pinnedQuality =
+      quality === 'high' || quality === 'low' || quality === 'auto' ? quality : null;
     try {
       engine.init(canvas, {
-        quality: quality === 'high' || quality === 'low' ? quality : 'auto',
+        quality: pinnedQuality ?? useSettings.getState().settings.quality,
         portalDebug: import.meta.env.DEV && params.get('portalDebug') === '1',
       });
     } catch (err) {
@@ -122,7 +133,30 @@ export function App() {
       void api
         .then(async (gameApi) => {
           if (cancelled) return;
-          controller = new GameController({ engine, api: gameApi });
+          controller = new GameController({
+            engine,
+            api: gameApi,
+            createSound: () => GameAudio.start(engine, volumesOf(useSettings.getState().settings)),
+          });
+          // Settings apply live (CP09 T7).
+          const c = controller;
+          let previous: Settings | null = null;
+          const apply = (s: Settings) => {
+            engine.setLookSettings({
+              sensitivity: DEFAULT_SENSITIVITY * s.sensitivity,
+              invertY: s.invertY,
+            });
+            engine.setFov(s.fov);
+            engine.setHeadBob(s.headBob);
+            c.setVolumes(volumesOf(s));
+            if (previous !== null && previous.quality !== s.quality) engine.setQuality(s.quality);
+            previous = s;
+          };
+          apply(useSettings.getState().settings);
+          const offSettings = useSettings.subscribe((st) => {
+            apply(st.settings);
+          });
+          unsubscribe.push(offSettings);
           if (import.meta.env.DEV) {
             const { installTestHook } = await import('./dev/testHook.js');
             // The cleanup may have run while the import was loading.

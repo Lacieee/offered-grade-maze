@@ -480,3 +480,97 @@ input:focus-visible,
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------- CP09 */
+
+/* White-gold flash as the diploma reaches the camera (0.6 s), then the saving panel. */
+.pickup-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #fffbe8 0%,
+    #ffe4a0 35%,
+    rgb(255 207 107 / 0%) 75%
+  );
+  animation: pickup-flash 0.9s ease-out both;
+}
+
+@keyframes pickup-flash {
+  0% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.completing .panel {
+  animation: fade-in 0.2s ease-out 0.6s both;
+}
+
+.settings-screen {
+  z-index: 4;
+}
+
+.settings {
+  width: min(520px, 94vw);
+  align-items: stretch;
+}
+
+.settings h2 {
+  text-align: center;
+}
+
+.setting {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.setting-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.setting-control input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.setting-control input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.setting-control output {
+  min-width: 3.6em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.setting select {
+  font: inherit;
+  color: inherit;
+  background: rgb(0 0 0 / 35%);
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+select:focus-visible,
+input[type='range']:focus-visible,
+input[type='checkbox']:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}

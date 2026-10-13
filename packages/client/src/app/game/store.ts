@@ -50,6 +50,8 @@ export interface GameState {
   desync: boolean;
   /** The debug view was opened in this game (CP10). */
   debugUsed: boolean;
+  /** The settings screen is open over the current screen (CP09 T7). */
+  settingsOpen: boolean;
 }
 
 export const INITIAL_GAME_STATE: GameState = {
@@ -67,6 +69,7 @@ export const INITIAL_GAME_STATE: GameState = {
   savingRetry: false,
   desync: false,
   debugUsed: false,
+  settingsOpen: false,
 };
 
 export const useGame = create<GameState>()(() => ({ ...INITIAL_GAME_STATE }));
