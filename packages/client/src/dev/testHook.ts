@@ -2,7 +2,8 @@
  * Test hook (CP03 T7): `window.__ogm`, installed only in dev and test builds so Playwright
  * can take deterministic screenshots. Never part of a production bundle.
  */
-import type { RoomDTO, RoomId } from '@ogm/shared';
+import type { DebugResponse, RoomDTO, RoomId } from '@ogm/shared';
+import type { AutopilotApi, ReleaseHook } from '../app/autopilotHook.js';
 import type {
   Engine,
   EngineInfo,
@@ -16,7 +17,8 @@ import { yawToward, type MoveIntent } from '../engine/player/physics.js';
 import { portalCheck, type PortalCheckResult } from './portalCheck.js';
 
 export interface OgmTestHook {
-  getState(): EngineState;
+  /** Player state; in the game also the phase, the elapsed time and the seed (CP10 A3). */
+  getState(): EngineState & Partial<{ status: string; elapsedMs: number; seed: string | null }>;
   /** Places the player (at rest) and switches the engine to manual stepping. */
   setPose(room: RoomId, x: number, z: number, yaw: number, pitch?: number): void;
   /** Advances n simulation steps with no input (or the given keys held), then renders. */
@@ -59,6 +61,10 @@ export interface OgmTestHook {
   maskSurfaces(on: boolean): void;
   /** Game session state (CP08; only in the game, not in the dev scenes). */
   game?(): TestGameState;
+  /** The debug view's data for the current game (CP10 A3; marks it debug_used). */
+  debug?(): Promise<DebugResponse>;
+  /** The autopilot (CP10 A3; only in the game). */
+  autopilot?: AutopilotApi;
 }
 
 /** The goal's projection (CP09 brightness test). */
@@ -85,7 +91,8 @@ export interface TestGameState {
 
 declare global {
   interface Window {
-    __ogm?: OgmTestHook;
+    /** Dev and test builds: the whole hook; release builds with `?autopilot=1`: the autopilot. */
+    __ogm?: OgmTestHook | ReleaseHook;
   }
 }
 
@@ -122,10 +129,23 @@ function insideGoal(o: THREE.Object3D): boolean {
 }
 
 /** Installs `window.__ogm`; returns a function that removes it. */
-export function installTestHook(engine: Engine, game?: () => TestGameState): () => void {
+export function installTestHook(
+  engine: Engine,
+  game?: () => TestGameState,
+  extras?: {
+    elapsedMs: () => number;
+    debug: () => Promise<DebugResponse>;
+    autopilot: AutopilotApi;
+  },
+): () => void {
   const masked = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
   const hook: OgmTestHook = {
-    getState: () => engine.getState(),
+    getState: () => {
+      const state = engine.getState();
+      if (!game || !extras) return state;
+      const g = game();
+      return { ...state, status: g.phase, elapsedMs: extras.elapsedMs(), seed: g.seed };
+    },
     setPose: (room, x, z, yaw, pitch = 0) => {
       engine.debugSetPose(room, x, z, yaw, pitch);
     },
@@ -246,6 +266,7 @@ export function installTestHook(engine: Engine, game?: () => TestGameState): () 
       }
     },
     ...(game ? { game } : {}),
+    ...(extras ? { debug: extras.debug, autopilot: extras.autopilot } : {}),
   };
   window.__ogm = hook;
   return () => {

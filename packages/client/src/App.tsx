@@ -4,6 +4,7 @@ import { GameShell } from './app/GameShell.js';
 import { GameController } from './app/game/controller.js';
 import { useGame } from './app/game/store.js';
 import { UnsupportedScreen as GameUnsupported } from './app/ui/screens.js';
+import { createAutopilotApi } from './app/autopilotHook.js';
 import { GameAudio } from './app/game/audio.js';
 import { useSettings, type Settings } from './app/settings/settings.js';
 import { DEFAULT_SENSITIVITY, Engine, UnsupportedError } from './engine/Engine.js';
@@ -163,24 +164,43 @@ export function App() {
             apply(st.settings);
           });
           unsubscribe.push(offSettings);
+          const autopilot = createAutopilotApi(engine, controller);
+          if (!import.meta.env.DEV && params.get('autopilot') === '1') {
+            // Release builds: only the autopilot, on request (CP10 A3).
+            window.__ogm = { autopilot };
+            removeHook = () => {
+              delete window.__ogm;
+            };
+          }
           if (import.meta.env.DEV) {
             const { installTestHook } = await import('./dev/testHook.js');
             // The cleanup may have run while the import was loading.
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (cancelled) return;
             const c = controller;
-            removeHook = installTestHook(engine, () => {
-              const s = useGame.getState();
-              return {
-                phase: s.phase,
-                gameId: s.gameId,
-                seed: s.seed,
-                lastSeq: c.transitions?.lastSeq ?? 0,
-                pending: c.transitions?.pending ?? 0,
-                desync: s.desync,
-                reconnecting: s.reconnecting,
-              };
-            });
+            removeHook = installTestHook(
+              engine,
+              () => {
+                const s = useGame.getState();
+                return {
+                  phase: s.phase,
+                  gameId: s.gameId,
+                  seed: s.seed,
+                  lastSeq: c.transitions?.lastSeq ?? 0,
+                  pending: c.transitions?.pending ?? 0,
+                  desync: s.desync,
+                  reconnecting: s.reconnecting,
+                };
+              },
+              {
+                elapsedMs: () => {
+                  const { startedAt, stoppedAt } = useGame.getState();
+                  return startedAt === null ? 0 : (stoppedAt ?? performance.now()) - startedAt;
+                },
+                debug: () => c.debug(),
+                autopilot,
+              },
+            );
           }
           // `/?seed=M1-7K2Q-X9MP` opens New game on the seed tab, prefilled (CP08 T7).
           const seed = params.get('seed');
