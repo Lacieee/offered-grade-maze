@@ -29,6 +29,10 @@ export class InputState {
   private locked = false;
   /** The first movement after gaining the lock is the pointer's jump, not the player's. */
   private skipMove = false;
+  /** Keys held by a program (the autopilot, CP10 A3); they count without Pointer Lock. */
+  private synthetic: Partial<MoveIntent> | null = null;
+  /** Turning requested by a program (radians, positive = left), applied once. */
+  private turnRad = 0;
 
   /** Whether the pointer is locked (input is live). */
   get isLocked(): boolean {
@@ -76,13 +80,34 @@ export class InputState {
     this.lookDy = 0;
   }
 
-  /** Currently held movement keys. */
+  /**
+   * Synthetic key states from a program (the autopilot): merged with the player's keys and
+   * live without Pointer Lock. `null` releases them.
+   */
+  drive(keys: Partial<MoveIntent> | null): void {
+    this.synthetic = keys;
+  }
+
+  /** Synthetic turn by `radians` (positive turns left, like moving the mouse left). */
+  turn(radians: number): void {
+    this.turnRad += radians;
+  }
+
+  /** Returns and resets the synthetic turn (radians). */
+  consumeTurn(): number {
+    const t = this.turnRad;
+    this.turnRad = 0;
+    return t;
+  }
+
+  /** Currently held movement keys (the player's and any synthetic ones). */
   intent(): MoveIntent {
+    const s = this.synthetic;
     return {
-      forward: this.held.has('forward'),
-      back: this.held.has('back'),
-      left: this.held.has('left'),
-      right: this.held.has('right'),
+      forward: this.held.has('forward') || s?.forward === true,
+      back: this.held.has('back') || s?.back === true,
+      left: this.held.has('left') || s?.left === true,
+      right: this.held.has('right') || s?.right === true,
     };
   }
 

@@ -138,4 +138,27 @@ describe('requestPointerLock', () => {
     const el = { requestPointerLock: vi.fn(() => undefined) };
     await expect(requestPointerLock(el as unknown as HTMLElement)).resolves.toBeUndefined();
   });
+
+  it('synthetic keys (autopilot, CP10) count without Pointer Lock and merge with held keys', () => {
+    const input = new InputState();
+    input.drive({ forward: true });
+    expect(input.intent()).toEqual({ forward: true, back: false, left: false, right: false });
+    input.setLocked(true);
+    input.keyDown({ code: 'KeyD', repeat: false });
+    expect(input.intent()).toEqual({ forward: true, back: false, left: false, right: true });
+    // Losing the lock drops the player's keys, not the program's.
+    input.setLocked(false);
+    expect(input.intent().forward).toBe(true);
+    expect(input.intent().right).toBe(false);
+    input.drive(null);
+    expect(input.intent().forward).toBe(false);
+  });
+
+  it('synthetic turns accumulate until consumed', () => {
+    const input = new InputState();
+    input.turn(0.1);
+    input.turn(0.05);
+    expect(input.consumeTurn()).toBeCloseTo(0.15, 12);
+    expect(input.consumeTurn()).toBe(0);
+  });
 });

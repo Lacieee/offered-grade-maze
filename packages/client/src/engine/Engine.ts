@@ -5,14 +5,17 @@
  */
 import {
   EYE_HEIGHT,
+  type DoorFrame,
   type DoorId,
   type FloorKind,
+  type LinkDTO,
   type RoomDTO,
   type RoomId,
   type Spawn,
 } from '@ogm/shared';
 import * as THREE from 'three';
 import { PerfStats, type PerfSummary } from './debug/PerfStats.js';
+import { DoorLabels } from './debug/DoorLabels.js';
 import { PortalDebugOverlay } from './debug/PortalDebugOverlay.js';
 import { FixedStepClock, SIM_STEP } from './loop/FixedStepClock.js';
 import { InputState, bindInput, requestPointerLock } from './player/input.js';
@@ -96,6 +99,40 @@ export interface EngineState {
   vz: number;
 }
 
+/** What a program driving the input (the autopilot, CP10 A3) sees before each step. */
+export interface DriverState {
+  room: RoomId;
+  x: number;
+  z: number;
+  yaw: number;
+  /** Simulation step length (s). */
+  dt: number;
+}
+
+/**
+ * Called before every simulation step while input is enabled. It drives the normal input
+ * system (`InputState.drive` and `turn`), so movement, collision, crossing and streaming run
+ * exactly as for a player.
+ */
+export type InputDriver = (state: DriverState, input: DriverInput) => void;
+
+/** The part of the input system a driver may use. */
+export interface DriverInput {
+  drive(keys: Partial<MoveIntent> | null): void;
+  turn(radians: number): void;
+}
+
+/** A room's walkable geometry in its own coordinates (for path planning, CP10 A3). */
+export interface RoomGeometry {
+  id: RoomId;
+  width: number;
+  depth: number;
+  colliders: readonly Collider[];
+  /** `open`: linked, and the target room is built (it can be walked into now). */
+  doors: { id: DoorId; frame: DoorFrame; link: LinkDTO | null; open: boolean }[];
+  goal: { x: number; z: number } | null;
+}
+
 /** Look settings (sensitivity in radians per pixel). */
 export interface LookSettings {
   sensitivity: number;
@@ -157,6 +194,9 @@ export class Engine {
   /** The running pickup animation (CP09 T1.6). */
   private pickup: { start: number; done: () => void } | null = null;
   private readonly input = new InputState();
+  private driver: InputDriver | null = null;
+  /** In-world door labels of the debug view (CP10 A2), or null when off. */
+  private doorLabels: DoorLabels | null = null;
   private readonly clock = new FixedStepClock();
   private readonly events = new Emitter<EngineEvents>();
   private readonly perf = new PerfStats();
@@ -269,6 +309,7 @@ export class Engine {
   resetWorld(): void {
     this.stop();
     this.builder.clear();
+    this.doorLabels?.dispose();
     this.world.dispose();
     this.room = null;
     this.collidersCache = null;
@@ -398,6 +439,56 @@ export class Engine {
   /** Subscribes to an engine event. */
   on<K extends keyof EngineEvents>(event: K, cb: (payload: EngineEvents[K]) => void): Unsubscribe {
     return this.events.on(event, cb);
+  }
+
+  /**
+   * Installs (or with `null` removes) a program that drives the input every simulation step
+   * (the autopilot, CP10 A3). Removing it releases its keys.
+   */
+  setDriver(driver: InputDriver | null): void {
+    this.driver = driver;
+    if (!driver) this.input.drive(null);
+    // A driver plays in real time: leave the test hook's manual stepping.
+    else if (this.manual) {
+      this.manual = false;
+      this.lastFrameAt = null;
+    }
+  }
+
+  /**
+   * Debug view (CP10 A2): floating `d1 → r07.d2` labels above every door frame, in every
+   * built room (and every room built later), so portals show them too.
+   */
+  setDoorLabels(on: boolean, sealedText = 'sealed'): void {
+    const views = this.world.ids().flatMap((id) => {
+      const v = this.world.get(id);
+      return v ? [v] : [];
+    });
+    this.doorLabels?.detachAll(views);
+    this.doorLabels = null;
+    if (!on) return;
+    this.doorLabels = new DoorLabels(sealedText);
+    for (const v of views) this.doorLabels.attach(v);
+    this.compile(views);
+  }
+
+  /** A loaded room's walkable geometry, or undefined if it is not built. */
+  roomGeometry(id: RoomId): RoomGeometry | undefined {
+    const view = this.world.get(id);
+    if (!view) return undefined;
+    return {
+      id,
+      width: view.dto.width,
+      depth: view.dto.depth,
+      colliders: view.colliders,
+      doors: [...view.doors].map(([doorId, d]) => ({
+        id: doorId,
+        frame: d.frame,
+        link: d.link,
+        open: this.world.enterableTarget(d.link) !== undefined,
+      })),
+      goal: view.dto.goal ? { x: view.dto.goal.x, z: view.dto.goal.z } : null,
+    };
   }
 
   /** Current player state. */
@@ -575,6 +666,7 @@ export class Engine {
   /** Compiles shader programs for screen and render-target passes, so rooms never hitch. */
   private compile(views: readonly RoomView[]): void {
     const { renderer, camera } = this;
+    if (this.doorLabels) for (const view of views) this.doorLabels.attach(view);
     if (!renderer || !camera || views.length === 0) return;
     this.prewarmTarget ??= new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType });
     for (const view of views) {
@@ -602,6 +694,8 @@ export class Engine {
     this.collidersCache = null;
     this.prewarmTarget = null;
     this.portals?.abandonTargets();
+    // The rebuilt rooms get fresh labels (the old ones died with their scenes).
+    this.doorLabels?.dispose();
     this.compile(this.world.rebuild());
     this.contextLost = false;
     this.events.emit('contextLost', false);
@@ -650,6 +744,7 @@ export class Engine {
       const { dx, dy } = this.input.consumeLook();
       const s = this.look.sensitivity;
       this.yaw -= dx * s;
+      this.yaw += this.input.consumeTurn();
       this.pitch = clamp(this.pitch - dy * s * (this.look.invertY ? -1 : 1), -MAX_PITCH, MAX_PITCH);
     }
     const before = { x: this.body.x, z: this.body.z };
@@ -724,8 +819,15 @@ export class Engine {
       for (let i = 0; i < advance.steps; i++) {
         this.prev = this.pose();
         this.lastCrossing = null;
-        if (this.inputEnabled) this.simulate(SIM_STEP, this.input.intent(), true);
-        else {
+        if (this.inputEnabled) {
+          if (this.driver && this.room) {
+            this.driver(
+              { room: this.room, x: this.body.x, z: this.body.z, yaw: this.yaw, dt: SIM_STEP },
+              this.input,
+            );
+          }
+          this.simulate(SIM_STEP, this.input.intent(), true);
+        } else {
           // Frozen (pickup): drop mouse movement instead of applying it later.
           this.input.consumeLook();
           this.simulate(SIM_STEP, NO_INPUT, false);
