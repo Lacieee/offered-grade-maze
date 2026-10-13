@@ -1,5 +1,6 @@
+import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { dbToGain, impulseSamples, volumeGain } from './AudioEngine.js';
+import { dbToGain, impulseSamples, listenerPose, volumeGain } from './AudioEngine.js';
 import { CHIME_SCALE, FLOORS, STINGER_NOTES, chimeDelay } from './voices.js';
 
 describe('audio building blocks (CP09 T2–T6)', () => {
@@ -10,6 +11,20 @@ describe('audio building blocks (CP09 T2–T6)', () => {
     expect(volumeGain(150)).toBe(1);
     expect(dbToGain(-24)).toBeCloseTo(0.063, 3);
     expect(dbToGain(-12)).toBeCloseTo(0.251, 3);
+  });
+
+  it('listener pose from the camera; null for a non-finite matrix (Web Audio throws on NaN)', () => {
+    const camera = new THREE.PerspectiveCamera();
+    camera.position.set(1, 1.6, -2);
+    camera.rotation.set(0, Math.PI / 2, 0); // facing −X
+    camera.updateMatrixWorld();
+    const pose = listenerPose(camera.matrixWorld);
+    expect(pose?.position).toEqual([1, 1.6, -2]);
+    expect(pose?.forward[0]).toBeCloseTo(-1, 9);
+    expect(pose?.up[1]).toBeCloseTo(1, 9);
+    camera.position.x = Number.NaN;
+    camera.updateMatrixWorld();
+    expect(listenerPose(camera.matrixWorld)).toBeNull();
   });
 
   it('reverb impulse: 1.8 s stereo decaying noise, about −60 dB at the end, deterministic', () => {

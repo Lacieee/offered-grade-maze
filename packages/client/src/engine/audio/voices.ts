@@ -315,6 +315,9 @@ export class GoalHum implements GoalVoice {
   setSource(position: THREE.Vector3 | null, attenuationDb: number): void {
     const { ctx } = this.audio;
     const t = ctx.currentTime;
+    if (position !== null && ![position.x, position.y, position.z].every(Number.isFinite)) {
+      position = null; // Web Audio throws on NaN; treat a bad frame as "not seen".
+    }
     if (position === null) {
       if (this.audible) this.level.gain.setTargetAtTime(0, t, 0.5 / 3); // ~0.5 s to silence
       this.audible = false;

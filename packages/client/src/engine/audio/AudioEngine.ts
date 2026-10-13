@@ -61,6 +61,29 @@ export interface Volumes {
   sfx: number;
 }
 
+/** Listener position, forward and up vectors from a camera's world matrix. */
+export interface ListenerPose {
+  position: [number, number, number];
+  forward: [number, number, number];
+  up: [number, number, number];
+}
+
+/**
+ * The listener pose for a camera world matrix (forward is the camera's −Z, up its +Y), or
+ * null if any value is not finite: Web Audio throws on NaN, and one bad frame must not stop
+ * the frame's other work.
+ */
+export function listenerPose(matrixWorld: THREE.Matrix4): ListenerPose | null {
+  const e = matrixWorld.elements;
+  const pose: ListenerPose = {
+    position: [e[12], e[13], e[14]],
+    forward: [-e[8], -e[9], -e[10]],
+    up: [e[4], e[5], e[6]],
+  };
+  const all = [...pose.position, ...pose.forward, ...pose.up];
+  return all.every((v) => Number.isFinite(v)) ? pose : null;
+}
+
 type AudioContextCtor = new () => AudioContext;
 
 /** The browser's AudioContext constructor (Safari's prefixed one as a fallback). */
@@ -150,12 +173,12 @@ export class AudioEngine {
 
   /** The listener follows the camera (position and orientation), every frame. */
   updateListener(camera: THREE.Camera): void {
+    const pose = listenerPose(camera.matrixWorld);
+    if (!pose) return;
     const l = this.ctx.listener;
-    const e = camera.matrixWorld.elements;
-    const [px, py, pz] = [e[12], e[13], e[14]];
-    // Forward is −Z of the camera, up is +Y.
-    const [fx, fy, fz] = [-e[8], -e[9], -e[10]];
-    const [ux, uy, uz] = [e[4], e[5], e[6]];
+    const [px, py, pz] = pose.position;
+    const [fx, fy, fz] = pose.forward;
+    const [ux, uy, uz] = pose.up;
     if ('positionX' in l) {
       const t = this.ctx.currentTime;
       l.positionX.setValueAtTime(px, t);
