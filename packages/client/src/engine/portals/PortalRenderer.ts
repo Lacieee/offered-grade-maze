@@ -173,6 +173,9 @@ export class PortalRenderer {
   private readonly cameras: THREE.PerspectiveCamera[] = [];
   private tree: PortalNode[] = [];
   private lastPasses = 1;
+  private missingTargetsValue = 0;
+  /** The last missing targets, for debugging (`room.door→target (level n)`). */
+  readonly missingLog: string[] = [];
   private readonly bufferSize = new THREE.Vector2();
   private readonly tmpColor = new THREE.Color();
   private output: THREE.WebGLRenderTarget | null = null;
@@ -193,6 +196,19 @@ export class PortalRenderer {
   }
 
   /** Render passes in the last frame, including the main pass. */
+  /**
+   * Visible linked doors (within the depth budget) whose target room was not built, summed
+   * over frames since the last {@link resetMissingTargets} (CP08 T4).
+   */
+  get missingTargets(): number {
+    return this.missingTargetsValue;
+  }
+
+  /** Restarts the {@link missingTargets} count (new game). */
+  resetMissingTargets(): void {
+    this.missingTargetsValue = 0;
+  }
+
   get passes(): number {
     return this.lastPasses;
   }
@@ -344,16 +360,27 @@ export class PortalRenderer {
       a[0].localeCompare(b[0]),
     )) {
       if (!door.link || id === node.arrival) continue;
-      const target = this.getRoom(door.link.room);
-      const arrival = target?.doors.get(door.link.door);
-      // A link into a sealed door is invalid (PD9): show the fallback, never the panel's back.
-      if (!target || !arrival || arrival.link === null) continue;
       const toDoor = doorMatrix(door.frame);
       // Behind the portal plane: the opening faces away from the camera.
       const local = camPos.clone().applyMatrix4(toDoor.clone().invert());
       if (local.z <= 0) continue;
       const rect = openingRect(toDoor, viewProjection, node.rect);
       if (!rect) continue;
+      const target = this.getRoom(door.link.room);
+      if (!target) {
+        // Visible within the depth budget, but not streamed and built yet (CP08 T4).
+        if (node.level < this.settings.maxDepth) {
+          this.missingTargetsValue++;
+          this.missingLog.push(
+            `${node.room.id}.${id}→${door.link.room} (level ${String(node.level + 1)})`,
+          );
+          if (this.missingLog.length > 20) this.missingLog.shift();
+        }
+        continue;
+      }
+      const arrival = target.doors.get(door.link.door);
+      // A link into a sealed door is invalid (PD9): show the fallback, never the panel's back.
+      if (!arrival || arrival.link === null) continue;
       out.push({
         parent: node,
         door: id,

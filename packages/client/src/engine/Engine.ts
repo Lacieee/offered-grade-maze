@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { PerfStats, type PerfSummary } from './debug/PerfStats.js';
 import { PortalDebugOverlay } from './debug/PortalDebugOverlay.js';
 import { FixedStepClock, SIM_STEP } from './loop/FixedStepClock.js';
-import { InputState, bindInput } from './player/input.js';
+import { InputState, bindInput, requestPointerLock } from './player/input.js';
 import { stepBody, type Body, type Collider, type MoveIntent } from './player/physics.js';
 import { ambientTime } from './prefabs/animated.js';
 import { PortalRenderer, type PortalTreeEntry } from './portals/PortalRenderer.js';
@@ -26,6 +26,7 @@ import { createCamera, createRenderer } from './render/createRenderer.js';
 import type { RoomView } from './rooms/buildRoom.js';
 import { Emitter, type Unsubscribe } from './util/emitter.js';
 import { clamp, deg, lerp } from './util/math.js';
+import { RoomBuilder } from './world/RoomBuilder.js';
 import { World } from './world/World.js';
 
 export { UnsupportedError } from './util/errors.js';
@@ -65,7 +66,12 @@ export interface EngineEvents extends Record<string, unknown> {
   contextLost: boolean;
   /** Portal quality level changed (0 = best). */
   quality: number;
+  /** The player walked into the goal (PD2): horizontal distance below {@link GOAL_RADIUS}. */
+  goalReached: { room: RoomId };
 }
+
+/** Pickup distance from the goal, horizontally (m, CP08 T5). */
+export const GOAL_RADIUS = 0.9;
 
 /** Snapshot of the player for UI and tests. */
 export interface EngineState {
@@ -100,6 +106,13 @@ export interface EngineInfo {
   qualityMode: QualityMode;
   contextLost: boolean;
   drawCalls: number;
+  /**
+   * Visible linked doors whose target room was not built yet, summed over all frames since
+   * the last reset (CP08 T4). They show the fallback colour; streaming should keep it at 0.
+   */
+  missingPortalTargets: number;
+  /** Rooms received but not built yet. */
+  pendingRooms: number;
 }
 
 const NO_INPUT: MoveIntent = { forward: false, back: false, left: false, right: false };
@@ -112,6 +125,16 @@ export class Engine {
   private debugOverlay: PortalDebugOverlay | null = null;
   private prewarmTarget: THREE.WebGLRenderTarget | null = null;
   private readonly world = new World();
+  private readonly builder = new RoomBuilder({
+    isBuilt: (id) => this.world.has(id),
+    build: (dto) => {
+      this.compile(this.world.load([dto]));
+    },
+    current: () => this.room,
+    known: (id) => this.world.get(id)?.dto,
+  });
+  private inputEnabled = true;
+  private goalFired = false;
   private readonly input = new InputState();
   private readonly clock = new FixedStepClock();
   private readonly events = new Emitter<EngineEvents>();
@@ -195,9 +218,63 @@ export class Engine {
     });
   }
 
-  /** Builds and caches rooms by ID (already cached rooms are skipped). */
+  /** Builds and caches rooms by ID now (already cached rooms are skipped). */
   loadRooms(rooms: readonly RoomDTO[]): void {
     this.compile(this.world.load(rooms));
+  }
+
+  /**
+   * Queues rooms for background building (CP08 T4): one per idle slot, nearest to the player
+   * first. Rooms already built or queued are skipped.
+   */
+  queueRooms(rooms: readonly RoomDTO[]): void {
+    this.builder.enqueue(rooms);
+  }
+
+  /** True if the room is built. */
+  hasRoom(id: RoomId): boolean {
+    return this.world.has(id);
+  }
+
+  /** The DTO of a built or queued room. */
+  roomDto(id: RoomId): RoomDTO | undefined {
+    return this.world.get(id)?.dto ?? this.builder.get(id);
+  }
+
+  /**
+   * Stops the loop and drops every room, built or queued, for the next game. The renderer
+   * and its compiled shader programs stay.
+   */
+  resetWorld(): void {
+    this.stop();
+    this.builder.clear();
+    this.world.dispose();
+    this.room = null;
+    this.collidersCache = null;
+    this.lastCrossing = null;
+    this.goalFired = false;
+    this.inputEnabled = true;
+    this.manual = false;
+    this.portals?.resetMissingTargets();
+  }
+
+  /** Enables or freezes player input (frozen during the pickup, CP08 T5). */
+  setInputEnabled(enabled: boolean): void {
+    this.inputEnabled = enabled;
+    if (!enabled) {
+      this.input.clear();
+      this.body = { ...this.body, vx: 0, vz: 0 };
+    }
+  }
+
+  /** Requests Pointer Lock on the canvas (call from a user gesture). */
+  lockPointer(): void {
+    if (this.canvas) void requestPointerLock(this.canvas);
+  }
+
+  /** Releases Pointer Lock. */
+  unlockPointer(): void {
+    if (document.pointerLockElement === this.canvas) document.exitPointerLock();
   }
 
   /**
@@ -214,6 +291,7 @@ export class Engine {
     this.pitch = 0;
     this.prev = this.pose();
     this.lastCrossing = null;
+    this.goalFired = false;
     this.clock.reset();
     this.events.emit('roomChanged', { from, door: null, to: id });
   }
@@ -239,6 +317,7 @@ export class Engine {
     this.unbindInput?.();
     this.unbindInput = null;
     this.debugOverlay?.dispose();
+    this.builder.clear();
     this.portals?.dispose();
     this.prewarmTarget?.dispose();
     this.world.dispose();
@@ -302,6 +381,8 @@ export class Engine {
       qualityMode: this.quality.mode,
       contextLost: this.contextLost,
       drawCalls: this.renderer?.info.render.calls ?? 0,
+      missingPortalTargets: this.portals?.missingTargets ?? 0,
+      pendingRooms: this.builder.size,
     };
   }
 
@@ -499,7 +580,10 @@ export class Engine {
 
     // Door crossing, after collision (CP03 T4).
     const door = findCrossing(before, this.body, EYE_HEIGHT, this.crossableDoors(view));
-    if (!door) return;
+    if (!door) {
+      this.checkGoal(view.dto);
+      return;
+    }
     const now = crossPose(this.pose(), door.frame, door.targetFrame);
     this.prev = crossPose(this.prev, door.frame, door.targetFrame);
     this.body = { x: now.x, z: now.z, vx: now.vx, vz: now.vz };
@@ -508,6 +592,17 @@ export class Engine {
     const from = view.id;
     this.room = door.link.room;
     this.events.emit('roomChanged', { from, door: door.id, to: door.link.room });
+    const arrived = this.world.get(door.link.room);
+    if (arrived) this.checkGoal(arrived.dto);
+  }
+
+  /** Emits `goalReached` once when the player stands within reach of the room's goal. */
+  private checkGoal(dto: RoomDTO): void {
+    const goal = dto.goal;
+    if (!goal || this.goalFired) return;
+    if (Math.hypot(this.body.x - goal.x, this.body.z - goal.z) >= GOAL_RADIUS) return;
+    this.goalFired = true;
+    this.events.emit('goalReached', { room: dto.id });
   }
 
   private readonly frame = (now: number): void => {
@@ -530,7 +625,12 @@ export class Engine {
       for (let i = 0; i < advance.steps; i++) {
         this.prev = this.pose();
         this.lastCrossing = null;
-        this.simulate(SIM_STEP, this.input.intent(), true);
+        if (this.inputEnabled) this.simulate(SIM_STEP, this.input.intent(), true);
+        else {
+          // Frozen (pickup): drop mouse movement instead of applying it later.
+          this.input.consumeLook();
+          this.simulate(SIM_STEP, NO_INPUT, false);
+        }
       }
     }
     this.render(alpha);

@@ -178,6 +178,33 @@ describe('buildRoom', () => {
     },
   );
 
+  it('the goal room shows a glowing placeholder box at the goal (CP08 T5); others do not', () => {
+    const glowAt = (dto: RoomDTO, x: number, y: number, z: number): boolean => {
+      const view = buildRoom(dto);
+      const mesh = view.scene.getObjectByName('furniture:emissive');
+      let found = false;
+      if (mesh instanceof THREE.Mesh) {
+        const pos = (mesh.geometry as THREE.BufferGeometry).getAttribute('position');
+        for (let i = 0; i < pos.count; i++) {
+          if (
+            Math.abs(pos.getX(i) - x) <= 0.17 &&
+            Math.abs(pos.getZ(i) - z) <= 0.17 &&
+            Math.abs(pos.getY(i) - y) <= 0.17
+          ) {
+            found = true;
+          }
+        }
+      }
+      view.dispose();
+      return found;
+    };
+    const goalRoom = room('r05');
+    const goal = goalRoom.goal;
+    if (!goal) throw new Error('r05 has no goal');
+    expect(glowAt(goalRoom, goal.x, goal.y, goal.z)).toBe(true);
+    expect(glowAt(room('r00'), goal.x, goal.y, goal.z)).toBe(false);
+  });
+
   it('exposes every door with its frame, link and anchor', () => {
     const view = buildRoom(room('r01'));
     expect([...view.doors.keys()]).toEqual(['d0', 'd1', 'd2', 'd3']);

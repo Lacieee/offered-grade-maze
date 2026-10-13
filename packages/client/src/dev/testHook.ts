@@ -2,7 +2,7 @@
  * Test hook (CP03 T7): `window.__ogm`, installed only in dev and test builds so Playwright
  * can take deterministic screenshots. Never part of a production bundle.
  */
-import type { RoomId } from '@ogm/shared';
+import type { RoomDTO, RoomId } from '@ogm/shared';
 import type {
   Engine,
   EngineInfo,
@@ -10,7 +10,7 @@ import type {
   PortalTreeEntry,
   QualityMode,
 } from '../engine/Engine.js';
-import type { MoveIntent } from '../engine/player/physics.js';
+import { yawToward, type MoveIntent } from '../engine/player/physics.js';
 import { portalCheck, type PortalCheckResult } from './portalCheck.js';
 
 export interface OgmTestHook {
@@ -29,6 +29,29 @@ export interface OgmTestHook {
   portalCheck(door: string): PortalCheckResult;
   /** Sets the animation time (fish, TV static) in seconds and renders; it is 0 by default. */
   setAmbientTime(seconds: number): void;
+  /** A built or queued room's DTO (CP08). */
+  roomDto(id: RoomId): RoomDTO | undefined;
+  /**
+   * A pose `dist` metres into a built room straight in front of one of its doors, facing the
+   * door (CP08: scripted walks through generated houses). Null if the room is not built.
+   */
+  doorPose(room: RoomId, door: string, dist: number): { x: number; z: number; yaw: number } | null;
+  /** The last missing portal targets (`room.door→target (level n)`). */
+  missingLog(): string[];
+  /** Game session state (CP08; only in the game, not in the dev scenes). */
+  game?(): TestGameState;
+}
+
+/** Game session state for tests (CP08). */
+export interface TestGameState {
+  phase: string;
+  gameId: string | null;
+  seed: string | null;
+  /** The server's last_seq as the client knows it, and crossings still queued. */
+  lastSeq: number;
+  pending: number;
+  desync: boolean;
+  reconnecting: boolean;
 }
 
 declare global {
@@ -38,7 +61,7 @@ declare global {
 }
 
 /** Installs `window.__ogm`; returns a function that removes it. */
-export function installTestHook(engine: Engine): () => void {
+export function installTestHook(engine: Engine, game?: () => TestGameState): () => void {
   const hook: OgmTestHook = {
     getState: () => engine.getState(),
     setPose: (room, x, z, yaw, pitch = 0) => {
@@ -63,6 +86,16 @@ export function installTestHook(engine: Engine): () => void {
     setAmbientTime: (seconds) => {
       engine.debugSetAmbientTime(seconds);
     },
+    roomDto: (id) => engine.roomDto(id),
+    missingLog: () => [...(engine.debugInternals().portals?.missingLog ?? [])],
+    doorPose: (room, door, dist) => {
+      const frame = engine.debugInternals().getRoom(room)?.doors.get(door)?.frame;
+      if (!frame) return null;
+      const x = frame.origin.x + frame.inward.x * dist;
+      const z = frame.origin.z + frame.inward.z * dist;
+      return { x, z, yaw: yawToward(x, z, frame.origin.x, frame.origin.z) };
+    },
+    ...(game ? { game } : {}),
   };
   window.__ogm = hook;
   return () => {

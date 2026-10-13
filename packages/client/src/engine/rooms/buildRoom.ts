@@ -148,6 +148,9 @@ export function doorwayGeometries(w: WallLayout): THREE.BufferGeometry[] {
   return parts;
 }
 
+/** Colour of the placeholder goal box (CP08). */
+export const GOAL_PLACEHOLDER_COLOR = '#ffcf6b';
+
 /** Self-light of the ceiling, as a fraction of its palette colour. */
 export const CEILING_GLOW = 0.35;
 
@@ -222,6 +225,11 @@ function furnitureMeshes(dto: RoomDTO): FurnitureMeshes {
       8,
     );
     fixtures.cylinder('emissive', '#fff6e0', 0.3, 0.22, 0.1, light.x, light.y, light.z, 16);
+  }
+  // Placeholder goal (CP08 T5; the diploma arrives in CP09): a glowing box at `goal`.
+  if (dto.goal) {
+    const g = dto.goal;
+    fixtures.box('emissive', GOAL_PLACEHOLDER_COLOR, 0.32, 0.32, 0.32, g.x, g.y - 0.16, g.z);
   }
   solid.push(...fixtures.parts.solid);
   emissive.push(...fixtures.parts.emissive);

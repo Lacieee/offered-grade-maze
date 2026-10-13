@@ -40,6 +40,11 @@ export function PerfOverlay() {
           quality {info.qualityMode} L{info.qualityLevel}
         </div>
       )}
+      {info && (
+        <div data-testid="missing-portal-targets">
+          missing {info.missingPortalTargets} · pending {info.pendingRooms}
+        </div>
+      )}
     </div>
   );
 }
