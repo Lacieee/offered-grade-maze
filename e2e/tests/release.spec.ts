@@ -16,6 +16,16 @@ test('production build: window.__ogm is undefined', async ({ page }) => {
   expect(console).toEqual([]);
 });
 
+test('production build: the title screen is interactive in under 3 s (CP10 B1)', async ({
+  page,
+}) => {
+  await page.goto(`${RELEASE}/`);
+  await page.getByTestId('title-screen').getByRole('button').first().waitFor();
+  const ms = await page.evaluate(() => performance.now());
+  test.info().annotations.push({ type: 'title interactive', description: `${ms.toFixed(0)} ms` });
+  expect(ms).toBeLessThan(3000);
+});
+
 test('production build with ?autopilot=1: only the autopilot, and it plays a game', async ({
   page,
 }) => {
