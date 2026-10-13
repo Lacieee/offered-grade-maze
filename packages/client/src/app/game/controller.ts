@@ -14,7 +14,9 @@ import type { EngineEvents, EngineState, Unsubscribe } from '../../engine/Engine
 import { ApiError, NetworkError, isRetryable, type GameApi } from '../../engine/net/api.js';
 import { TransitionQueue, backoffMs } from '../../engine/net/transitionQueue.js';
 import { hopDistances, missingWithin } from '../../engine/world/reach.js';
+import type { Volumes } from '../../engine/audio/AudioEngine.js';
 import { isMessageKey, type MessageKey } from '../i18n/index.js';
+import type { GameSound } from './audio.js';
 import { INITIAL_GAME_STATE, useGame, type GameState, type NewGameTab } from './store.js';
 
 /** What the controller needs from the engine (the real `Engine`, or a fake in tests). */
@@ -29,6 +31,8 @@ export interface GameEngine {
   lockPointer(): void;
   unlockPointer(): void;
   getState(): EngineState;
+  /** The pickup animation (CP09 T1.6); resolves when it ends. */
+  playPickup(): Promise<void>;
   on<K extends keyof EngineEvents>(event: K, cb: (payload: EngineEvents[K]) => void): Unsubscribe;
 }
 
@@ -43,6 +47,8 @@ export interface ControllerDeps {
   /** State writer (defaults to the zustand store). */
   setState?: (patch: Partial<GameState>) => void;
   getState?: () => GameState;
+  /** Starts the game's sound; called inside the start click (CP09 T2). */
+  createSound?: () => GameSound | null;
 }
 
 export class GameController {
@@ -58,6 +64,7 @@ export class GameController {
   /** Increases with every new game, so late async results of an old game are ignored. */
   private generation = 0;
   private lastRequest: CreateGameRequest | null = null;
+  private sound: GameSound | null = null;
 
   constructor(private readonly deps: ControllerDeps) {
     this.now = deps.now ?? (() => performance.now());
@@ -171,6 +178,9 @@ export class GameController {
     const gameId = s.gameId;
     const gen = this.generation;
     this.deps.engine.lockPointer();
+    // Audio may only start inside a user gesture: this click.
+    this.sound?.dispose();
+    this.sound = this.deps.createSound?.() ?? null;
     this.deps.engine.setInputEnabled(true);
     const startedAt = this.now();
     const started = this.retrying(() => this.deps.api.startGame(gameId), gen);
@@ -238,8 +248,11 @@ export class GameController {
     // The time is taken at the pickup; saving it does not add to it.
     const clientElapsedMs = Math.floor(stoppedAt - s.startedAt);
     this.deps.engine.setInputEnabled(false);
+    this.sound?.pickup();
     this.set({ phase: 'completing', stoppedAt });
     const queue = this.queue;
+    // The result shows once the pickup animation has played and the server has the result.
+    const animation = this.deps.engine.playPickup();
 
     for (let attempt = 1; ; attempt++) {
       await queue.flush();
@@ -252,7 +265,10 @@ export class GameController {
         });
         if (gen !== this.generation) return;
         queue.stop();
+        await animation;
+        if (gen !== this.generation) return;
         this.deps.engine.unlockPointer();
+        this.sound?.finish();
         this.set({ phase: 'result', result, savingRetry: false, reconnecting: false });
         return;
       } catch (err) {
@@ -344,6 +360,13 @@ export class GameController {
     this.generation++;
     this.queue?.stop();
     this.queue = null;
+    this.sound?.dispose();
+    this.sound = null;
+  }
+
+  /** Applies volume settings to the running game's sound (CP09 T7). */
+  setVolumes(v: Volumes): void {
+    this.sound?.setVolumes(v);
   }
 }
 

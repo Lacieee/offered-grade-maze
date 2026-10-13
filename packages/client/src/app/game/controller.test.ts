@@ -40,6 +40,11 @@ class FakeEngine implements GameEngine {
     this.events.emit('roomChanged', { from, door: null, to: id });
   }
   start() {}
+  pickups = 0;
+  playPickup() {
+    this.pickups++;
+    return new Promise<void>((resolve) => setTimeout(resolve, 600));
+  }
   setInputEnabled(enabled: boolean) {
     this.inputEnabled = enabled;
   }
@@ -128,7 +133,7 @@ describe('GameController (CP08 T5)', () => {
     engine.events.emit('goalReached', { room: FIXTURE_GOAL });
     expect(useGame.getState().phase).toBe('completing');
     expect(engine.inputEnabled).toBe(false);
-    await flushAsync();
+    await flushAsync(700);
     const done = useGame.getState();
     expect(done.phase).toBe('result');
     expect(done.result?.completionMs).toBe(Math.floor(clock - startedAt));
@@ -147,7 +152,7 @@ describe('GameController (CP08 T5)', () => {
     await playToGoal(engine);
     const startedAt = useGame.getState().startedAt ?? 0;
     engine.events.emit('goalReached', { room: FIXTURE_GOAL });
-    await flushAsync();
+    await flushAsync(700);
     expect(useGame.getState().result?.completionMs).toBe(Math.floor(clock - startedAt));
     expect(useGame.getState().result?.completionMs).toBeGreaterThan(60_000);
   });
@@ -186,7 +191,7 @@ describe('GameController (CP08 T5)', () => {
     await flushAsync();
     await playToGoal(engine);
     engine.events.emit('goalReached', { room: FIXTURE_GOAL });
-    await flushAsync();
+    await flushAsync(700);
     expect(useGame.getState().result?.seed).toBe('H1-7K2Q-X9MP');
     await game.playAgain();
     const s = useGame.getState();
@@ -208,7 +213,7 @@ describe('GameController (CP08 T5)', () => {
     await flushAsync();
     await playToGoal(engine);
     engine.events.emit('goalReached', { room: FIXTURE_GOAL });
-    await flushAsync();
+    await flushAsync(700);
     expect(useGame.getState()).toMatchObject({ phase: 'completing', savingRetry: true });
     await flushAsync(5000);
     expect(useGame.getState().phase).toBe('result');
@@ -265,5 +270,33 @@ describe('GameController (CP08 T5)', () => {
     expect(useGame.getState().desync).toBe(true);
     expect(report).toHaveBeenCalledWith('transition desync', expect.anything());
     expect(useGame.getState().phase).toBe('playing');
+  });
+
+  it('sound: created in the start click; the stinger and the pickup animation play once; music fades on the result (CP09)', async () => {
+    const api = new MockApi(0, () => clock);
+    const engine = new FakeEngine();
+    const sound = { pickup: vi.fn(), finish: vi.fn(), setVolumes: vi.fn(), dispose: vi.fn() };
+    const createSound = vi.fn(() => sound);
+    const game = new GameController({ engine, api, now: () => clock, createSound });
+    await game.newGame({ mode: 'random', difficulty: 'easy' });
+    expect(createSound).not.toHaveBeenCalled();
+    game.begin();
+    expect(createSound).toHaveBeenCalledOnce();
+    await flushAsync();
+    await playToGoal(engine);
+    engine.events.emit('goalReached', { room: FIXTURE_GOAL });
+    engine.events.emit('goalReached', { room: FIXTURE_GOAL });
+    expect(sound.pickup).toHaveBeenCalledOnce();
+    expect(engine.pickups).toBe(1);
+    await flushAsync(100);
+    // The result waits for the 0.6 s pickup animation.
+    expect(useGame.getState().phase).toBe('completing');
+    await flushAsync(600);
+    expect(useGame.getState().phase).toBe('result');
+    expect(sound.finish).toHaveBeenCalledOnce();
+    game.setVolumes({ master: 10, music: 20, sfx: 30 });
+    expect(sound.setVolumes).toHaveBeenCalledWith({ master: 10, music: 20, sfx: 30 });
+    game.toTitle();
+    expect(sound.dispose).toHaveBeenCalledOnce();
   });
 });

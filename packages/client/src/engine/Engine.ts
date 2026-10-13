@@ -3,7 +3,14 @@
  *
  * Usage: `init(canvas)` → `loadRooms(rooms)` → `setCurrentRoom(id, spawn)` → `start()`.
  */
-import { EYE_HEIGHT, type DoorId, type RoomDTO, type RoomId, type Spawn } from '@ogm/shared';
+import {
+  EYE_HEIGHT,
+  type DoorId,
+  type FloorKind,
+  type RoomDTO,
+  type RoomId,
+  type Spawn,
+} from '@ogm/shared';
 import * as THREE from 'three';
 import { PerfStats, type PerfSummary } from './debug/PerfStats.js';
 import { PortalDebugOverlay } from './debug/PortalDebugOverlay.js';
@@ -26,6 +33,9 @@ import { createCamera, createRenderer } from './render/createRenderer.js';
 import type { RoomView } from './rooms/buildRoom.js';
 import { Emitter, type Unsubscribe } from './util/emitter.js';
 import { clamp, deg, lerp } from './util/math.js';
+import { FootstepTracker, type Side } from './audio/footsteps.js';
+import { goalSource, type GoalSource } from './audio/goalSource.js';
+import { PICKUP_SECONDS } from './goal/GoalObject.js';
 import { RoomBuilder } from './world/RoomBuilder.js';
 import { World } from './world/World.js';
 
@@ -68,6 +78,8 @@ export interface EngineEvents extends Record<string, unknown> {
   quality: number;
   /** The player walked into the goal (PD2): horizontal distance below {@link GOAL_RADIUS}. */
   goalReached: { room: RoomId };
+  /** A footstep (CP09 T3): every 1.3 m while walking, on the current room's floor. */
+  footstep: { side: Side; floor: FloorKind };
 }
 
 /** Pickup distance from the goal, horizontally (m, CP08 T5). */
@@ -113,6 +125,11 @@ export interface EngineInfo {
   missingPortalTargets: number;
   /** Rooms received but not built yet. */
   pendingRooms: number;
+  /** Player settings as applied (CP09 T7). */
+  fov: number;
+  sensitivity: number;
+  invertY: boolean;
+  headBob: boolean;
 }
 
 const NO_INPUT: MoveIntent = { forward: false, back: false, left: false, right: false };
@@ -135,6 +152,10 @@ export class Engine {
   });
   private inputEnabled = true;
   private goalFired = false;
+  private readonly steps = new FootstepTracker();
+  private headBob = true;
+  /** The running pickup animation (CP09 T1.6). */
+  private pickup: { start: number; done: () => void } | null = null;
   private readonly input = new InputState();
   private readonly clock = new FixedStepClock();
   private readonly events = new Emitter<EngineEvents>();
@@ -255,7 +276,55 @@ export class Engine {
     this.goalFired = false;
     this.inputEnabled = true;
     this.manual = false;
+    this.steps.reset();
+    this.pickup?.done();
+    this.pickup = null;
     this.portals?.resetMissingTargets();
+  }
+
+  /** Vertical field of view (degrees, CP09 T7). */
+  setFov(degrees: number): void {
+    const camera = this.camera;
+    if (!camera) return;
+    camera.fov = clamp(degrees, 30, 120);
+    camera.updateProjectionMatrix();
+  }
+
+  /** Head bob on or off (CP09 T3.5). */
+  setHeadBob(enabled: boolean): void {
+    this.headBob = enabled;
+  }
+
+  /** The camera (the audio listener follows it). */
+  getCamera(): THREE.PerspectiveCamera | null {
+    return this.camera;
+  }
+
+  /**
+   * Where the goal hum comes from this frame (CP09 T5): the diploma in the goal room, or its
+   * image through the shallowest portal that shows the goal room; null if not seen.
+   */
+  getGoalSource(): GoalSource | null {
+    const goalView = this.world.goalRoom();
+    if (!goalView?.goal || !this.room) return null;
+    return goalSource(
+      this.room,
+      goalView.id,
+      goalView.goal.worldPosition(),
+      this.portals?.getPortalTree() ?? [],
+    );
+  }
+
+  /**
+   * Plays the pickup (CP09 T1.6): over 0.6 s the diploma flies toward the camera, grows and
+   * fades. Resolves when it has finished.
+   */
+  playPickup(): Promise<void> {
+    const goal = this.world.goalRoom()?.goal;
+    if (!goal || this.pickup) return Promise.resolve();
+    return new Promise((resolve) => {
+      this.pickup = { start: performance.now(), done: resolve };
+    });
   }
 
   /** Enables or freezes player input (frozen during the pickup, CP08 T5). */
@@ -383,6 +452,10 @@ export class Engine {
       drawCalls: this.renderer?.info.render.calls ?? 0,
       missingPortalTargets: this.portals?.missingTargets ?? 0,
       pendingRooms: this.builder.size,
+      fov: this.camera?.fov ?? 0,
+      sensitivity: this.look.sensitivity,
+      invertY: this.look.invertY,
+      headBob: this.headBob,
     };
   }
 
@@ -450,6 +523,8 @@ export class Engine {
     portals: PortalRenderer | null;
     room: RoomView | undefined;
     getRoom: (id: RoomId) => RoomView | undefined;
+    roomIds: () => RoomId[];
+    goalRoom: RoomId | undefined;
   } {
     return {
       renderer: this.renderer,
@@ -457,6 +532,8 @@ export class Engine {
       portals: this.portals,
       room: this.room ? this.world.get(this.room) : undefined,
       getRoom: (id) => this.world.get(id),
+      roomIds: () => this.world.ids(),
+      goalRoom: this.world.goalRoom()?.id,
     };
   }
 
@@ -577,6 +654,11 @@ export class Engine {
     }
     const before = { x: this.body.x, z: this.body.z };
     this.body = stepBody(this.body, intent, this.yaw, dt, this.activeColliders(view));
+    const side = this.steps.advance(
+      Math.hypot(this.body.x - before.x, this.body.z - before.z),
+      Math.hypot(this.body.vx, this.body.vz),
+    );
+    if (side) this.events.emit('footstep', { side, floor: view.dto.floor });
 
     // Door crossing, after collision (CP03 T4).
     const door = findCrossing(before, this.body, EYE_HEIGHT, this.crossableDoors(view));
@@ -594,6 +676,23 @@ export class Engine {
     this.events.emit('roomChanged', { from, door: door.id, to: door.link.room });
     const arrived = this.world.get(door.link.room);
     if (arrived) this.checkGoal(arrived.dto);
+  }
+
+  /** Moves the goal to this frame's time, or along the pickup (one update per frame). */
+  private animateGoal(eye: THREE.Vector3): void {
+    const goal = this.world.goalRoom()?.goal;
+    if (!goal) return;
+    if (this.pickup) {
+      const p = (performance.now() - this.pickup.start) / (PICKUP_SECONDS * 1000);
+      goal.pickup(p, eye);
+      if (p >= 1) {
+        const { done } = this.pickup;
+        this.pickup = null;
+        done();
+      }
+      return;
+    }
+    goal.update(ambientTime.value);
   }
 
   /** Emits `goalReached` once when the player stands within reach of the room's goal. */
@@ -678,8 +777,12 @@ export class Engine {
     if (!view) return;
     const linked = [...view.doors.values()].filter((d) => d.link !== null).map((d) => d.frame);
     const eye = keepEyeOffPortals(pose.x, pose.z, linked);
-    camera.position.set(eye.x, EYE_HEIGHT, eye.z);
+    // Head bob (CP09 T3.5); off in test-hook mode, so scripted screenshots stay comparable.
+    const bob = this.headBob && !this.manual ? this.steps.bobOffset() : 0;
+    camera.position.set(eye.x, EYE_HEIGHT + bob, eye.z);
     camera.rotation.set(pose.pitch, pose.yaw, 0);
+    camera.updateMatrixWorld();
+    this.animateGoal(camera.position);
     renderer.info.reset();
     portals.render(view, camera);
     this.debugOverlay?.draw(portals.getPortalTree());
