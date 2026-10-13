@@ -60,4 +60,12 @@ test.describe('fixture house visuals', () => {
       await step(page, 2, true);
     }
   });
+
+  test('the Offered Grade through a doorway (generated house, CP09 view)', async ({ page }) => {
+    await page.goto('/?dev=level&file=sample-hard&room=r01&overlay=0&quality=high');
+    await page.waitForFunction(() => window.__ogm !== undefined, null, { timeout: 30_000 });
+    await setPose(page, 'r00', 1.5, -3.8, 0.261);
+    expect(await page.evaluate(() => window.__ogm?.goalScreen()?.level)).toBe(1);
+    await expect(page).toHaveScreenshot('goal-through-doorway.png');
+  });
 });

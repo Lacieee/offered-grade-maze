@@ -13,6 +13,7 @@ import {
   playToResult,
   roomDto,
   startRandom,
+  walkIntoGoal,
 } from './game.js';
 import { watchConsole } from './helpers.js';
 
@@ -134,6 +135,48 @@ test('a 10 s outage of /transitions: play continues, the badge comes and goes, n
 
   // And the game still completes.
   await playToResult(page, await debugPath(page, gameId));
+});
+
+test('a 10 s outage of /complete at the pickup: "Saving result…", then the result is saved (CP10 B2)', async ({
+  page,
+}) => {
+  test.setTimeout(300_000);
+  await openGame(page);
+  await startRandom(page, 'Easy');
+  await begin(page);
+  const { gameId } = await gameState(page);
+  if (!gameId) throw new Error('no game');
+  for (const door of await debugPath(page, gameId)) await crossDoor(page, door);
+
+  let blocked = true;
+  let attempts = 0;
+  await page.route('**/api/v1/games/*/complete', async (route) => {
+    attempts++;
+    if (blocked) await route.abort('failed');
+    else await route.continue();
+  });
+  const outageStart = Date.now();
+  await walkIntoGoal(page);
+  await expect(page.getByTestId('completing')).toBeVisible();
+  await expect(page.locator('[data-testid="completing"] .note.warn')).toBeVisible({
+    timeout: 8000,
+  });
+  await page.waitForTimeout(Math.max(0, 10_000 - (Date.now() - outageStart)));
+  blocked = false;
+  await expect(page.getByTestId('result-screen')).toBeVisible({ timeout: 30_000 });
+  expect(attempts).toBeGreaterThan(1);
+
+  const [row] = await query<{ integrity: string }>(
+    'select integrity from results where game_id = $1',
+    [gameId],
+  );
+  expect(row?.integrity).toBe('ok');
+  const [game] = await query<{ last_seq: number; status: string }>(
+    'select last_seq, status from games where id = $1',
+    [gameId],
+  );
+  expect(game?.status).toBe('completed');
+  expect(game?.last_seq).toBe((await gameState(page)).lastSeq);
 });
 
 test('a typed seed reproduces the same house (start room and its furniture)', async ({ page }) => {
