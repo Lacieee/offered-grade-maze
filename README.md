@@ -8,6 +8,19 @@ seed you can share, so a friend can race you through the same house.
 
 Version **1.0.0** (see [CHANGELOG.md](CHANGELOG.md)). English and Hungarian.
 
+The full source code is available on GitHub:
+[https://github.com/Lacieee/offered-grade-maze](https://github.com/Lacieee/offered-grade-maze).
+
+## Screenshots
+
+Captured from the local development build using the fixture house and a generated sample house.
+
+| Title screen                                                                                   | Seamless portal view                                                                                       |
+| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| ![Title screen with New game and Settings](docs/screenshots/01-title-screen.png)               | ![Living room with a live view into the kitchen through a doorway](docs/screenshots/02-portal-view.png)    |
+| **The Offered Grade**                                                                          | **Debug map and solution path**                                                                            |
+| ![Glowing Offered Grade diploma seen through a doorway](docs/screenshots/03-offered-grade.png) | ![Debug view showing room connections and the guaranteed solution path](docs/screenshots/04-debug-map.png) |
+
 ## Requirements
 
 - **To play:** a Mac with **Docker Desktop** (or any machine with Docker), and a desktop
@@ -18,7 +31,7 @@ Version **1.0.0** (see [CHANGELOG.md](CHANGELOG.md)). English and Hungarian.
 ## Run locally
 
 ```sh
-git clone <this repository> offered-grade-maze
+git clone https://github.com/Lacieee/offered-grade-maze.git
 cd offered-grade-maze
 pnpm start:local          # = docker compose up --build
 ```
