@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2030" height="530" viewBox="0 0 2030 530" font-family="system-ui, sans-serif" font-size="12">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#777"/></marker><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#d9480f"/></marker></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="40" y="28" font-size="14" font-weight="600">H1-7K2Q-X9MP · hard · shortest 9 · asymmetric 72.9 %</text>
+<text x="115" y="54" text-anchor="middle" fill="#888">depth 0</text>
+<text x="315" y="54" text-anchor="middle" fill="#888">depth 1</text>
+<text x="515" y="54" text-anchor="middle" fill="#888">depth 2</text>
+<text x="715" y="54" text-anchor="middle" fill="#888">depth 3</text>
+<text x="915" y="54" text-anchor="middle" fill="#888">depth 4</text>
+<text x="1115" y="54" text-anchor="middle" fill="#888">depth 5</text>
+<text x="1315" y="54" text-anchor="middle" fill="#888">depth 6</text>
+<text x="1515" y="54" text-anchor="middle" fill="#888">depth 7</text>
+<text x="1715" y="54" text-anchor="middle" fill="#888">depth 8</text>
+<text x="1915" y="54" text-anchor="middle" fill="#888">depth 9</text>
+<path d="M1683.4 119.0 Q1627.6 165.0 1593.0 168.7" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r00.d0 → r06.d0</title></path>
+<path d="M1793.0 69.6 Q1815.0 63.0 1837.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r00.d1 → r01.d1</title></path>
+<path d="M1793.0 69.6 Q1815.0 63.0 1837.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r00.d2 → r01.d1</title></path>
+<path d="M1883.4 119.0 Q1740.2 237.0 1593.0 252.7" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r01.d0 → r19.d2</title></path>
+<path d="M1837.0 116.4 Q1415.0 243.0 993.0 116.4" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r01.d1 → r13.d0</title></path>
+<path d="M1837.0 116.4 Q1715.0 153.0 1593.0 116.4" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r01.d2 → r03.d0</title></path>
+<path d="M322.8 119.0 Q327.6 135.0 322.8 151.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r02.d0 → r20.d1</title></path>
+<path d="M237.0 116.4 Q215.0 123.0 193.0 116.4" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r02.d1 → r07.d1</title></path>
+<path d="M322.8 119.0 Q327.6 135.0 322.8 151.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r02.d2 → r20.d2</title></path>
+<path d="M393.0 69.6 Q415.0 63.0 437.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r02.d3 → r22.d0</title></path>
+<path d="M1446.2 119.0 Q927.6 315.0 393.0 194.6" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r03.d0 → r20.d0</title></path>
+<path d="M1593.0 69.6 Q1615.0 63.0 1637.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r03.d1 → r00.d0</title></path>
+<path d="M1522.8 119.0 Q1527.6 135.0 1522.8 151.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r03.d2 → r06.d3</title></path>
+<path d="M1104.6 203.0 Q1052.8 333.0 952.3 403.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r04.d0 → r18.d3</title></path>
+<path d="M1193.0 153.6 Q1215.0 147.0 1237.0 153.6" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r04.d1 → r15.d0</title></path>
+<path d="M1146.6 151.0 Q1202.4 105.0 1237.0 101.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r04.d2 → r05.d2</title></path>
+<path d="M1393.0 69.6 Q1415.0 63.0 1437.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r05.d0 → r03.d0</title></path>
+<path d="M1249.0 119.0 Q827.6 285.0 393.0 193.4" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r05.d1 → r20.d2</title></path>
+<path d="M1393.0 101.3 Q1427.6 105.0 1483.4 151.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r05.d2 → r06.d1</title></path>
+<path d="M1546.6 151.0 Q1602.4 105.0 1637.0 101.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r06.d0 → r00.d0</title></path>
+<path d="M1546.6 151.0 Q1602.4 105.0 1637.0 101.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r06.d1 → r00.d2</title></path>
+<path d="M1507.2 151.0 Q1502.4 135.0 1507.2 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r06.d2 → r03.d0</title></path>
+<path d="M1507.2 151.0 Q1502.4 135.0 1507.2 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r06.d3 → r03.d2</title></path>
+<path d="M193.0 69.6 Q215.0 63.0 237.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r07.d0 → r02.d1</title></path>
+<path d="M193.0 69.6 Q215.0 63.0 237.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r07.d1 → r02.d1</title></path>
+<path d="M193.0 101.3 Q227.6 105.0 283.4 151.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r07.d2 → r20.d1</title></path>
+<path d="M193.0 69.6 Q215.0 63.0 237.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r07.d3 → r02.d2</title></path>
+<path d="M1037.0 267.6 Q902.4 279.0 762.8 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r08.d0 → r16.d0</title></path>
+<path d="M1054.7 235.0 Q989.8 207.0 932.1 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r08.d1 → r13.d2</title></path>
+<path d="M1037.0 252.7 Q1002.4 249.0 946.6 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r08.d2 → r09.d1</title></path>
+<path d="M1146.6 235.0 Q1202.4 189.0 1237.0 185.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r08.d3 → r15.d1</title></path>
+<path d="M952.3 203.0 Q1052.8 273.0 1104.6 403.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r09.d0 → r21.d0</title></path>
+<path d="M990 169 c 28 -24 28 40 0 16" fill="none" stroke="#999" stroke-width="1.2" marker-end="url(#a)"><title>r09.d1 → r09.d2</title></path>
+<path d="M993.0 185.3 Q1027.6 189.0 1083.4 235.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r09.d2 → r08.d3</title></path>
+<path d="M837.0 262.4 Q589.8 267.0 356.1 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r10.d0 → r02.d3</title></path>
+<path d="M993.0 237.6 Q1015.0 231.0 1037.0 237.6" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r10.d1 → r08.d1</title></path>
+<path d="M837.0 252.7 Q689.8 237.0 546.6 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r10.d2 → r22.d0</title></path>
+<path d="M907.2 319.0 Q877.2 219.0 907.2 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r11.d0 → r13.d1</title></path>
+<path d="M946.6 319.0 Q1002.4 273.0 1037.0 269.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r11.d1 → r08.d0</title></path>
+<path d="M877.7 319.0 Q777.2 249.0 725.4 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r11.d2 → r12.d3</title></path>
+<path d="M743.3 119.0 Q865.4 231.0 908.5 403.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r12.d0 → r18.d1</title></path>
+<path d="M793.0 69.6 Q815.0 63.0 837.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r12.d1 → r13.d1</title></path>
+<path d="M722.8 119.0 Q727.6 135.0 722.8 151.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r12.d2 → r16.d2</title></path>
+<path d="M752.3 119.0 Q852.8 189.0 904.6 319.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r12.d3 → r11.d2</title></path>
+<path d="M993.0 69.6 Q1015.0 63.0 1037.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r13.d0 → r17.d2</title></path>
+<path d="M993.0 69.6 Q1015.0 63.0 1037.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r13.d1 → r17.d0</title></path>
+<path d="M975.3 119.0 Q1040.2 147.0 1097.9 235.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r13.d2 → r08.d1</title></path>
+<path d="M1132.1 319.0 Q1189.8 231.0 1254.7 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r14.d0 → r15.d0</title></path>
+<path d="M1083.4 371.0 Q1027.6 417.0 993.0 420.7" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r14.d1 → r18.d1</title></path>
+<path d="M1054.7 319.0 Q989.8 291.0 932.1 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r14.d2 → r09.d0</title></path>
+<path d="M1237.0 200.4 Q1215.0 207.0 1193.0 200.4" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r15.d0 → r04.d1</title></path>
+<path d="M1393.0 185.3 Q1427.6 189.0 1483.4 235.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r15.d1 → r19.d1</title></path>
+<path d="M1237.0 200.4 Q815.0 327.0 393.0 200.4" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r15.d2 → r20.d0</title></path>
+<path d="M793.0 185.3 Q827.6 189.0 883.4 235.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r16.d0 → r10.d1</title></path>
+<path d="M793.0 153.6 Q815.0 147.0 837.0 153.6" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r16.d1 → r09.d0</title></path>
+<path d="M707.2 151.0 Q702.4 135.0 707.2 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r16.d2 → r12.d2</title></path>
+<path d="M1193.0 69.6 Q1215.0 63.0 1237.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r17.d0 → r05.d1</title></path>
+<path d="M1037.0 116.4 Q1015.0 123.0 993.0 116.4" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r17.d1 → r13.d0</title></path>
+<path d="M1122.8 119.0 Q1165.4 261.0 1122.8 403.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r17.d2 → r21.d3</title></path>
+<path d="M946.6 403.0 Q1002.4 357.0 1037.0 353.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r18.d0 → r14.d0</title></path>
+<path d="M946.6 403.0 Q1002.4 357.0 1037.0 353.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r18.d1 → r14.d1</title></path>
+<path d="M925.4 403.0 Q977.2 273.0 1077.7 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r18.d2 → r04.d0</title></path>
+<path d="M925.4 403.0 Q977.2 273.0 1077.7 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r18.d3 → r04.d0</title></path>
+<path d="M1590 253 c 28 -24 28 40 0 16" fill="none" stroke="#999" stroke-width="1.2" marker-end="url(#a)"><title>r19.d0 → r19.d2</title></path>
+<path d="M1507.2 235.0 Q1502.4 219.0 1507.2 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r19.d1 → r06.d1</title></path>
+<path d="M1532.1 235.0 Q1589.8 147.0 1654.7 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r19.d2 → r00.d1</title></path>
+<path d="M346.6 151.0 Q402.4 105.0 437.0 101.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r20.d0 → r22.d1</title></path>
+<path d="M346.6 151.0 Q402.4 105.0 437.0 101.3" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r20.d1 → r22.d1</title></path>
+<path d="M307.2 151.0 Q302.4 135.0 307.2 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r20.d2 → r02.d2</title></path>
+<path d="M1125.4 403.0 Q1177.2 273.0 1277.7 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r21.d0 → r15.d2</title></path>
+<path d="M1077.7 403.0 Q977.2 333.0 925.4 203.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r21.d1 → r09.d2</title></path>
+<path d="M1086.7 403.0 Q964.6 291.0 921.5 119.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r21.d3 → r13.d1</title></path>
+<path d="M593.0 69.6 Q615.0 63.0 637.0 69.6" fill="none" stroke="#d9480f" stroke-width="2.5" stroke-opacity="0.8" marker-end="url(#s)"><title>r22.d0 → r12.d2</title></path>
+<path d="M593.0 101.3 Q627.6 105.0 683.4 151.0" fill="none" stroke="#999" stroke-width="1.2" stroke-opacity="0.8" marker-end="url(#a)"><title>r22.d1 → r16.d0</title></path>
+<g><rect x="1640" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="1648" y="88" font-weight="600">r00</text><text x="1648" y="105" fill="#495057">living · 3d</text></g>
+<g><rect x="1840" y="70" width="150" height="46" rx="6" fill="#ffe8a3" stroke="#d9480f" stroke-width="1.5"/><text x="1848" y="88" font-weight="600">r01 GOAL</text><text x="1848" y="105" fill="#495057">bedroom · 3d</text></g>
+<g><rect x="240" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="248" y="88" font-weight="600">r02</text><text x="248" y="105" fill="#495057">bathroom · 4d</text></g>
+<g><rect x="1440" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="1448" y="88" font-weight="600">r03</text><text x="1448" y="105" fill="#495057">kitchen · 3d</text></g>
+<g><rect x="1040" y="154" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="1048" y="172" font-weight="600">r04</text><text x="1048" y="189" fill="#495057">kitchen · 3d · ≈r03</text></g>
+<g><rect x="1240" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="1248" y="88" font-weight="600">r05</text><text x="1248" y="105" fill="#495057">bathroom · 4d · 1 sealed</text></g>
+<g><rect x="1440" y="154" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="1448" y="172" font-weight="600">r06</text><text x="1448" y="189" fill="#495057">bathroom · 4d · ≈r05</text></g>
+<g><rect x="40" y="70" width="150" height="46" rx="6" fill="#d3f9d8" stroke="#d9480f" stroke-width="1.5"/><text x="48" y="88" font-weight="600">r07 START</text><text x="48" y="105" fill="#495057">hallway · 4d</text></g>
+<g><rect x="1040" y="238" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="1048" y="256" font-weight="600">r08</text><text x="1048" y="273" fill="#495057">kitchen · 4d</text></g>
+<g><rect x="840" y="154" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="848" y="172" font-weight="600">r09</text><text x="848" y="189" fill="#495057">living · 3d · ≈r00</text></g>
+<g><rect x="840" y="238" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="848" y="256" font-weight="600">r10</text><text x="848" y="273" fill="#495057">bedroom · 3d</text></g>
+<g><rect x="840" y="322" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="848" y="340" font-weight="600">r11</text><text x="848" y="357" fill="#495057">kitchen · 3d · ≈r22</text></g>
+<g><rect x="640" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="648" y="88" font-weight="600">r12</text><text x="648" y="105" fill="#495057">hallway · 4d</text></g>
+<g><rect x="840" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="848" y="88" font-weight="600">r13</text><text x="848" y="105" fill="#495057">bathroom · 3d</text></g>
+<g><rect x="1040" y="322" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="1048" y="340" font-weight="600">r14</text><text x="1048" y="357" fill="#495057">study · 3d</text></g>
+<g><rect x="1240" y="154" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="1248" y="172" font-weight="600">r15</text><text x="1248" y="189" fill="#495057">bathroom · 3d · ≈r13</text></g>
+<g><rect x="640" y="154" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="648" y="172" font-weight="600">r16</text><text x="648" y="189" fill="#495057">kitchen · 3d</text></g>
+<g><rect x="1040" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="1048" y="88" font-weight="600">r17</text><text x="1048" y="105" fill="#495057">living · 3d</text></g>
+<g><rect x="840" y="406" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="848" y="424" font-weight="600">r18</text><text x="848" y="441" fill="#495057">study · 4d</text></g>
+<g><rect x="1440" y="238" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="1448" y="256" font-weight="600">r19</text><text x="1448" y="273" fill="#495057">bedroom · 4d · 1 sealed</text></g>
+<g><rect x="240" y="154" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="248" y="172" font-weight="600">r20</text><text x="248" y="189" fill="#495057">bathroom · 4d · 1 sealed</text></g>
+<g><rect x="1040" y="406" width="150" height="46" rx="6" fill="#f1f3f5" stroke="#868e96" stroke-width="1.5"/><text x="1048" y="424" font-weight="600">r21</text><text x="1048" y="441" fill="#495057">hallway · 4d · 1 sealed</text></g>
+<g><rect x="440" y="70" width="150" height="46" rx="6" fill="#fff4e6" stroke="#d9480f" stroke-width="1.5"/><text x="448" y="88" font-weight="600">r22</text><text x="448" y="105" fill="#495057">kitchen · 3d · 1 sealed</text></g>
+</svg>
