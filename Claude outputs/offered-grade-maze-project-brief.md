@@ -2,7 +2,7 @@
 
 ## The idea
 
-A first-person browser game set in a house with non-Euclidean geometry. As in *Portal*, every door is a live window into the room it leads to, and stepping through is seamless. As in *Layers of Fear*, the house does not follow normal space: a room can be bigger than the space it should fit in, a door does not always lead back where you came from, and the same room can be reached through several doors. The player has to find the Offered Grade (*megajánlott jegy*) hidden in the house, as fast as possible.
+A first-person browser game set in a house with non-Euclidean geometry. As in _Portal_, every door is a live window into the room it leads to, and stepping through is seamless. As in _Layers of Fear_, the house does not follow normal space: a room can be bigger than the space it should fit in, a door does not always lead back where you came from, and the same room can be reached through several doors. The player has to find the Offered Grade (_megajánlott jegy_) hidden in the house, as fast as possible.
 
 Every house is generated from a short code (a seed): its rooms, door connections and furniture. The same seed always gives the same house, so houses can be shared and replayed.
 
