@@ -1,0 +1,17 @@
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+.git
+.github
+e2e/test-results
+e2e/playwright-report
+packages/client/src/dev/levels/*.json
+!packages/client/src/dev/levels/sample-*.json
+user inputs
+Claude outputs
+*.svg
+!packages/**/*.svg
+.env
+.env.*

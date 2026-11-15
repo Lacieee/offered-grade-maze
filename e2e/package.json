@@ -1,0 +1,21 @@
+{
+  "name": "@ogm/e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright end-to-end and visual regression tests.",
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:update": "playwright test --update-snapshots",
+    "perf:walk": "playwright test --config playwright.perf.config.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/pg": "8.23.1",
+    "@types/pngjs": "6.0.5",
+    "pg": "8.23.1",
+    "pngjs": "7.0.0"
+  }
+}

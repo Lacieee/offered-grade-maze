@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.turbo
+pnpm-lock.yaml
+user inputs
+# Provided by the product owner; kept verbatim.
+docs/architecture.md
+docs/checkpoints
+e2e/test-results
+e2e/playwright-report
+docs/api/openapi.json

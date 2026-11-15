@@ -1,0 +1,3131 @@
+{
+  "seed": "H1-7K2Q-X9MP",
+  "difficulty": "hard",
+  "generatorVersion": 1,
+  "startRoom": "r07",
+  "goalRoom": "r01",
+  "spawn": {
+    "x": 0,
+    "z": 0,
+    "yaw": 3.141592653589793
+  },
+  "rooms": [
+    {
+      "id": "r00",
+      "type": "living",
+      "label": "room.living",
+      "width": 7,
+      "depth": 8.5,
+      "height": 2.8,
+      "floor": "wood",
+      "palette": {
+        "wall": "#a9c4a0",
+        "floor": "#6f5338",
+        "trim": "#c2452e",
+        "ceiling": "#eef0e8"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "W",
+          "offset": -1.75,
+          "link": {
+            "room": "r03",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "S",
+          "offset": -2.25,
+          "link": {
+            "room": "r19",
+            "door": "d3"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "N",
+          "offset": 1.5,
+          "link": {
+            "room": "r01",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "sofa_3seat",
+          "x": 0.125,
+          "z": 3.75,
+          "rot": 2,
+          "variant": 1,
+          "colors": ["#6b4a2e", "#a0754d"]
+        },
+        {
+          "id": "f01",
+          "prefab": "tv_unit",
+          "x": 3.25,
+          "z": 3,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#6b4a2e", "#7a3f35"]
+        },
+        {
+          "id": "f02",
+          "prefab": "coffee_table",
+          "x": -0.625,
+          "z": 1.875,
+          "rot": 1,
+          "variant": 1,
+          "colors": ["#8c6b4a"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_aquarium",
+          "x": -3.25,
+          "z": -2.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#1f7a4a", "#c0262d"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "rug_large",
+          "x": -1.75,
+          "z": 0.125,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c2452e", "#3f4a3c"]
+        },
+        {
+          "id": "f05",
+          "prefab": "bookshelf",
+          "x": -3.25,
+          "z": 3.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#6b4a2e", "#6b4a2e"]
+        },
+        {
+          "id": "f06",
+          "prefab": "wall_clock",
+          "x": 2.5,
+          "z": -4.125,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c9b79c", "#2f2f33"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r01",
+      "type": "bedroom",
+      "label": "room.bedroom",
+      "width": 6,
+      "depth": 6,
+      "height": 2.8,
+      "floor": "carpet",
+      "palette": {
+        "wall": "#d3a7ae",
+        "floor": "#7a6a62",
+        "trim": "#2f8f7a",
+        "ceiling": "#f8eff0"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": 0,
+          "link": {
+            "room": "r00",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "W",
+          "offset": -1,
+          "link": {
+            "room": "r00",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "N",
+          "offset": 0.75,
+          "link": {
+            "room": "r19",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "bed_double",
+          "x": 2,
+          "z": 1.375,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#c4a99a", "#e8e2d4", "#2f8f7a"]
+        },
+        {
+          "id": "f01",
+          "prefab": "wardrobe",
+          "x": 2.625,
+          "z": -0.75,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#9a8fb0", "#9a8fb0"]
+        },
+        {
+          "id": "f02",
+          "prefab": "nightstand",
+          "x": 2.75,
+          "z": 2.5,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#d8cbb0"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_painting",
+          "x": -1.875,
+          "z": -2.875,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#2456b8", "#f2f2f2"],
+          "signature": true,
+          "params": {
+            "pattern": "checks",
+            "seed": 8140
+          }
+        },
+        {
+          "id": "f04",
+          "prefab": "rug_medium",
+          "x": -0.5,
+          "z": -1.5,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#2f8f7a", "#8a6f5a"]
+        },
+        {
+          "id": "f05",
+          "prefab": "dresser",
+          "x": 2.375,
+          "z": -2.75,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c4a99a", "#8a6f5a"]
+        },
+        {
+          "id": "f06",
+          "prefab": "side_table",
+          "x": -2.75,
+          "z": -1,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#5e4630"]
+        },
+        {
+          "id": "f07",
+          "prefab": "plant_large",
+          "x": -2.75,
+          "z": -2.75,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#9a8fb0", "#e8e2d4"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "goal",
+          "x": 0,
+          "y": 1.2,
+          "z": 0,
+          "color": "#ffcf6b",
+          "intensity": 1.2
+        }
+      ],
+      "goal": {
+        "x": 0,
+        "y": 1.2,
+        "z": 0
+      }
+    },
+    {
+      "id": "r02",
+      "type": "bathroom",
+      "label": "room.bathroom",
+      "width": 4,
+      "depth": 3.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#e4dfbd",
+        "floor": "#b4b8b9",
+        "trim": "#c23b6b",
+        "ceiling": "#faf8f0"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": 0.5,
+          "link": {
+            "room": "r07",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": 0,
+          "link": {
+            "room": "r20",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "E",
+          "offset": 0,
+          "link": {
+            "room": "r22",
+            "door": "d0"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "shower",
+          "x": 1.5,
+          "z": -1.25,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#dfe9ec", "#e8e2d8"]
+        },
+        {
+          "id": "f01",
+          "prefab": "toilet",
+          "x": -1.625,
+          "z": 0.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#dfe9ec"]
+        },
+        {
+          "id": "f02",
+          "prefab": "washbasin",
+          "x": -1.75,
+          "z": 1.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#e8e2d8", "#c9d8dc"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_aquarium",
+          "x": -1.75,
+          "z": -0.625,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#6e4220", "#7a2fa0"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "laundry_basket",
+          "x": 1.75,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#ffffff"]
+        },
+        {
+          "id": "f05",
+          "prefab": "floor_lamp",
+          "x": -1.75,
+          "z": -1.5,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#dfe9ec", "#c9d8dc"]
+        },
+        {
+          "id": "f06",
+          "prefab": "towel_rack",
+          "x": -1.625,
+          "z": 1.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#dfe9ec", "#c9d8dc"]
+        },
+        {
+          "id": "f07",
+          "prefab": "wall_clock",
+          "x": 1.875,
+          "z": 1.5,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#d0d6d8", "#c9d8dc"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": -1.75,
+          "y": 1.5,
+          "z": -1.5,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r03",
+      "type": "kitchen",
+      "label": "room.kitchen",
+      "width": 6,
+      "depth": 6,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#a5b9cd",
+        "floor": "#9fa7a8",
+        "trim": "#d9542b",
+        "ceiling": "#f2f7f6"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "N",
+          "offset": 1.5,
+          "link": {
+            "room": "r07",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "S",
+          "offset": -0.5,
+          "link": {
+            "room": "r00",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "W",
+          "offset": -0.25,
+          "link": {
+            "room": "r05",
+            "door": "d0"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "counter_run",
+          "x": -1.5,
+          "z": 2.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#f2efe8", "#404448", "#e9e4da"]
+        },
+        {
+          "id": "f01",
+          "prefab": "stove",
+          "x": -2.625,
+          "z": -2.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#f2efe8", "#b5a58a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "fridge",
+          "x": -2.625,
+          "z": -1.375,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#b5a58a"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_red_armchair",
+          "x": 1.25,
+          "z": 0.75,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c0262d", "#b8336a"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "dining_set",
+          "x": 0.5,
+          "z": -0.75,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c8c2b4", "#d9542b"]
+        },
+        {
+          "id": "f05",
+          "prefab": "floor_lamp",
+          "x": -2.75,
+          "z": 2.75,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#d9542b", "#c8c2b4"]
+        },
+        {
+          "id": "f06",
+          "prefab": "bin",
+          "x": 2.875,
+          "z": 2.875,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#a0754d"]
+        },
+        {
+          "id": "f07",
+          "prefab": "painting",
+          "x": 0.25,
+          "z": -2.875,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c8c2b4", "#dfe6ea", "#dfe6ea"],
+          "params": {
+            "pattern": "checks",
+            "seed": 5356
+          }
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": -2.75,
+          "y": 1.5,
+          "z": 2.75,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r04",
+      "type": "kitchen",
+      "label": "room.kitchen",
+      "width": 6,
+      "depth": 6,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#a5b9cd",
+        "floor": "#9fa7a8",
+        "trim": "#d9542b",
+        "ceiling": "#f2f7f6"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "N",
+          "offset": 1.5,
+          "link": {
+            "room": "r08",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "S",
+          "offset": -0.5,
+          "link": {
+            "room": "r15",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "W",
+          "offset": -0.25,
+          "link": {
+            "room": "r17",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "counter_run",
+          "x": -1.5,
+          "z": 2.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#f2efe8", "#404448", "#e9e4da"]
+        },
+        {
+          "id": "f01",
+          "prefab": "stove",
+          "x": -2.625,
+          "z": -2.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#f2efe8", "#b5a58a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "fridge",
+          "x": -2.625,
+          "z": -1.375,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#b5a58a"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_aquarium",
+          "x": 2.75,
+          "z": 0.625,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#b8336a", "#e0d020"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "dining_set",
+          "x": 0.5,
+          "z": -0.75,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c8c2b4", "#d9542b"]
+        },
+        {
+          "id": "f05",
+          "prefab": "floor_lamp",
+          "x": -2.75,
+          "z": 2.75,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#d9542b", "#c8c2b4"]
+        },
+        {
+          "id": "f06",
+          "prefab": "bin",
+          "x": 2.875,
+          "z": 2.875,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#a0754d"]
+        },
+        {
+          "id": "f07",
+          "prefab": "painting",
+          "x": 0.25,
+          "z": -2.875,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c8c2b4", "#dfe6ea", "#dfe6ea"],
+          "params": {
+            "pattern": "checks",
+            "seed": 5356
+          }
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": -2.75,
+          "y": 1.5,
+          "z": 2.75,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r05",
+      "type": "bathroom",
+      "label": "room.bathroom",
+      "width": 4,
+      "depth": 3.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#a5caa8",
+        "floor": "#d6d4cc",
+        "trim": "#e0a020",
+        "ceiling": "#f0f7f2"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "E",
+          "offset": 0.25,
+          "link": {
+            "room": "r19",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": 1,
+          "link": {
+            "room": "r03",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "N",
+          "offset": -1,
+          "link": {
+            "room": "r19",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "bathtub",
+          "x": 0.375,
+          "z": 1.375,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#d0d6d8", "#d0d6d8"]
+        },
+        {
+          "id": "f01",
+          "prefab": "toilet",
+          "x": -1.5,
+          "z": 1.375,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#c9d8dc"]
+        },
+        {
+          "id": "f02",
+          "prefab": "washbasin",
+          "x": 1.625,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#e8e2d8", "#b0c4c8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_large_globe",
+          "x": 0.375,
+          "z": -0.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#6e4220", "#c0262d"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "painting",
+          "x": -1.25,
+          "z": 1.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#f5f7f8", "#c9d8dc", "#e8e2d8"],
+          "params": {
+            "pattern": "checks",
+            "seed": 3272
+          }
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r06",
+      "type": "bathroom",
+      "label": "room.bathroom",
+      "width": 4,
+      "depth": 3.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#a5caa8",
+        "floor": "#d6d4cc",
+        "trim": "#e0a020",
+        "ceiling": "#f0f7f2"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "E",
+          "offset": 0.25,
+          "link": {
+            "room": "r00",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": 1,
+          "link": {
+            "room": "r00",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "N",
+          "offset": -1,
+          "link": {
+            "room": "r20",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "bathtub",
+          "x": 0.375,
+          "z": 1.375,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#d0d6d8", "#d0d6d8"]
+        },
+        {
+          "id": "f01",
+          "prefab": "toilet",
+          "x": -1.5,
+          "z": 1.375,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#c9d8dc"]
+        },
+        {
+          "id": "f02",
+          "prefab": "washbasin",
+          "x": 1.625,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#e8e2d8", "#b0c4c8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_grandfather_clock",
+          "x": -1.75,
+          "z": 0,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#b8336a", "#c0262d"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "painting",
+          "x": -1.25,
+          "z": 1.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#f5f7f8", "#c9d8dc", "#e8e2d8"],
+          "params": {
+            "pattern": "checks",
+            "seed": 3272
+          }
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r07",
+      "type": "hallway",
+      "label": "room.hallway",
+      "width": 2.5,
+      "depth": 9,
+      "height": 2.8,
+      "floor": "wood",
+      "palette": {
+        "wall": "#adc098",
+        "floor": "#4f4238",
+        "trim": "#3b5ec6",
+        "ceiling": "#f7f4ec"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": -0.25,
+          "link": null
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": -1.25,
+          "link": {
+            "room": "r02",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "N",
+          "offset": -0.25,
+          "link": {
+            "room": "r20",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d3",
+          "wall": "E",
+          "offset": 2,
+          "link": {
+            "room": "r02",
+            "door": "d0"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "runner_rug",
+          "x": 0,
+          "z": -0.5,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#3b5ec6", "#3d2b1f"]
+        },
+        {
+          "id": "f01",
+          "prefab": "coat_rack",
+          "x": -1,
+          "z": 3.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#4a4440"]
+        },
+        {
+          "id": "f02",
+          "prefab": "sig_painting",
+          "x": -1.125,
+          "z": -2.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#7a2fa0", "#6e4220"],
+          "signature": true,
+          "params": {
+            "pattern": "stripes",
+            "seed": 3628
+          }
+        },
+        {
+          "id": "f03",
+          "prefab": "shoe_cabinet",
+          "x": -1,
+          "z": 1.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#c0b098", "#6e4f35"]
+        },
+        {
+          "id": "f04",
+          "prefab": "floor_lamp",
+          "x": 1,
+          "z": -4.25,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#4a4440", "#8f6a48"]
+        },
+        {
+          "id": "f05",
+          "prefab": "painting",
+          "x": 1.125,
+          "z": 4.125,
+          "rot": 3,
+          "variant": 1,
+          "colors": ["#8f6a48", "#c0b098", "#7a6a5a"],
+          "params": {
+            "pattern": "circles",
+            "seed": 3796
+          }
+        },
+        {
+          "id": "f06",
+          "prefab": "plant_large",
+          "x": -1,
+          "z": 4.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#4a4440", "#7a6a5a"]
+        },
+        {
+          "id": "f07",
+          "prefab": "plant_small",
+          "x": -1.125,
+          "z": -4.375,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#a08a70", "#6e4f35"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": 1,
+          "y": 1.5,
+          "z": -4.25,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r08",
+      "type": "kitchen",
+      "label": "room.kitchen",
+      "width": 6,
+      "depth": 6,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#dfafa4",
+        "floor": "#c4bcae",
+        "trim": "#b8336a",
+        "ceiling": "#f0f4ec"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": -0.5,
+          "link": {
+            "room": "r11",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": 0.5,
+          "link": {
+            "room": "r17",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "E",
+          "offset": -1.75,
+          "link": {
+            "room": "r04",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d3",
+          "wall": "E",
+          "offset": 0.75,
+          "link": {
+            "room": "r15",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "counter_run",
+          "x": -2.625,
+          "z": 0.5,
+          "rot": 1,
+          "variant": 2,
+          "colors": ["#dfe6ea", "#b8336a", "#6d8a7a"]
+        },
+        {
+          "id": "f01",
+          "prefab": "stove",
+          "x": -2.625,
+          "z": 2.375,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#e9e4da", "#b5a58a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "fridge",
+          "x": -2.625,
+          "z": -1.375,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#a0754d"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_painting",
+          "x": -2.375,
+          "z": 2.875,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#d4572a", "#1f7a4a"],
+          "signature": true,
+          "params": {
+            "pattern": "grid",
+            "seed": 9192
+          }
+        },
+        {
+          "id": "f04",
+          "prefab": "dining_set",
+          "x": -0.5,
+          "z": 0.5,
+          "rot": 1,
+          "variant": 1,
+          "colors": ["#a0754d", "#b5a58a"]
+        },
+        {
+          "id": "f05",
+          "prefab": "wall_cabinet",
+          "x": 2.25,
+          "z": 2.75,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#e9e4da", "#f2efe8"]
+        },
+        {
+          "id": "f06",
+          "prefab": "floor_lamp",
+          "x": 2.75,
+          "z": -2.75,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#404448", "#a0754d"]
+        },
+        {
+          "id": "f07",
+          "prefab": "bin",
+          "x": 2.875,
+          "z": 2.875,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#e9e4da"]
+        },
+        {
+          "id": "f08",
+          "prefab": "plant_large",
+          "x": -2.75,
+          "z": -2.75,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#e9e4da", "#dfe6ea"]
+        },
+        {
+          "id": "f09",
+          "prefab": "painting",
+          "x": -0.875,
+          "z": -2.875,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#6d8a7a", "#f2efe8", "#a0754d"],
+          "params": {
+            "pattern": "grid",
+            "seed": 7888
+          }
+        },
+        {
+          "id": "f10",
+          "prefab": "plant_small",
+          "x": -2.875,
+          "z": 2.875,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#e9e4da", "#dfe6ea"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": 2.75,
+          "y": 1.5,
+          "z": -2.75,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r09",
+      "type": "living",
+      "label": "room.living",
+      "width": 7,
+      "depth": 8.5,
+      "height": 2.8,
+      "floor": "wood",
+      "palette": {
+        "wall": "#a9c4a0",
+        "floor": "#6f5338",
+        "trim": "#c2452e",
+        "ceiling": "#eef0e8"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "W",
+          "offset": -1.75,
+          "link": {
+            "room": "r21",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "S",
+          "offset": -2.25,
+          "link": {
+            "room": "r04",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "N",
+          "offset": 1.5,
+          "link": {
+            "room": "r09",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "sofa_3seat",
+          "x": 0.125,
+          "z": 3.75,
+          "rot": 2,
+          "variant": 1,
+          "colors": ["#6b4a2e", "#a0754d"]
+        },
+        {
+          "id": "f01",
+          "prefab": "tv_unit",
+          "x": 3.25,
+          "z": 3,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#6b4a2e", "#7a3f35"]
+        },
+        {
+          "id": "f02",
+          "prefab": "coffee_table",
+          "x": -0.625,
+          "z": 1.875,
+          "rot": 1,
+          "variant": 1,
+          "colors": ["#8c6b4a"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_red_armchair",
+          "x": 1.5,
+          "z": -0.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#c0262d", "#e8a317"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "rug_large",
+          "x": -1.75,
+          "z": 0.125,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c2452e", "#3f4a3c"]
+        },
+        {
+          "id": "f05",
+          "prefab": "bookshelf",
+          "x": -3.25,
+          "z": 3.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#6b4a2e", "#6b4a2e"]
+        },
+        {
+          "id": "f06",
+          "prefab": "wall_clock",
+          "x": 2.5,
+          "z": -4.125,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c9b79c", "#2f2f33"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r10",
+      "type": "bedroom",
+      "label": "room.bedroom",
+      "width": 6,
+      "depth": 5.5,
+      "height": 2.8,
+      "floor": "carpet",
+      "palette": {
+        "wall": "#c29ede",
+        "floor": "#5f5650",
+        "trim": "#e07a2e",
+        "ceiling": "#eef1f5"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": -2,
+          "link": {
+            "room": "r22",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": 0.5,
+          "link": {
+            "room": "r08",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "W",
+          "offset": -0.5,
+          "link": {
+            "room": "r16",
+            "door": "d0"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "bed_double",
+          "x": 0,
+          "z": -1.75,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#d8cbb0", "#5e4630", "#5e4630"]
+        },
+        {
+          "id": "f01",
+          "prefab": "wardrobe",
+          "x": -2.625,
+          "z": -1.75,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#d8cbb0", "#7a5c40"]
+        },
+        {
+          "id": "f02",
+          "prefab": "nightstand",
+          "x": -1,
+          "z": -2.5,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#8a6f5a"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_large_globe",
+          "x": 1.125,
+          "z": -0.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#f2f2f2", "#7a2fa0"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "dresser",
+          "x": 1.625,
+          "z": -2.5,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#4f5a6a", "#8a6f5a"]
+        },
+        {
+          "id": "f05",
+          "prefab": "side_table",
+          "x": -2.75,
+          "z": 2.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#7a5c40"]
+        },
+        {
+          "id": "f06",
+          "prefab": "mirror_standing",
+          "x": -2.25,
+          "z": 2.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#8a6f5a"]
+        },
+        {
+          "id": "f07",
+          "prefab": "painting",
+          "x": 2.375,
+          "z": -2.625,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#d8cbb0", "#d8cbb0", "#e07a2e"],
+          "params": {
+            "pattern": "stripes",
+            "seed": 5665
+          }
+        },
+        {
+          "id": "f08",
+          "prefab": "plant_small",
+          "x": 2.875,
+          "z": 2.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#5e4630", "#d8cbb0"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r11",
+      "type": "kitchen",
+      "label": "room.kitchen",
+      "width": 6,
+      "depth": 5.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#eedfb1",
+        "floor": "#b8b2a6",
+        "trim": "#2e8b57",
+        "ceiling": "#f7f5ec"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "E",
+          "offset": -1.25,
+          "link": {
+            "room": "r21",
+            "door": "d3"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": -0.75,
+          "link": {
+            "room": "r08",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "E",
+          "offset": 0.75,
+          "link": {
+            "room": "r22",
+            "door": "d0"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "counter_run",
+          "x": -2.625,
+          "z": -0.75,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#b5a58a", "#404448", "#dfe6ea"]
+        },
+        {
+          "id": "f01",
+          "prefab": "stove",
+          "x": -2.625,
+          "z": -2.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#e9e4da", "#e9e4da"]
+        },
+        {
+          "id": "f02",
+          "prefab": "fridge",
+          "x": -2.625,
+          "z": 0.625,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#f2efe8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_red_armchair",
+          "x": 0.75,
+          "z": -0.25,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#e04a2a", "#6e4220"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "dining_set",
+          "x": -0.5,
+          "z": -0.25,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#404448", "#404448"]
+        },
+        {
+          "id": "f05",
+          "prefab": "bin",
+          "x": -2.875,
+          "z": 2.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#2e8b57"]
+        },
+        {
+          "id": "f06",
+          "prefab": "painting",
+          "x": -2.375,
+          "z": -2.625,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#c8c2b4", "#a0754d", "#f2efe8"],
+          "params": {
+            "pattern": "stripes",
+            "seed": 7273
+          }
+        },
+        {
+          "id": "f07",
+          "prefab": "wall_clock",
+          "x": -2.875,
+          "z": -2,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#a0754d", "#b5a58a"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r12",
+      "type": "hallway",
+      "label": "room.hallway",
+      "width": 2.5,
+      "depth": 9,
+      "height": 2.8,
+      "floor": "wood",
+      "palette": {
+        "wall": "#dda5a0",
+        "floor": "#7a6048",
+        "trim": "#24808a",
+        "ceiling": "#f3eef2"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "E",
+          "offset": 1.5,
+          "link": {
+            "room": "r18",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "W",
+          "offset": -3.25,
+          "link": {
+            "room": "r13",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "W",
+          "offset": -1.25,
+          "link": {
+            "room": "r18",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d3",
+          "wall": "W",
+          "offset": 1.75,
+          "link": {
+            "room": "r11",
+            "door": "d2"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "runner_rug",
+          "x": 0.75,
+          "z": 2.25,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#c0b098", "#c0b098"]
+        },
+        {
+          "id": "f01",
+          "prefab": "coat_rack",
+          "x": -1,
+          "z": 4.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#24808a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "sig_painting",
+          "x": 0.625,
+          "z": 4.375,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#1f7a4a", "#e8a317"],
+          "signature": true,
+          "params": {
+            "pattern": "waves",
+            "seed": 4608
+          }
+        },
+        {
+          "id": "f03",
+          "prefab": "console_table",
+          "x": 1,
+          "z": -2.25,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#6e4f35", "#a08a70"]
+        },
+        {
+          "id": "f04",
+          "prefab": "umbrella_stand",
+          "x": 1.125,
+          "z": -4.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#c0b098"]
+        },
+        {
+          "id": "f05",
+          "prefab": "plant_large",
+          "x": -1,
+          "z": -4.25,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#6e4f35", "#a08a70"]
+        },
+        {
+          "id": "f06",
+          "prefab": "wall_clock",
+          "x": -1.125,
+          "z": -3.75,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#24808a", "#4a4440"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r13",
+      "type": "bathroom",
+      "label": "room.bathroom",
+      "width": 4,
+      "depth": 3.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#9bb9d9",
+        "floor": "#c9cfd2",
+        "trim": "#1fa39a",
+        "ceiling": "#f4fafa"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": -0.5,
+          "link": {
+            "room": "r22",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": 0.75,
+          "link": {
+            "room": "r17",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "W",
+          "offset": 0,
+          "link": {
+            "room": "r13",
+            "door": "d0"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "bathtub",
+          "x": 0.375,
+          "z": -1.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#b0c4c8", "#f5f7f8"]
+        },
+        {
+          "id": "f01",
+          "prefab": "toilet",
+          "x": -1.75,
+          "z": -1.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#e8e2d8"]
+        },
+        {
+          "id": "f02",
+          "prefab": "washbasin",
+          "x": -1.125,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#dfe9ec", "#e8e2d8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_painting",
+          "x": -1.125,
+          "z": -1.625,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#b8336a", "#2456b8"],
+          "signature": true,
+          "params": {
+            "pattern": "waves",
+            "seed": 8904
+          }
+        },
+        {
+          "id": "f04",
+          "prefab": "floor_lamp",
+          "x": 1.75,
+          "z": -1.5,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#e8e2d8", "#9fb8bc"]
+        },
+        {
+          "id": "f05",
+          "prefab": "laundry_basket",
+          "x": -1.75,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#b0c4c8"]
+        },
+        {
+          "id": "f06",
+          "prefab": "plant_small",
+          "x": 1.875,
+          "z": 1.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#e8e2d8", "#ffffff"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": 1.75,
+          "y": 1.5,
+          "z": -1.5,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r14",
+      "type": "study",
+      "label": "room.study",
+      "width": 5,
+      "depth": 4.5,
+      "height": 2.8,
+      "floor": "carpet",
+      "palette": {
+        "wall": "#9db894",
+        "floor": "#4f4034",
+        "trim": "#c79a1a",
+        "ceiling": "#eaefea"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": 1.25,
+          "link": {
+            "room": "r15",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": 0.25,
+          "link": {
+            "room": "r22",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "S",
+          "offset": -1.5,
+          "link": null
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "desk_set",
+          "x": 1.125,
+          "z": -1.625,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#b09a7a", "#2f6f8f", "#b09a7a"]
+        },
+        {
+          "id": "f01",
+          "prefab": "bookshelf",
+          "x": -2.25,
+          "z": 0.5,
+          "rot": 1,
+          "variant": 1,
+          "colors": ["#c79a1a", "#8a7050"]
+        },
+        {
+          "id": "f02",
+          "prefab": "sig_red_armchair",
+          "x": 0,
+          "z": 0.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#b8336a", "#b8336a"],
+          "signature": true
+        },
+        {
+          "id": "f03",
+          "prefab": "rug_medium",
+          "x": -0.25,
+          "z": -1.5,
+          "rot": 1,
+          "variant": 1,
+          "colors": ["#b09a7a", "#5a3f2a"]
+        },
+        {
+          "id": "f04",
+          "prefab": "armchair",
+          "x": -1,
+          "z": -0.75,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#2f6f8f", "#2f6f8f"]
+        },
+        {
+          "id": "f05",
+          "prefab": "floor_lamp",
+          "x": -2.25,
+          "z": 2,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#8a7050", "#c79a1a"]
+        },
+        {
+          "id": "f06",
+          "prefab": "wall_clock",
+          "x": -2.375,
+          "z": -0.5,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#6a4a30", "#6a4a30"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": -2.25,
+          "y": 1.5,
+          "z": 2,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r15",
+      "type": "bathroom",
+      "label": "room.bathroom",
+      "width": 4,
+      "depth": 3.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#9bb9d9",
+        "floor": "#c9cfd2",
+        "trim": "#1fa39a",
+        "ceiling": "#f4fafa"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": -0.5,
+          "link": {
+            "room": "r20",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": 0.75,
+          "link": {
+            "room": "r06",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "W",
+          "offset": 0,
+          "link": {
+            "room": "r02",
+            "door": "d2"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "bathtub",
+          "x": 0.375,
+          "z": -1.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#b0c4c8", "#f5f7f8"]
+        },
+        {
+          "id": "f01",
+          "prefab": "toilet",
+          "x": -1.75,
+          "z": -1.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#e8e2d8"]
+        },
+        {
+          "id": "f02",
+          "prefab": "washbasin",
+          "x": -1.125,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#dfe9ec", "#e8e2d8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_large_globe",
+          "x": 0.375,
+          "z": 0.125,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#f2f2f2", "#e8a317"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "floor_lamp",
+          "x": 1.75,
+          "z": -1.5,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#e8e2d8", "#9fb8bc"]
+        },
+        {
+          "id": "f05",
+          "prefab": "laundry_basket",
+          "x": -1.75,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#b0c4c8"]
+        },
+        {
+          "id": "f06",
+          "prefab": "plant_small",
+          "x": 1.875,
+          "z": 1.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#e8e2d8", "#ffffff"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": 1.75,
+          "y": 1.5,
+          "z": -1.5,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r16",
+      "type": "kitchen",
+      "label": "room.kitchen",
+      "width": 5.5,
+      "depth": 5.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#afca9c",
+        "floor": "#a59a8a",
+        "trim": "#2b5fd9",
+        "ceiling": "#faf3e6"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "N",
+          "offset": 1.5,
+          "link": {
+            "room": "r10",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": 1.75,
+          "link": {
+            "room": "r09",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "S",
+          "offset": -1.5,
+          "link": null
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "counter_run",
+          "x": 2.375,
+          "z": -0.5,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#c8c2b4", "#dfe6ea", "#b5a58a"]
+        },
+        {
+          "id": "f01",
+          "prefab": "stove",
+          "x": -0.875,
+          "z": -2.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#2b5fd9", "#b5a58a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "fridge",
+          "x": -0.125,
+          "z": -2.375,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#e9e4da"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_painting",
+          "x": -1.375,
+          "z": -2.625,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#e8a317", "#138a8a"],
+          "signature": true,
+          "params": {
+            "pattern": "grid",
+            "seed": 9387
+          }
+        },
+        {
+          "id": "f04",
+          "prefab": "dining_set",
+          "x": -0.5,
+          "z": 0.25,
+          "rot": 2,
+          "variant": 1,
+          "colors": ["#6d8a7a", "#6d8a7a"]
+        },
+        {
+          "id": "f05",
+          "prefab": "floor_lamp",
+          "x": -2.5,
+          "z": -2.5,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#c8c2b4", "#b5a58a"]
+        },
+        {
+          "id": "f06",
+          "prefab": "bin",
+          "x": 2.625,
+          "z": -2.625,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#2b5fd9"]
+        },
+        {
+          "id": "f07",
+          "prefab": "plant_large",
+          "x": -2.5,
+          "z": 2.5,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#c8c2b4", "#f2efe8"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": -2.5,
+          "y": 1.5,
+          "z": -2.5,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r17",
+      "type": "living",
+      "label": "room.living",
+      "width": 7,
+      "depth": 8.5,
+      "height": 2.8,
+      "floor": "wood",
+      "palette": {
+        "wall": "#d9a9a8",
+        "floor": "#9b7752",
+        "trim": "#3d5fa8",
+        "ceiling": "#f6f0ec"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "W",
+          "offset": -1.25,
+          "link": {
+            "room": "r05",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "W",
+          "offset": 2.25,
+          "link": {
+            "room": "r05",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "E",
+          "offset": 2.25,
+          "link": {
+            "room": "r08",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "sofa_3seat",
+          "x": 2.625,
+          "z": -3.75,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#7a3f35", "#4a5b6e"]
+        },
+        {
+          "id": "f01",
+          "prefab": "tv_unit",
+          "x": -1.125,
+          "z": 4,
+          "rot": 2,
+          "variant": 1,
+          "colors": ["#3d5fa8", "#3d5fa8"]
+        },
+        {
+          "id": "f02",
+          "prefab": "coffee_table",
+          "x": 1.5,
+          "z": -2,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#3d5fa8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_giant_plant",
+          "x": -3.125,
+          "z": -3.875,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#b8336a", "#e0d020"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "bookshelf",
+          "x": 2,
+          "z": 4,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#7a3f35", "#6b4a2e"]
+        },
+        {
+          "id": "f05",
+          "prefab": "side_table",
+          "x": 1.5,
+          "z": -4,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#6b4a2e"]
+        },
+        {
+          "id": "f06",
+          "prefab": "painting",
+          "x": -1.875,
+          "z": 4.125,
+          "rot": 2,
+          "variant": 1,
+          "colors": ["#2f2f33", "#6b4a2e", "#3d5fa8"],
+          "params": {
+            "pattern": "waves",
+            "seed": 339
+          }
+        },
+        {
+          "id": "f07",
+          "prefab": "plant_small",
+          "x": -3.375,
+          "z": 4.125,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#a0754d", "#7a3f35"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r18",
+      "type": "study",
+      "label": "room.study",
+      "width": 5,
+      "depth": 5,
+      "height": 2.8,
+      "floor": "carpet",
+      "palette": {
+        "wall": "#dccda9",
+        "floor": "#6a5240",
+        "trim": "#2a6f9e",
+        "ceiling": "#f2eee6"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "N",
+          "offset": -0.75,
+          "link": {
+            "room": "r14",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": 1,
+          "link": {
+            "room": "r12",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "E",
+          "offset": -0.25,
+          "link": {
+            "room": "r04",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d3",
+          "wall": "W",
+          "offset": 0.25,
+          "link": null
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "desk_set",
+          "x": 0.875,
+          "z": 1.875,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#8a7050", "#222428", "#7d8389"]
+        },
+        {
+          "id": "f01",
+          "prefab": "bookshelf",
+          "x": 2.25,
+          "z": -1.5,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#4a5a4a", "#4a5a4a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "sig_aquarium",
+          "x": -1.875,
+          "z": 2.25,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#f2f2f2", "#e0d020"],
+          "signature": true
+        },
+        {
+          "id": "f03",
+          "prefab": "armchair",
+          "x": 0.5,
+          "z": -0.75,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#7d8389", "#222428"]
+        },
+        {
+          "id": "f04",
+          "prefab": "filing_cabinet",
+          "x": 0,
+          "z": 2.125,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#6a4a30"]
+        },
+        {
+          "id": "f05",
+          "prefab": "floor_lamp",
+          "x": 2.25,
+          "z": 2.25,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#4a5a4a", "#6a4a30"]
+        },
+        {
+          "id": "f06",
+          "prefab": "globe",
+          "x": -1,
+          "z": 1,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#5a3f2a", "#b09a7a"]
+        },
+        {
+          "id": "f07",
+          "prefab": "plant_large",
+          "x": 2.25,
+          "z": -2.25,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#5a3f2a", "#5a3f2a"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": 2.25,
+          "y": 1.5,
+          "z": 2.25,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r19",
+      "type": "bedroom",
+      "label": "room.bedroom",
+      "width": 6,
+      "depth": 6,
+      "height": 2.8,
+      "floor": "carpet",
+      "palette": {
+        "wall": "#99b1d7",
+        "floor": "#8b7d73",
+        "trim": "#e0b030",
+        "ceiling": "#f1f2f8"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "S",
+          "offset": -1.5,
+          "link": {
+            "room": "r05",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": 1.75,
+          "link": {
+            "room": "r05",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "N",
+          "offset": -1.75,
+          "link": {
+            "room": "r00",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d3",
+          "wall": "E",
+          "offset": -0.5,
+          "link": {
+            "room": "r00",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "bed_double",
+          "x": -2,
+          "z": -0.5,
+          "rot": 1,
+          "variant": 1,
+          "colors": ["#7a5c40", "#4f5a6a", "#e0b030"]
+        },
+        {
+          "id": "f01",
+          "prefab": "wardrobe",
+          "x": 0.25,
+          "z": -2.625,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#4f5a6a", "#4f5a6a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "nightstand",
+          "x": -2.75,
+          "z": -1.5,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#9a8fb0"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_grandfather_clock",
+          "x": 0.5,
+          "z": 2.75,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#b8336a", "#b8336a"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "side_table",
+          "x": -2.75,
+          "z": 0.5,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#e0b030"]
+        },
+        {
+          "id": "f05",
+          "prefab": "plant_small",
+          "x": -2.875,
+          "z": 2.875,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#4f5a6a", "#9a8fb0"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r20",
+      "type": "bathroom",
+      "label": "room.bathroom",
+      "width": 4,
+      "depth": 4,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#c4a6e0",
+        "floor": "#bfc3c4",
+        "trim": "#d2552a",
+        "ceiling": "#f2f3fa"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "E",
+          "offset": -0.25,
+          "link": {
+            "room": "r07",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": 0.75,
+          "link": {
+            "room": "r02",
+            "door": "d1"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "S",
+          "offset": 0.75,
+          "link": {
+            "room": "r22",
+            "door": "d1"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "shower",
+          "x": 1.5,
+          "z": 1.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#ffffff", "#d2552a"]
+        },
+        {
+          "id": "f01",
+          "prefab": "toilet",
+          "x": -1.75,
+          "z": 1.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#d2552a"]
+        },
+        {
+          "id": "f02",
+          "prefab": "washbasin",
+          "x": -1.75,
+          "z": -1.375,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#ffffff", "#b0c4c8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_red_armchair",
+          "x": -0.25,
+          "z": 0,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#c0262d", "#1f7a4a"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "floor_lamp",
+          "x": 1.75,
+          "z": -1.75,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#d2552a", "#f5f7f8"]
+        },
+        {
+          "id": "f05",
+          "prefab": "mirror_wall",
+          "x": -1.875,
+          "z": 1.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#d2552a"]
+        },
+        {
+          "id": "f06",
+          "prefab": "painting",
+          "x": -0.875,
+          "z": -1.875,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#e8e2d8", "#d0d6d8", "#e8e2d8"],
+          "params": {
+            "pattern": "grid",
+            "seed": 8224
+          }
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        },
+        {
+          "kind": "lamp",
+          "x": 1.75,
+          "y": 1.5,
+          "z": -1.75,
+          "color": "#ffd9a0",
+          "intensity": 0.8
+        }
+      ]
+    },
+    {
+      "id": "r21",
+      "type": "hallway",
+      "label": "room.hallway",
+      "width": 2.5,
+      "depth": 9,
+      "height": 2.8,
+      "floor": "wood",
+      "palette": {
+        "wall": "#dab062",
+        "floor": "#5a4a3a",
+        "trim": "#d4a017",
+        "ceiling": "#eef1ec"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "N",
+          "offset": 0.25,
+          "link": {
+            "room": "r15",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "E",
+          "offset": 2.5,
+          "link": null
+        },
+        {
+          "id": "d2",
+          "wall": "E",
+          "offset": -1,
+          "link": {
+            "room": "r15",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d3",
+          "wall": "E",
+          "offset": 0.75,
+          "link": {
+            "room": "r08",
+            "door": "d2"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "runner_rug",
+          "x": 0,
+          "z": -0.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#6e4f35", "#c0b098"]
+        },
+        {
+          "id": "f01",
+          "prefab": "coat_rack",
+          "x": -1,
+          "z": 0.5,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#8f6a48"]
+        },
+        {
+          "id": "f02",
+          "prefab": "sig_grandfather_clock",
+          "x": -1,
+          "z": 2,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#1f7a4a", "#7a2fa0"],
+          "signature": true
+        },
+        {
+          "id": "f03",
+          "prefab": "console_table",
+          "x": -1,
+          "z": 3.25,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#4a4440", "#c0b098"]
+        },
+        {
+          "id": "f04",
+          "prefab": "plant_large",
+          "x": -1,
+          "z": -4.25,
+          "rot": 0,
+          "variant": 0,
+          "colors": ["#6e4f35", "#8f6a48"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    },
+    {
+      "id": "r22",
+      "type": "kitchen",
+      "label": "room.kitchen",
+      "width": 6,
+      "depth": 5.5,
+      "height": 2.8,
+      "floor": "tile",
+      "palette": {
+        "wall": "#eedfb1",
+        "floor": "#b8b2a6",
+        "trim": "#2e8b57",
+        "ceiling": "#f7f5ec"
+      },
+      "doors": [
+        {
+          "id": "d0",
+          "wall": "E",
+          "offset": -1.25,
+          "link": {
+            "room": "r12",
+            "door": "d2"
+          }
+        },
+        {
+          "id": "d1",
+          "wall": "N",
+          "offset": -0.75,
+          "link": {
+            "room": "r16",
+            "door": "d0"
+          }
+        },
+        {
+          "id": "d2",
+          "wall": "E",
+          "offset": 0.75,
+          "link": {
+            "room": "r12",
+            "door": "d2"
+          }
+        }
+      ],
+      "furniture": [
+        {
+          "id": "f00",
+          "prefab": "counter_run",
+          "x": -2.625,
+          "z": -0.75,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#b5a58a", "#404448", "#dfe6ea"]
+        },
+        {
+          "id": "f01",
+          "prefab": "stove",
+          "x": -2.625,
+          "z": -2.125,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#e9e4da", "#e9e4da"]
+        },
+        {
+          "id": "f02",
+          "prefab": "fridge",
+          "x": -2.625,
+          "z": 0.625,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#f2efe8"]
+        },
+        {
+          "id": "f03",
+          "prefab": "sig_aquarium",
+          "x": 1.375,
+          "z": 2.5,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#7a2fa0", "#6e4220"],
+          "signature": true
+        },
+        {
+          "id": "f04",
+          "prefab": "dining_set",
+          "x": -0.5,
+          "z": -0.25,
+          "rot": 3,
+          "variant": 0,
+          "colors": ["#404448", "#404448"]
+        },
+        {
+          "id": "f05",
+          "prefab": "bin",
+          "x": -2.875,
+          "z": 2.625,
+          "rot": 2,
+          "variant": 0,
+          "colors": ["#2e8b57"]
+        },
+        {
+          "id": "f06",
+          "prefab": "painting",
+          "x": -2.375,
+          "z": -2.625,
+          "rot": 0,
+          "variant": 1,
+          "colors": ["#c8c2b4", "#a0754d", "#f2efe8"],
+          "params": {
+            "pattern": "stripes",
+            "seed": 7273
+          }
+        },
+        {
+          "id": "f07",
+          "prefab": "wall_clock",
+          "x": -2.875,
+          "z": -2,
+          "rot": 1,
+          "variant": 0,
+          "colors": ["#a0754d", "#b5a58a"]
+        }
+      ],
+      "lights": [
+        {
+          "kind": "ceiling",
+          "x": 0,
+          "y": 2.6,
+          "z": 0,
+          "color": "#fff2dd",
+          "intensity": 1
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "depth": {
+      "r00": 8,
+      "r01": 9,
+      "r02": 1,
+      "r03": 7,
+      "r04": 5,
+      "r05": 6,
+      "r06": 7,
+      "r07": 0,
+      "r08": 5,
+      "r09": 4,
+      "r10": 4,
+      "r11": 4,
+      "r12": 3,
+      "r13": 4,
+      "r14": 5,
+      "r15": 6,
+      "r16": 3,
+      "r17": 5,
+      "r18": 4,
+      "r19": 7,
+      "r20": 1,
+      "r21": 5,
+      "r22": 2
+    },
+    "spine": ["r07", "r02", "r22", "r12", "r13", "r17", "r05", "r03", "r00", "r01"],
+    "twinOf": {
+      "r00": null,
+      "r01": null,
+      "r02": null,
+      "r03": null,
+      "r04": "r03",
+      "r05": null,
+      "r06": "r05",
+      "r07": null,
+      "r08": null,
+      "r09": "r00",
+      "r10": null,
+      "r11": "r22",
+      "r12": null,
+      "r13": null,
+      "r14": null,
+      "r15": "r13",
+      "r16": null,
+      "r17": null,
+      "r18": null,
+      "r19": null,
+      "r20": null,
+      "r21": null,
+      "r22": null
+    },
+    "attempts": 1,
+    "metrics": {
+      "rooms": 23,
+      "doors": 75,
+      "links": 70,
+      "shortest": 9,
+      "asymmetricShare": 742,
+      "selfLinks": 2,
+      "sealedDoors": 5,
+      "longBackLinks": 5,
+      "twins": 5,
+      "misleadingDoors": 9,
+      "missingRequired": 0
+    },
+    "levelHash": "188bc1ea133a5b61a7141ba4a77f996f1197fbff656af20b9383b82e0085a089"
+  }
+}

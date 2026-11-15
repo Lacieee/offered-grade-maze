@@ -1,0 +1,141 @@
+{
+  "id": "r03",
+  "type": "bathroom",
+  "label": "room.bathroom",
+  "width": 3.5,
+  "depth": 3.5,
+  "height": 2.8,
+  "floor": "tile",
+  "palette": {
+    "wall": "#bfe0ea",
+    "floor": "#e4e8ea",
+    "trim": "#ffffff",
+    "ceiling": "#fafcfc"
+  },
+  "doors": [
+    {
+      "id": "d0",
+      "wall": "S",
+      "offset": 0,
+      "link": {
+        "room": "r01",
+        "door": "d2"
+      }
+    },
+    {
+      "id": "d1",
+      "wall": "N",
+      "offset": 0.5,
+      "link": {
+        "room": "r05",
+        "door": "d0"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "id": "f00",
+      "prefab": "bathtub",
+      "x": -1.375,
+      "z": -0.125,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#c23b6b", "#e8e2d8"]
+    },
+    {
+      "id": "f01",
+      "prefab": "toilet",
+      "x": 1.375,
+      "z": 0.25,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#c9d8dc"]
+    },
+    {
+      "id": "f02",
+      "prefab": "washbasin",
+      "x": -1.5,
+      "z": -1.375,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#9fb8bc", "#c23b6b"]
+    },
+    {
+      "id": "f03",
+      "prefab": "sig_grandfather_clock",
+      "x": 1.5,
+      "z": -1.5,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#c0262d", "#138a8a"],
+      "signature": true
+    },
+    {
+      "id": "f04",
+      "prefab": "floor_lamp",
+      "x": -1.5,
+      "z": 1.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#c9d8dc", "#ffffff"]
+    },
+    {
+      "id": "f05",
+      "prefab": "towel_rack",
+      "x": 1.625,
+      "z": 0.875,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#c23b6b", "#c23b6b"]
+    },
+    {
+      "id": "f06",
+      "prefab": "painting",
+      "x": -1.625,
+      "z": 0.875,
+      "rot": 1,
+      "variant": 1,
+      "colors": ["#f5f7f8", "#c23b6b", "#d0d6d8"],
+      "params": {
+        "pattern": "grid",
+        "seed": 6282
+      }
+    },
+    {
+      "id": "f07",
+      "prefab": "plant_large",
+      "x": 1.5,
+      "z": 1.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#f5f7f8", "#f5f7f8"]
+    },
+    {
+      "id": "f08",
+      "prefab": "wall_clock",
+      "x": -1,
+      "z": -1.625,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#ffffff", "#ffffff"]
+    }
+  ],
+  "lights": [
+    {
+      "kind": "ceiling",
+      "x": 0,
+      "y": 2.6,
+      "z": 0,
+      "color": "#f0f8ff",
+      "intensity": 1
+    },
+    {
+      "kind": "lamp",
+      "x": -1.5,
+      "y": 1.5,
+      "z": 1.5,
+      "color": "#ffd9a0",
+      "intensity": 0.8
+    }
+  ]
+}

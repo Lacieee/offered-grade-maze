@@ -1,0 +1,146 @@
+{
+  "id": "r04",
+  "type": "hallway",
+  "label": "room.hallway",
+  "width": 2.5,
+  "depth": 8,
+  "height": 2.8,
+  "floor": "wood",
+  "palette": {
+    "wall": "#e6d3b8",
+    "floor": "#9b6b43",
+    "trim": "#fbf7f0",
+    "ceiling": "#f5efe6"
+  },
+  "doors": [
+    {
+      "id": "d0",
+      "wall": "S",
+      "offset": 0,
+      "link": {
+        "room": "r00",
+        "door": "d1"
+      }
+    },
+    {
+      "id": "d1",
+      "wall": "N",
+      "offset": 0,
+      "link": {
+        "room": "r05",
+        "door": "d1"
+      }
+    },
+    {
+      "id": "d2",
+      "wall": "E",
+      "offset": 2,
+      "link": {
+        "room": "r01",
+        "door": "d1"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "id": "f00",
+      "prefab": "runner_rug",
+      "x": 0.5,
+      "z": 0.75,
+      "rot": 2,
+      "variant": 2,
+      "colors": ["#a08a70", "#3d2b1f"]
+    },
+    {
+      "id": "f01",
+      "prefab": "coat_rack",
+      "x": -1,
+      "z": -1.5,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#4a4440"]
+    },
+    {
+      "id": "f02",
+      "prefab": "sig_painting",
+      "x": -1.125,
+      "z": 3.375,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#6e4220", "#2456b8"],
+      "signature": true,
+      "params": {
+        "pattern": "grid",
+        "seed": 6895
+      }
+    },
+    {
+      "id": "f03",
+      "prefab": "shoe_cabinet",
+      "x": 1,
+      "z": -3.25,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#8f6a48", "#4a4440"]
+    },
+    {
+      "id": "f04",
+      "prefab": "console_table",
+      "x": 1,
+      "z": 0.75,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#6e4f35", "#3d2b1f"]
+    },
+    {
+      "id": "f05",
+      "prefab": "mirror_wall",
+      "x": -1.125,
+      "z": 0.625,
+      "rot": 1,
+      "variant": 0,
+      "colors": ["#2f3a40"]
+    },
+    {
+      "id": "f06",
+      "prefab": "umbrella_stand",
+      "x": -1.125,
+      "z": -3.875,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#8f6a48"]
+    },
+    {
+      "id": "f07",
+      "prefab": "painting",
+      "x": 1.125,
+      "z": 3.375,
+      "rot": 3,
+      "variant": 1,
+      "colors": ["#6e4f35", "#a08a70", "#6e4f35"],
+      "params": {
+        "pattern": "circles",
+        "seed": 3596
+      }
+    },
+    {
+      "id": "f08",
+      "prefab": "wall_clock",
+      "x": 1.125,
+      "z": -0.5,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#7a6a5a", "#c0b098"]
+    }
+  ],
+  "lights": [
+    {
+      "kind": "ceiling",
+      "x": 0,
+      "y": 2.6,
+      "z": 0,
+      "color": "#fff0d8",
+      "intensity": 1
+    }
+  ]
+}

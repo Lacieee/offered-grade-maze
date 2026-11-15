@@ -1,0 +1,29 @@
+{
+  "name": "@ogm/generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deterministic, server-only level generator: PRNG, topology, validator, metrics and the `pnpm gen` CLI.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run --coverage",
+    "test:prop": "vitest run --mode prop"
+  },
+  "dependencies": {
+    "@ogm/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4"
+  }
+}

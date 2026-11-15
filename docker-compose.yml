@@ -1,0 +1,38 @@
+# Run the whole product locally (CP07 T9, PD4): pnpm start:local, then http://localhost:8080
+# Reset data: docker compose down -v
+name: offered-grade-maze
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ogm
+      POSTGRES_PASSWORD: ogm
+      POSTGRES_DB: ogm
+    volumes:
+      - ogm-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ogm -d ogm']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  app:
+    image: offered-grade-maze:1.0.0
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://ogm:ogm@db:5432/ogm
+      LOG_LEVEL: info
+      DEBUG_VIEW_ENABLED: 'true'
+    ports:
+      - '8080:8080'
+
+volumes:
+  ogm-data:

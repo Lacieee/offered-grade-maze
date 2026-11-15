@@ -1,0 +1,128 @@
+{
+  "id": "r02",
+  "type": "bedroom",
+  "label": "room.bedroom",
+  "width": 5,
+  "depth": 5.5,
+  "height": 2.8,
+  "floor": "carpet",
+  "palette": {
+    "wall": "#c7c3e0",
+    "floor": "#6d6a8f",
+    "trim": "#efeef7",
+    "ceiling": "#f3f2f8"
+  },
+  "doors": [
+    {
+      "id": "d0",
+      "wall": "S",
+      "offset": 0,
+      "link": {
+        "room": "r03",
+        "door": "d0"
+      }
+    },
+    {
+      "id": "d1",
+      "wall": "E",
+      "offset": -1,
+      "link": {
+        "room": "r02",
+        "door": "d0"
+      }
+    }
+  ],
+  "furniture": [
+    {
+      "id": "f00",
+      "prefab": "bed_double",
+      "x": -1.75,
+      "z": -1.75,
+      "rot": 0,
+      "variant": 1,
+      "colors": ["#9a8fb0", "#9a8fb0", "#e8e2d4"]
+    },
+    {
+      "id": "f01",
+      "prefab": "wardrobe",
+      "x": 1.5,
+      "z": -2.375,
+      "rot": 0,
+      "variant": 1,
+      "colors": ["#e8e2d4", "#e8e2d4"]
+    },
+    {
+      "id": "f02",
+      "prefab": "nightstand",
+      "x": -0.75,
+      "z": -2.5,
+      "rot": 0,
+      "variant": 0,
+      "colors": ["#5e4630"]
+    },
+    {
+      "id": "f03",
+      "prefab": "sig_grandfather_clock",
+      "x": 2.25,
+      "z": 1.25,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#1f7a4a", "#f2f2f2"],
+      "signature": true
+    },
+    {
+      "id": "f04",
+      "prefab": "floor_lamp",
+      "x": -2.25,
+      "z": 2.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#c4a99a", "#9a8fb0"]
+    },
+    {
+      "id": "f05",
+      "prefab": "side_table",
+      "x": -1.25,
+      "z": 2.5,
+      "rot": 2,
+      "variant": 0,
+      "colors": ["#9a8fb0"]
+    },
+    {
+      "id": "f06",
+      "prefab": "mirror_standing",
+      "x": 2.375,
+      "z": 1.75,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#5e4630"]
+    },
+    {
+      "id": "f07",
+      "prefab": "plant_large",
+      "x": 2.25,
+      "z": 2.5,
+      "rot": 3,
+      "variant": 0,
+      "colors": ["#c4a99a", "#4f5a6a"]
+    }
+  ],
+  "lights": [
+    {
+      "kind": "ceiling",
+      "x": 0,
+      "y": 2.6,
+      "z": 0,
+      "color": "#ffe9d2",
+      "intensity": 1
+    },
+    {
+      "kind": "lamp",
+      "x": -2.25,
+      "y": 1.5,
+      "z": 2.5,
+      "color": "#ffd9a0",
+      "intensity": 0.8
+    }
+  ]
+}

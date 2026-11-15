@@ -1,0 +1,125 @@
+{
+  "generatorVersion": 1,
+  "seeds": [
+    {
+      "seed": "E1-0000-000H",
+      "levelHash": "753dacfc731422d95666fe6a172a740d28a0b3fe64ad5d2291df505040a1b432"
+    },
+    {
+      "seed": "E1-0000-YGJM",
+      "levelHash": "1cdbe120fdca99d380621de9f162258750ba12732ae548ffcc8e1bc58e9b17a6"
+    },
+    {
+      "seed": "E1-0001-X14Q",
+      "levelHash": "79dfd17cecae8470223e8d81ec05fa665519ae52318b62c79ef6c04f4da6d65b"
+    },
+    {
+      "seed": "E1-0002-VHPT",
+      "levelHash": "cbc9c76744dbdea3e3107b915758338ac2456825d55e9b92f0490dc48503e636"
+    },
+    {
+      "seed": "E1-0003-T28X",
+      "levelHash": "cb9546e6729eee60f385638f782514ce79ccf059fd06fd0df10305e255b73313"
+    },
+    {
+      "seed": "E1-0004-RJV0",
+      "levelHash": "ff57c1a677b6d19ec8c1e4841c4c85a6c1e5d37a10a6b4ae6ec3a68dd07044da"
+    },
+    {
+      "seed": "E1-0005-Q3D3",
+      "levelHash": "d7770a26cda416c7eb7db4f927598a5caf7d9b6aee4d6caf16120610785bad9e"
+    },
+    {
+      "seed": "E1-0006-NKZ6",
+      "levelHash": "0e82d3fa60f06f3432bb1e6bdad106ca76f5cb5db4ca654a6eb947b5a97fdf49"
+    },
+    {
+      "seed": "E1-0007-M4H9",
+      "levelHash": "8149a82d790121cc594b2486b936938120fbe5fc8012c179cb40bd2f5578d75c"
+    },
+    {
+      "seed": "E1-0008-JN3C",
+      "levelHash": "cdeb03fb9ff43b108e69578536ed61bb71db4d89a6996c2367e2e9b57951a911"
+    },
+    {
+      "seed": "M1-0000-000H",
+      "levelHash": "36a34b88ed8a012e603e1ed1644490c6eb5102a9d09c91797fd58a6a76963a35"
+    },
+    {
+      "seed": "M1-0000-YGJM",
+      "levelHash": "28b0fe9835c811ea4823d3615da2e4c85664b1a7e5e815daf4f85c9656289ffe"
+    },
+    {
+      "seed": "M1-0001-X14Q",
+      "levelHash": "6a41e9acc4caf88f291c113b88b61ae6614e77debf11478804e4d72937f565a4"
+    },
+    {
+      "seed": "M1-0002-VHPT",
+      "levelHash": "21f95e7fb5c983cdd50790c136bdfc5a75adb034a7a2741c778f4a08725f80f2"
+    },
+    {
+      "seed": "M1-0003-T28X",
+      "levelHash": "c9499b9da2e52ef6a73595741f511a6ee702c060e396e04e553cb15595beb222"
+    },
+    {
+      "seed": "M1-0004-RJV0",
+      "levelHash": "c4e0a7243dad71b30fc187b88293c3031669c36fdf1c561bd40c5252d0082262"
+    },
+    {
+      "seed": "M1-0005-Q3D3",
+      "levelHash": "21d61d2f3a0ab9f518bb4ddac6d1f36ad129a2a48f7c4ba3307b94a61b9bb263"
+    },
+    {
+      "seed": "M1-0006-NKZ6",
+      "levelHash": "cda4668d38867047716c7a3b22f4ae5d8fe1cc55862bb7687a78c493133440bf"
+    },
+    {
+      "seed": "M1-0007-M4H9",
+      "levelHash": "684293355bd1ac5dbd6063dab6821a2669864f14699cd009021c0180af3dead3"
+    },
+    {
+      "seed": "M1-0008-JN3C",
+      "levelHash": "f2892545958fab436c3d3a4ba0960785262f93df4868ed27469177a8cfa81742"
+    },
+    {
+      "seed": "H1-0000-000H",
+      "levelHash": "708141719406477c687f26e14826d933335676b60f35538ab8815c1b3e592702"
+    },
+    {
+      "seed": "H1-0000-YGJM",
+      "levelHash": "b78ac826eb3c9c5c91b7eded946193691caa01eed56d767fc01849213712426e"
+    },
+    {
+      "seed": "H1-0001-X14Q",
+      "levelHash": "4f88af79ee474d1bdac986e1aa19272890c5ed695a0c31d9b3b883e31958b9da"
+    },
+    {
+      "seed": "H1-0002-VHPT",
+      "levelHash": "20cee8ec2d8aff174c69e82e790060ef2f536dda9b0f5ecc3857e76132904b34"
+    },
+    {
+      "seed": "H1-0003-T28X",
+      "levelHash": "97b28014b6182ef4d10b2cce2adf82b813e4e8626d328b5b4f18c38dbe4c51b8"
+    },
+    {
+      "seed": "H1-0004-RJV0",
+      "levelHash": "55b8088f35074834c0700af85462b09a0da7d863d80728d7573fd64c827a7060"
+    },
+    {
+      "seed": "H1-0005-Q3D3",
+      "levelHash": "5868af7de2416b6e1e9d0281893b8db7a909920db757067401afba0bf0084357"
+    },
+    {
+      "seed": "H1-0006-NKZ6",
+      "levelHash": "002e4796c128ac3b4eeb811fe8cffa6d5aea22815d12f93a82230335ce217ee0"
+    },
+    {
+      "seed": "H1-0007-M4H9",
+      "levelHash": "31afa40dbb71bfd97f876d39944b1be3f1d6e620f158875f07795a3b5c370f55"
+    },
+    {
+      "seed": "H1-0008-JN3C",
+      "levelHash": "1f2460a0c3c38c2de76d3e284a6bafd2332dc677826851357a7a1e7bca48a2b6"
+    }
+  ]
+}

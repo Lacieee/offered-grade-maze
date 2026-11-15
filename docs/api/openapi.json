@@ -1,0 +1,2457 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Offered Grade Maze API",
+    "version": "1.0.0",
+    "description": "Game sessions, room streaming, door transitions and results (CP07)."
+  },
+  "components": {
+    "schemas": {}
+  },
+  "paths": {
+    "/api/v1/games": {
+      "post": {
+        "summary": "Create a game from a random or typed seed",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "random"
+                        ]
+                      },
+                      "difficulty": {
+                        "type": "string",
+                        "enum": [
+                          "easy",
+                          "medium",
+                          "hard"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "difficulty"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "seed"
+                        ]
+                      },
+                      "seed": {
+                        "type": "string",
+                        "maxLength": 64
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "seed"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gameId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "seed": {
+                      "type": "string",
+                      "pattern": "^[EMH][1-9]-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$"
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "enum": [
+                        "easy",
+                        "medium",
+                        "hard"
+                      ]
+                    },
+                    "generatorVersion": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "startRoom": {
+                      "type": "string",
+                      "pattern": "^r\\d{2}$"
+                    },
+                    "spawn": {
+                      "type": "object",
+                      "properties": {
+                        "x": {
+                          "type": "number"
+                        },
+                        "z": {
+                          "type": "number"
+                        },
+                        "yaw": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "x",
+                        "z",
+                        "yaw"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "rooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^r\\d{2}$"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "living",
+                              "kitchen",
+                              "bedroom",
+                              "bathroom",
+                              "hallway",
+                              "study"
+                            ]
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "width": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "depth": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "height": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "floor": {
+                            "type": "string",
+                            "enum": [
+                              "wood",
+                              "tile",
+                              "carpet"
+                            ]
+                          },
+                          "palette": {
+                            "type": "object",
+                            "properties": {
+                              "wall": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "floor": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "trim": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "ceiling": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              }
+                            },
+                            "required": [
+                              "wall",
+                              "floor",
+                              "trim",
+                              "ceiling"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "doors": {
+                            "minItems": 1,
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^d\\d$"
+                                },
+                                "wall": {
+                                  "type": "string",
+                                  "enum": [
+                                    "N",
+                                    "E",
+                                    "S",
+                                    "W"
+                                  ]
+                                },
+                                "offset": {
+                                  "type": "number"
+                                },
+                                "link": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "room": {
+                                          "type": "string",
+                                          "pattern": "^r\\d{2}$"
+                                        },
+                                        "door": {
+                                          "type": "string",
+                                          "pattern": "^d\\d$"
+                                        }
+                                      },
+                                      "required": [
+                                        "room",
+                                        "door"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "wall",
+                                "offset",
+                                "link"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "furniture": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^f\\d{2}$"
+                                },
+                                "prefab": {
+                                  "type": "string",
+                                  "enum": [
+                                    "sofa_3seat",
+                                    "coffee_table",
+                                    "tv_unit",
+                                    "armchair",
+                                    "bookshelf",
+                                    "floor_lamp",
+                                    "side_table",
+                                    "rug_large",
+                                    "counter_run",
+                                    "stove",
+                                    "fridge",
+                                    "dining_set",
+                                    "wall_cabinet",
+                                    "bin",
+                                    "bed_double",
+                                    "wardrobe",
+                                    "nightstand",
+                                    "dresser",
+                                    "mirror_standing",
+                                    "rug_medium",
+                                    "bathtub",
+                                    "shower",
+                                    "toilet",
+                                    "washbasin",
+                                    "towel_rack",
+                                    "laundry_basket",
+                                    "mirror_wall",
+                                    "runner_rug",
+                                    "coat_rack",
+                                    "shoe_cabinet",
+                                    "console_table",
+                                    "umbrella_stand",
+                                    "desk_set",
+                                    "filing_cabinet",
+                                    "globe",
+                                    "painting",
+                                    "wall_clock",
+                                    "plant_small",
+                                    "plant_large",
+                                    "sig_painting",
+                                    "sig_grandfather_clock",
+                                    "sig_red_armchair",
+                                    "sig_aquarium",
+                                    "sig_giant_plant",
+                                    "sig_large_globe"
+                                  ]
+                                },
+                                "x": {
+                                  "type": "number"
+                                },
+                                "z": {
+                                  "type": "number"
+                                },
+                                "rot": {
+                                  "type": "number",
+                                  "enum": [
+                                    0,
+                                    1,
+                                    2,
+                                    3
+                                  ]
+                                },
+                                "variant": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                },
+                                "colors": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-f]{6}$"
+                                  }
+                                },
+                                "signature": {
+                                  "type": "boolean",
+                                  "enum": [
+                                    true
+                                  ]
+                                },
+                                "params": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": [
+                                      "number",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "prefab",
+                                "x",
+                                "z",
+                                "rot",
+                                "variant",
+                                "colors"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "lights": {
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "ceiling",
+                                    "lamp",
+                                    "goal"
+                                  ]
+                                },
+                                "x": {
+                                  "type": "number"
+                                },
+                                "y": {
+                                  "type": "number"
+                                },
+                                "z": {
+                                  "type": "number"
+                                },
+                                "color": {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-f]{6}$"
+                                },
+                                "intensity": {
+                                  "type": "number",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "x",
+                                "y",
+                                "z",
+                                "color",
+                                "intensity"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "goal": {
+                            "type": "object",
+                            "properties": {
+                              "x": {
+                                "type": "number"
+                              },
+                              "y": {
+                                "type": "number"
+                              },
+                              "z": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "x",
+                              "y",
+                              "z"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "label",
+                          "width",
+                          "depth",
+                          "height",
+                          "floor",
+                          "palette",
+                          "doors",
+                          "furniture",
+                          "lights"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "gameId",
+                    "seed",
+                    "difficulty",
+                    "generatorVersion",
+                    "startRoom",
+                    "spawn",
+                    "rooms"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{id}/start": {
+      "post": {
+        "summary": "Start the clock (idempotent)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "startedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "startedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{id}/transitions": {
+      "post": {
+        "summary": "Report one door crossing",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "seq": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  "from": {
+                    "type": "string",
+                    "pattern": "^r\\d{2}$"
+                  },
+                  "door": {
+                    "type": "string",
+                    "pattern": "^d\\d$"
+                  },
+                  "clientElapsedMs": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "seq",
+                  "from",
+                  "door",
+                  "clientElapsedMs"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "seq": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "current": {
+                      "type": "string",
+                      "pattern": "^r\\d{2}$"
+                    },
+                    "rooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^r\\d{2}$"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "living",
+                              "kitchen",
+                              "bedroom",
+                              "bathroom",
+                              "hallway",
+                              "study"
+                            ]
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "width": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "depth": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "height": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "floor": {
+                            "type": "string",
+                            "enum": [
+                              "wood",
+                              "tile",
+                              "carpet"
+                            ]
+                          },
+                          "palette": {
+                            "type": "object",
+                            "properties": {
+                              "wall": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "floor": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "trim": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "ceiling": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              }
+                            },
+                            "required": [
+                              "wall",
+                              "floor",
+                              "trim",
+                              "ceiling"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "doors": {
+                            "minItems": 1,
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^d\\d$"
+                                },
+                                "wall": {
+                                  "type": "string",
+                                  "enum": [
+                                    "N",
+                                    "E",
+                                    "S",
+                                    "W"
+                                  ]
+                                },
+                                "offset": {
+                                  "type": "number"
+                                },
+                                "link": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "room": {
+                                          "type": "string",
+                                          "pattern": "^r\\d{2}$"
+                                        },
+                                        "door": {
+                                          "type": "string",
+                                          "pattern": "^d\\d$"
+                                        }
+                                      },
+                                      "required": [
+                                        "room",
+                                        "door"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "wall",
+                                "offset",
+                                "link"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "furniture": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^f\\d{2}$"
+                                },
+                                "prefab": {
+                                  "type": "string",
+                                  "enum": [
+                                    "sofa_3seat",
+                                    "coffee_table",
+                                    "tv_unit",
+                                    "armchair",
+                                    "bookshelf",
+                                    "floor_lamp",
+                                    "side_table",
+                                    "rug_large",
+                                    "counter_run",
+                                    "stove",
+                                    "fridge",
+                                    "dining_set",
+                                    "wall_cabinet",
+                                    "bin",
+                                    "bed_double",
+                                    "wardrobe",
+                                    "nightstand",
+                                    "dresser",
+                                    "mirror_standing",
+                                    "rug_medium",
+                                    "bathtub",
+                                    "shower",
+                                    "toilet",
+                                    "washbasin",
+                                    "towel_rack",
+                                    "laundry_basket",
+                                    "mirror_wall",
+                                    "runner_rug",
+                                    "coat_rack",
+                                    "shoe_cabinet",
+                                    "console_table",
+                                    "umbrella_stand",
+                                    "desk_set",
+                                    "filing_cabinet",
+                                    "globe",
+                                    "painting",
+                                    "wall_clock",
+                                    "plant_small",
+                                    "plant_large",
+                                    "sig_painting",
+                                    "sig_grandfather_clock",
+                                    "sig_red_armchair",
+                                    "sig_aquarium",
+                                    "sig_giant_plant",
+                                    "sig_large_globe"
+                                  ]
+                                },
+                                "x": {
+                                  "type": "number"
+                                },
+                                "z": {
+                                  "type": "number"
+                                },
+                                "rot": {
+                                  "type": "number",
+                                  "enum": [
+                                    0,
+                                    1,
+                                    2,
+                                    3
+                                  ]
+                                },
+                                "variant": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                },
+                                "colors": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-f]{6}$"
+                                  }
+                                },
+                                "signature": {
+                                  "type": "boolean",
+                                  "enum": [
+                                    true
+                                  ]
+                                },
+                                "params": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": [
+                                      "number",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "prefab",
+                                "x",
+                                "z",
+                                "rot",
+                                "variant",
+                                "colors"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "lights": {
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "ceiling",
+                                    "lamp",
+                                    "goal"
+                                  ]
+                                },
+                                "x": {
+                                  "type": "number"
+                                },
+                                "y": {
+                                  "type": "number"
+                                },
+                                "z": {
+                                  "type": "number"
+                                },
+                                "color": {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-f]{6}$"
+                                },
+                                "intensity": {
+                                  "type": "number",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "x",
+                                "y",
+                                "z",
+                                "color",
+                                "intensity"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "goal": {
+                            "type": "object",
+                            "properties": {
+                              "x": {
+                                "type": "number"
+                              },
+                              "y": {
+                                "type": "number"
+                              },
+                              "z": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "x",
+                              "y",
+                              "z"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "label",
+                          "width",
+                          "depth",
+                          "height",
+                          "floor",
+                          "palette",
+                          "doors",
+                          "furniture",
+                          "lights"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "seq",
+                    "current",
+                    "rooms"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "current": {
+                          "type": "string",
+                          "pattern": "^r\\d{2}$"
+                        },
+                        "lastSeq": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "error",
+                        "current",
+                        "lastSeq"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{id}/complete": {
+      "post": {
+        "summary": "Settle the official time and store the result (idempotent)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lastSeq": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "clientElapsedMs": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "debugUsed": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "lastSeq",
+                  "clientElapsedMs",
+                  "debugUsed"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "seed": {
+                          "type": "string",
+                          "pattern": "^[EMH][1-9]-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$"
+                        },
+                        "difficulty": {
+                          "type": "string",
+                          "enum": [
+                            "easy",
+                            "medium",
+                            "hard"
+                          ]
+                        },
+                        "completionMs": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "timeSource": {
+                          "type": "string",
+                          "enum": [
+                            "client",
+                            "server"
+                          ]
+                        },
+                        "completedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
+                        "debugUsed": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "seed",
+                        "difficulty",
+                        "completionMs",
+                        "timeSource",
+                        "completedAt",
+                        "debugUsed"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "result"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{id}/rooms": {
+      "get": {
+        "summary": "Rooms already sent or within reach of the current room",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "ids",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^r\\d{2}$"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "living",
+                              "kitchen",
+                              "bedroom",
+                              "bathroom",
+                              "hallway",
+                              "study"
+                            ]
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "width": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "depth": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "height": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "floor": {
+                            "type": "string",
+                            "enum": [
+                              "wood",
+                              "tile",
+                              "carpet"
+                            ]
+                          },
+                          "palette": {
+                            "type": "object",
+                            "properties": {
+                              "wall": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "floor": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "trim": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              },
+                              "ceiling": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-f]{6}$"
+                              }
+                            },
+                            "required": [
+                              "wall",
+                              "floor",
+                              "trim",
+                              "ceiling"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "doors": {
+                            "minItems": 1,
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^d\\d$"
+                                },
+                                "wall": {
+                                  "type": "string",
+                                  "enum": [
+                                    "N",
+                                    "E",
+                                    "S",
+                                    "W"
+                                  ]
+                                },
+                                "offset": {
+                                  "type": "number"
+                                },
+                                "link": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "room": {
+                                          "type": "string",
+                                          "pattern": "^r\\d{2}$"
+                                        },
+                                        "door": {
+                                          "type": "string",
+                                          "pattern": "^d\\d$"
+                                        }
+                                      },
+                                      "required": [
+                                        "room",
+                                        "door"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "wall",
+                                "offset",
+                                "link"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "furniture": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^f\\d{2}$"
+                                },
+                                "prefab": {
+                                  "type": "string",
+                                  "enum": [
+                                    "sofa_3seat",
+                                    "coffee_table",
+                                    "tv_unit",
+                                    "armchair",
+                                    "bookshelf",
+                                    "floor_lamp",
+                                    "side_table",
+                                    "rug_large",
+                                    "counter_run",
+                                    "stove",
+                                    "fridge",
+                                    "dining_set",
+                                    "wall_cabinet",
+                                    "bin",
+                                    "bed_double",
+                                    "wardrobe",
+                                    "nightstand",
+                                    "dresser",
+                                    "mirror_standing",
+                                    "rug_medium",
+                                    "bathtub",
+                                    "shower",
+                                    "toilet",
+                                    "washbasin",
+                                    "towel_rack",
+                                    "laundry_basket",
+                                    "mirror_wall",
+                                    "runner_rug",
+                                    "coat_rack",
+                                    "shoe_cabinet",
+                                    "console_table",
+                                    "umbrella_stand",
+                                    "desk_set",
+                                    "filing_cabinet",
+                                    "globe",
+                                    "painting",
+                                    "wall_clock",
+                                    "plant_small",
+                                    "plant_large",
+                                    "sig_painting",
+                                    "sig_grandfather_clock",
+                                    "sig_red_armchair",
+                                    "sig_aquarium",
+                                    "sig_giant_plant",
+                                    "sig_large_globe"
+                                  ]
+                                },
+                                "x": {
+                                  "type": "number"
+                                },
+                                "z": {
+                                  "type": "number"
+                                },
+                                "rot": {
+                                  "type": "number",
+                                  "enum": [
+                                    0,
+                                    1,
+                                    2,
+                                    3
+                                  ]
+                                },
+                                "variant": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991
+                                },
+                                "colors": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-f]{6}$"
+                                  }
+                                },
+                                "signature": {
+                                  "type": "boolean",
+                                  "enum": [
+                                    true
+                                  ]
+                                },
+                                "params": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string"
+                                  },
+                                  "additionalProperties": {
+                                    "type": [
+                                      "number",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "prefab",
+                                "x",
+                                "z",
+                                "rot",
+                                "variant",
+                                "colors"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "lights": {
+                            "maxItems": 4,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "ceiling",
+                                    "lamp",
+                                    "goal"
+                                  ]
+                                },
+                                "x": {
+                                  "type": "number"
+                                },
+                                "y": {
+                                  "type": "number"
+                                },
+                                "z": {
+                                  "type": "number"
+                                },
+                                "color": {
+                                  "type": "string",
+                                  "pattern": "^#[0-9a-f]{6}$"
+                                },
+                                "intensity": {
+                                  "type": "number",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "x",
+                                "y",
+                                "z",
+                                "color",
+                                "intensity"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "goal": {
+                            "type": "object",
+                            "properties": {
+                              "x": {
+                                "type": "number"
+                              },
+                              "y": {
+                                "type": "number"
+                              },
+                              "z": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "x",
+                              "y",
+                              "z"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "label",
+                          "width",
+                          "depth",
+                          "height",
+                          "floor",
+                          "palette",
+                          "doors",
+                          "furniture",
+                          "lights"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "rooms"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/games/{id}/debug": {
+      "get": {
+        "summary": "Debug view: the whole house (marks the game debug_used)",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "seed": {
+                      "type": "string",
+                      "pattern": "^[EMH][1-9]-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$"
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "enum": [
+                        "easy",
+                        "medium",
+                        "hard"
+                      ]
+                    },
+                    "generatorVersion": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "levelHash": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "start": {
+                      "type": "string",
+                      "pattern": "^r\\d{2}$"
+                    },
+                    "goal": {
+                      "type": "string",
+                      "pattern": "^r\\d{2}$"
+                    },
+                    "current": {
+                      "type": "string",
+                      "pattern": "^r\\d{2}$"
+                    },
+                    "rooms": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^r\\d{2}$"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "living",
+                              "kitchen",
+                              "bedroom",
+                              "bathroom",
+                              "hallway",
+                              "study"
+                            ]
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "depth": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "onSpine": {
+                            "type": "boolean"
+                          },
+                          "twinOf": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^r\\d{2}$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "doors": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^d\\d$"
+                                },
+                                "wall": {
+                                  "type": "string",
+                                  "enum": [
+                                    "N",
+                                    "E",
+                                    "S",
+                                    "W"
+                                  ]
+                                },
+                                "link": {
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "room": {
+                                          "type": "string",
+                                          "pattern": "^r\\d{2}$"
+                                        },
+                                        "door": {
+                                          "type": "string",
+                                          "pattern": "^d\\d$"
+                                        }
+                                      },
+                                      "required": [
+                                        "room",
+                                        "door"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "wall",
+                                "link"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "type",
+                          "label",
+                          "depth",
+                          "onSpine",
+                          "twinOf",
+                          "doors"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "metrics": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "pathFromStart": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "room": {
+                            "type": "string",
+                            "pattern": "^r\\d{2}$"
+                          },
+                          "arriveDoor": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^d\\d$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "exitDoor": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^d\\d$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "room",
+                          "arriveDoor",
+                          "exitDoor"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pathFromCurrent": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "room": {
+                            "type": "string",
+                            "pattern": "^r\\d{2}$"
+                          },
+                          "arriveDoor": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^d\\d$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "exitDoor": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^d\\d$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "room",
+                          "arriveDoor",
+                          "exitDoor"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "seed",
+                    "difficulty",
+                    "generatorVersion",
+                    "levelHash",
+                    "start",
+                    "goal",
+                    "current",
+                    "rooms",
+                    "metrics",
+                    "pathFromStart",
+                    "pathFromCurrent"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/client-errors": {
+      "post": {
+        "summary": "Report a client-side error (logged at warn level)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  },
+                  "stack": {
+                    "type": "string",
+                    "maxLength": 6000
+                  },
+                  "context": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
+                  }
+                },
+                "required": [
+                  "message"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Default Response"
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "summary": "Liveness and database status",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "db": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "down"
+                      ]
+                    },
+                    "version": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "db",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
